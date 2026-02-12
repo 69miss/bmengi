@@ -93,11 +93,10 @@ namespace DoboEngineer.Pump
             StatusMsg = "已断开";
         }
         DateTime lastFlushTime;
-        // --- 核心：智能轮询循环 ---
         private async Task PollingLoop(CancellationToken token)
         {
             using var timer = new PeriodicTimer(TimeSpan.FromMilliseconds(500));
-
+            int num = 0;
             while (await timer.WaitForNextTickAsync(token))
             {
                 if (!_client.IsConnected || Items.Count == 0) continue;
@@ -144,6 +143,9 @@ namespace DoboEngineer.Pump
                             }
                         }
                     });
+                    var msg = (short)(num++ % 2);
+                    WriteRegisterAsync(40001, msg);
+                    Console.WriteLine(msg );
                 }
                 catch (Exception ex)
                 {
