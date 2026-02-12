@@ -1,0 +1,84 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:doboengineer="using:DoboEngineer"
+        xmlns:vm="using:DoboEngineer.Pump"
+        x:Name="RootWindow" 
+        x:DataType="vm:CmdTestVm"
+        x:Class="DoboEngineer.Pump.CmdTest"
+        Title="Modbus监控" Width="900" Height="700"
+        Background="#F0F0F0">
+
+    <Design.DataContext>
+        <vm:CmdTestVm/>
+    </Design.DataContext>
+
+    <Grid RowDefinitions="Auto,Auto, *">
+        <!-- 顶部工具栏 , Converter={x:Static ObjectConverters.IsNull}-->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="10" Spacing="10" Background="White" >
+            <TextBlock Text="IP:" VerticalAlignment="Center"/>
+            <TextBox Text="{Binding IpAddress}" Width="120"/>
+            <TextBox Text="{Binding Prot}" Width="20"/>
+            <Button Content="断开"  IsVisible="{Binding IsConnected}" Command="{Binding ConnectCommand}"></Button>
+            <Button Content="连接"  IsVisible="{Binding !IsConnected}" Command="{Binding ConnectCommand}"></Button>
+
+               <!-- <Panel>
+                    <TextBlock Text="连接" IsVisible="{Binding !IsConnected}"/>
+                    <TextBlock Text="断开" IsVisible="{Binding IsConnected}"/>
+                </Panel>-->
+            <TextBlock Text="{Binding StatusMsg}" Width="800" VerticalAlignment="Center" Foreground="Gray"/>
+        </StackPanel>
+        <SelectableTextBlock Grid.Row="1" Text="{Binding CmdRemark}"></SelectableTextBlock>
+        <!-- 动态检测点列表 -->
+        <ScrollViewer Grid.Row="2" Padding="0">
+            <ItemsControl ItemsSource="{Binding Items}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <!-- 自动换行布局，模拟网格效果 -->
+                        <WrapPanel ItemWidth="220" ItemHeight="140" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="vm:DataItem">
+                        <Border Background="White" CornerRadius="4" Margin="5" 
+                                BoxShadow="0 2 4 0 #20000000">
+                            <Grid RowDefinitions="Auto, Auto, *, Auto" Margin="10">
+                                
+                                <!-- 标题行 -->
+                                <StackPanel Orientation="Horizontal" Grid.Row="0">
+                                    <Border Background="#3BB0A8" CornerRadius="3" Padding="4,1" Margin="0,0,5,0">
+                                        <TextBlock Text="{Binding Address}" Foreground="White" FontSize="10"/>
+                                    </Border>
+                                    <TextBlock Text="{Binding Name}" FontWeight="Bold" TextTrimming="CharacterEllipsis"/>
+                                </StackPanel>
+
+                                <!-- 当前值显示 (大号字体) -->
+                                <StackPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Center" Margin="0,10">
+                                    <TextBlock Text="{Binding ValueFmt}"  FontSize="24" Foreground="#333"/>
+                                    <TextBlock Text="{Binding Remark}" FontSize="12" Foreground="Gray" VerticalAlignment="Bottom" Margin="4,0,0,4"/>
+                                </StackPanel>
+
+                                <!-- 可写区域控制 -->
+                                <!-- 如果 CanWrite=False，这部分隐藏或显示只读信息 -->
+                                <Grid Grid.Row="3" IsVisible="{Binding CanWrite}">
+                                    <Grid ColumnDefinitions="*, Auto">
+                                        <TextBox Grid.Column="0" Text="{Binding EditValFmt}" Watermark="设定值" Height="28"/>
+                                        <Button Grid.Column="1" Content="写入" Command="{Binding #RootWindow.DataContext.WriteCommand}" 
+                                                CommandParameter="{Binding}"
+                                                Margin="5,0,0,0" Background="#DDD"/>
+                                    </Grid>
+                                </Grid>
+                                
+                                <!-- 只读提示 -->
+                               <!-- <TextBlock Grid.Row="3" Text="只读参数" Foreground="#CCC" 
+                                           HorizontalAlignment="Center" FontStyle="Italic"
+                                           IsVisible="{Binding !CanWrite}"/>-->
+                                
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+    </Grid>
+</Window>

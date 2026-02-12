@@ -1,0 +1,28 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:DoboEngineer.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="DoboEngineer.Views.MainWindow"
+        
+        Icon="/Assets/avalonia-logo.ico"
+         DataContext="{Binding RelativeSource={RelativeSource Self}}"
+        Title="DoboEngineer">
+
+    <!--<Design.DataContext> x:DataType="vm:MainWindowViewModel"
+        --><!-- This only sets the DataContext for the previewer in an IDE,
+             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) --><!--
+        <vm:MainWindowViewModel/>
+    </Design.DataContext>-->
+    <Grid Margin="20" ColumnDefinitions="*, Auto" RowDefinitions="Auto, *">
+        <StackPanel HorizontalAlignment="Left"  Orientation="Horizontal">
+			
+        
+    <TextBlock Text="测试工具" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        <Button Click="Button_Click">外部校准盒校准</Button>
+         <Button Click="Button_Click_1" IsVisible="False">校准2</Button>
+            <Button Click="Button_Click_2">泵站测试</Button>
+            </StackPanel>
+    </Grid>
+</Window>

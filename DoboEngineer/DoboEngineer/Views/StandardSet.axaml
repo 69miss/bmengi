@@ -1,0 +1,23 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:local="using:DoboEngineer"
+		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+		mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="400"
+		x:Class="DoboEngineer.StandardSet"
+		 DataContext="{Binding RelativeSource={RelativeSource Self}}"
+		Title="校准工具">
+
+		<Grid Margin="20" ColumnDefinitions="*, Auto" RowDefinitions="Auto, *">
+			
+			<Button Click="Button_Click"  x:Name="btnBegin" Content="{Fmt {Binding L.开始校准}}"> </Button>
+			<TextBox Grid.Column="0" Grid.Row="1" local:TranTest.Key="1111"   x:Name="tbTxt"
+					 Name="tbTxt" 
+					 AcceptsReturn="True"
+					 TextWrapping="Wrap"
+					 IsReadOnly="False"
+					 Margin="0,10,0,0"/>
+			<SelectableTextBlock Grid.Column="1" Grid.Row="1" Text=""></SelectableTextBlock >
+		</Grid>
+
+</Window>
