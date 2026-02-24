@@ -24,8 +24,8 @@ namespace DoboEngineer.Pump
         {
             _client = new ModbusTcpClient();
             Items.Add(CreateItem(40001, "心跳", false));
-            Items.Add(CreateItem(40002, "状态反馈", false,"",2));
-            Items.Add(CreateItem(40003, "控制字", true,"",2));
+            Items.Add(CreateItem(40002, "状态反馈", false, "", 2));
+            Items.Add(CreateItem(40003, "控制字", true, "", 2));
             Items.Add(CreateItem(40004, "控制模式", true, "", 2));
             for (ushort i = 40005; i <= 40032;)
             {
@@ -40,8 +40,8 @@ namespace DoboEngineer.Pump
                 Items.Add(CreateItem(i++, $"泵{pNum}-冲程设定", true, "%"));
                 Items.Add(CreateItem(i++, $"泵{pNum}-流量设定", true, "L/min"));
             }
-              minAddr = Items.Min(x => x.Address);
-             maxAddr = Items.Max(x => x.Address);
+            minAddr = Items.Min(x => x.Address);
+            maxAddr = Items.Max(x => x.Address);
         }
 
         // 核心数据列表
@@ -56,7 +56,7 @@ namespace DoboEngineer.Pump
         // 辅助工厂方法
         private DataItem CreateItem(ushort addr, string name, bool canWrite, string remark = "",byte? fmtRadix=null)
         {
-                return new DataItem(fmtRadix) // 传入写入回调
+                return new DataItem(fmtRadix) 
                 {
                     Address = addr,
                     Name = name,
