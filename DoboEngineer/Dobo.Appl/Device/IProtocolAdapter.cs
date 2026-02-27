@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Dobo.Appl.Device;
 
-public interface IProtocolAdapter
+public interface IProtocolAdapter: IDisposable
 {
     /// <summary>
     /// 连接配置字符串 (如 "COM1,9600" 或 "192.168.1.10:502")
@@ -55,6 +55,6 @@ public interface IProtocolAdapter
     /// <summary>
     /// (可选) 批量读取，用于提高Modbus等协议的效率
     /// </summary>
-    Task<IDictionary<string, object>> ReadBatchAsync(IEnumerable<string> addresses);
+    Task<IDictionary<string, T>> ReadBatchAsync<T>(IEnumerable<string> addresses);
 }
 

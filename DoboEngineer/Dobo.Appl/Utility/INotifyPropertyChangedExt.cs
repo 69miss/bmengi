@@ -71,23 +71,23 @@ public interface INotifyPropertyChangedExt : INotifyPropertyChanged
     {
         public PropertyChangedEventArgsExt(string? propertyName, object oldVal, object newVal) : base(propertyName)
         {
-            PropertyName = propertyName;
+            //PropertyName = propertyName;
             OldVal = oldVal;
             NewVal = newVal;
         }
 
-        public string? PropertyName { get; }
+        //public string? PropertyName { get; }
         public object OldVal { get; }
         public object NewVal { get; }
     }
 }
 public interface INotifyPropertyChangedExt2 : INotifyPropertyChanged
 {
-   private void OnPropertyChanged([CallerMemberName] string propertyName = "")
+   public virtual void OnPropertyChanged([CallerMemberName] string propertyName = "")
     {
         PropertyChangedEventHandlerGet()?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
-    private void OnPropertyChanged<T>(T oldVal, T newVal, [CallerMemberName] string propertyName = "")
+    public virtual void OnPropertyChanged<T>(T oldVal, T newVal, [CallerMemberName] string propertyName = "")
     {
         PropertyChangedEventHandlerGet()?.Invoke(this, new PropertyChangedEventArgsExt(propertyName, oldVal, newVal));
     }

@@ -17,12 +17,12 @@ internal class PumpCmd
 {
     IProtocolAdapter client ;
     private CancellationTokenSource cts;
-    public  ObservableCollection<DataItem> Items { get; } = new();
+    public  ObservableCollection<IDataItemBase> Items { get; } = new();
     ushort minAddr;
     ushort maxAddr;
     public PumpCmd() {
         Init();
-        client = new PumpProtocolAdapter();     
+       // client = new PumpProtocolAdapter();     
     }
     protected virtual void Init()
     {
@@ -46,21 +46,20 @@ internal class PumpCmd
         minAddr = Items.Min(x => x.Address);
         maxAddr = Items.Max(x => x.Address);
     }
-    private void Connect()
+    public async Task Connect()
     {
-        try
-        {
-            if (client.IsConnected) { Disconnect(); return; }
+        await ReConnect();
+        cts = new CancellationTokenSource();
+        _ = PollingLoop(cts.Token);
+    }
 
-            client= new PumpProtocolAdapter(isBigEndian : true) { };
-
-            cts = new CancellationTokenSource();
-            _ = PollingLoop(cts.Token);
-        }
-        catch (Exception ex)
-        {
-            //StatusMsg = $"连接失败: {ex.Message}";
-        }
+    private async Task ReConnect()
+    {
+        if (client != null) { client.Dispose(); }
+        client = new PumpProtocolAdapter(isBigEndian: true) { };
+        var re = await client.ConnectAsync();
+        if (!re)
+            throw new System.Net.Sockets.SocketException(-1, "连接失败");
     }
 
     public void Disconnect()
@@ -79,14 +78,32 @@ internal class PumpCmd
             Remark = remark,
         };
     }
+    public async Task ReconnectionAsync(CancellationToken token, int msDelay, Func<Exception?, int, IDictionary<string, object>, Task<bool>> reconnectFunc)
+    {
+        var i = 0;
+        var context = new Dictionary<string, object>();
+        Exception exception = null;
+        while (!token.IsCancellationRequested)
+        {
+            try
+            {
+                if (await reconnectFunc(exception, i++, context))
+                    return;
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
+            await Task.Delay(msDelay, token);
+        }
+    }
     private async Task PollingLoop(CancellationToken token)
     {
-        using var timer = new PeriodicTimer(TimeSpan.FromMilliseconds(500));
+        using var timer = new PeriodicTimer(TimeSpan.FromMilliseconds(1000));
         int num = 0;
         while (await timer.WaitForNextTickAsync(token))
         {
             if (!client.IsConnected || Items.Count == 0) continue;
-
             try
             {
                 int count = maxAddr - minAddr + 1;
@@ -94,7 +111,25 @@ internal class PumpCmd
                 int startReadAddr = minAddr - 40001;
                 var arr = new string[count];
                 arr[0] = startReadAddr.ToString();
-                var rawBytes = (await client.ReadBatchAsync<short>(arr)).Values.ToArray();
+                IDictionary<string, short> reDic = null;
+                try
+                {
+                    reDic = await client.ReadBatchAsync<short>(arr);
+                }
+                catch (Exception)
+                {
+                    await ReconnectionAsync(token, 1000, async (p1, p2, p3) =>
+                    {
+                        if (p2 == 0)
+                            reDic = await client.ReadBatchAsync<short>(arr);
+                        if (p2 > 0)
+                            await ReConnect();
+                        reDic = await client.ReadBatchAsync<short>(arr);
+                        return true;
+                    });
+                }
+
+                var rawBytes = reDic.Values.ToArray();
                 foreach (var item in Items)
                 {
                     // 计算该项在读取数组中的索引
@@ -106,7 +141,7 @@ internal class PumpCmd
                         item.Value = rawBytes[index];
                     }
                 }
-                var msg = (short)(num++ % 2);
+                var msg = (short)(num++ % 9);
                 await client.WriteAsync("40001", msg);
                 Console.WriteLine(msg);
             }

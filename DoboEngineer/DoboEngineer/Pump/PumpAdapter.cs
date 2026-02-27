@@ -187,7 +187,7 @@ namespace DoboEngineer.Pump;
         AddLog("全局控制参数写入成功");
     }
 }
-public partial class DataItem : ObservableObject
+public partial class DataItem : ObservableObject,IDataItemBase
 {
 
     [ObservableProperty] ushort address;

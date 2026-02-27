@@ -29,5 +29,10 @@ namespace DoboEngineer.Views
         {
             new CmdTest().ShowDialog(this);
         }
+
+        private void Button_Click_3(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+        {
+            new Window1().Show();
+        }
     }
 }

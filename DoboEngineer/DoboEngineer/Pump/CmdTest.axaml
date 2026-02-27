@@ -39,7 +39,7 @@
                 </ItemsControl.ItemsPanel>
 
                 <ItemsControl.ItemTemplate>
-                    <DataTemplate DataType="vm:DataItem">
+                    <DataTemplate  DataType="vm:DataItem">
                         <Border Background="White" CornerRadius="4" Margin="5" 
                                 BoxShadow="0 2 4 0 #20000000">
                             <Grid RowDefinitions="Auto, Auto, *, Auto" Margin="10">

@@ -55,7 +55,7 @@ public class HTClient : IProtocolAdapter
         return (T)(object)reData.ResponseDataContent;
     }
 
-    public Task<IDictionary<string, object>> ReadBatchAsync(IEnumerable<string> addresses)
+    public Task<IDictionary<string, T>> ReadBatchAsync<T>(IEnumerable<string> addresses)
     {
         throw new NotImplementedException();
     }
@@ -63,5 +63,11 @@ public class HTClient : IProtocolAdapter
     public Task<bool> WriteAsync<T>(string address, T value)
     {
         throw new NotImplementedException();
+    }
+
+    public void Dispose()
+    {
+        DisconnectAsync();
+        spectraTcpClient?.Dispose();
     }
 }

@@ -33,12 +33,13 @@ namespace DoboEngineer.Pump
                 AddLog($"正在连接 {ConnectionString} ...");
                 client.Connect(ConnectionString,IsBigEndian?ModbusEndianness.BigEndian:ModbusEndianness.LittleEndian);
                 AddLog("设备连接成功！");
+                return Task.FromResult(true);
             }
             catch (Exception ex)
             {
                 AddLog($"连接失败: {ex.Message}");
             }
-            return Task.FromResult(true);
+            return Task.FromResult(false);
         }
 
         public Task DisconnectAsync()
