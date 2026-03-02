@@ -1,451 +1,513 @@
 ﻿<Window xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:vm="using:DoboEngineer.Pump"
-        mc:Ignorable="d" d:DesignWidth="1100" d:DesignHeight="700"
-        x:Class="DoboEngineer.Pump.Window1"
-        x:DataType="vm:MainWindowViewModel"
-        Title="DoboEngineer Pump Station"
-        Width="1100" Height="750" MinWidth="1024" MinHeight="600"
-        Background="#f1f5f9"
-        ExtendClientAreaToDecorationsHint="True"
-        ExtendClientAreaChromeHints="PreferSystemChrome"
-        ExtendClientAreaTitleBarHeightHint="-1">
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+		xmlns:vm="using:DoboEngineer.Pump"
+		mc:Ignorable="d" d:DesignWidth="1100" d:DesignHeight="700"
+		x:Class="DoboEngineer.Pump.Window1"
+		x:DataType="vm:MainWindowViewModel"
+		Title="DoboEngineer Pump Station"
+		Width="1100" Height="750" MinWidth="1024" MinHeight="600"
+		Background="#f1f5f9"
+		ExtendClientAreaToDecorationsHint="True"
+		ExtendClientAreaChromeHints="PreferSystemChrome"
+		ExtendClientAreaTitleBarHeightHint="-1">
 
-    <Window.Styles>
-        <Style Selector="TextBlock">
-            <Setter Property="FontFamily" Value="Microsoft YaHei UI, Segoe UI, Sans-Serif"/>
-        </Style>
+	<Window.Styles>
+		<Style Selector="TextBlock">
+			<Setter Property="FontFamily" Value="Microsoft YaHei UI, Segoe UI, Sans-Serif"/>
+		</Style>
 
-        <!-- 顶部系统菜单按钮 -->
-        <Style Selector="Button.SysMenuBtn">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Padding" Value="10,5"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="BorderThickness" Value="0"/>
-        </Style>
-        <Style Selector="Button.SysMenuBtn:pointerover /template/ ContentPresenter">
-            <Setter Property="Background" Value="#e2e8f0"/>
-        </Style>
+		<!-- 顶部系统菜单按钮 -->
+		<Style Selector="Button.SysMenuBtn">
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="Padding" Value="10,5"/>
+			<Setter Property="Cursor" Value="Hand"/>
+			<Setter Property="BorderThickness" Value="0"/>
+		</Style>
+		<Style Selector="Button.SysMenuBtn:pointerover /template/ ContentPresenter">
+			<Setter Property="Background" Value="#e2e8f0"/>
+		</Style>
 
-        <!-- 步进按钮 (加减号) -->
-        <Style Selector="Button.Step">
-            <Setter Property="Width" Value="36"/> <!-- 加大尺寸防止误触 -->
-            <Setter Property="Height" Value="36"/>
-            <Setter Property="Background" Value="#ffffff"/>
-            <Setter Property="BorderBrush" Value="#cbd5e1"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="6"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="FontSize" Value="18"/>
-            <Setter Property="Foreground" Value="#64748b"/>
-            <Setter Property="Padding" Value="0"/>
-            <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-        </Style>
-        <Style Selector="Button.Step:pressed">
-            <Setter Property="Background" Value="#f8fafc"/>
-            <Setter Property="RenderTransform" Value="scale(0.95)"/>
-        </Style>
+		<!-- 步进按钮 (加减号) -->
+		<Style Selector="Button.Step">
+			<Setter Property="Width" Value="36"/> <!-- 加大尺寸防止误触 -->
+			<Setter Property="Height" Value="36"/>
+			<Setter Property="Background" Value="#ffffff"/>
+			<Setter Property="BorderBrush" Value="#cbd5e1"/>
+			<Setter Property="BorderThickness" Value="1"/>
+			<Setter Property="CornerRadius" Value="6"/>
+			<Setter Property="FontWeight" Value="Bold"/>
+			<Setter Property="FontSize" Value="18"/>
+			<Setter Property="Foreground" Value="#64748b"/>
+			<Setter Property="Padding" Value="0"/>
+			<Setter Property="HorizontalContentAlignment" Value="Center"/>
+			<Setter Property="VerticalContentAlignment" Value="Center"/>
+		</Style>
+		<Style Selector="Button.Step:pressed">
+			<Setter Property="Background" Value="#f8fafc"/>
+			<Setter Property="RenderTransform" Value="scale(0.95)"/>
+		</Style>
 
-        <!-- 数值输入框 -->
-        <Style Selector="TextBox.ValInput">
-            <Setter Property="Height" Value="36"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="BorderBrush" Value="#e2e8f0"/>
-            <Setter Property="CornerRadius" Value="6"/>
-            <Setter Property="FontSize" Value="16"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="#334155"/>
-        </Style>
+		<!-- 数值输入框 -->
+		<Style Selector="TextBox.ValInput">
+			<Setter Property="Height" Value="36"/>
+			<Setter Property="VerticalContentAlignment" Value="Center"/>
+			<Setter Property="HorizontalContentAlignment" Value="Center"/>
+			<Setter Property="BorderBrush" Value="#e2e8f0"/>
+			<Setter Property="CornerRadius" Value="6"/>
+			<Setter Property="FontSize" Value="16"/>
+			<Setter Property="FontWeight" Value="Bold"/>
+			<Setter Property="Foreground" Value="#334155"/>
+		</Style>
 
-        <!-- 卡片容器 -->
-        <Style Selector="Border.Card">
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="CornerRadius" Value="16"/>
-            <Setter Property="BoxShadow" Value="0 4 6 -1 #10000000, 0 2 4 -1 #06000000"/>
-            <Setter Property="Margin" Value="10"/>
-        </Style>
-         <!-- 波浪动画：让波浪在水平方向无限循环移动 -->
-        <Style Selector="Path.Wave">
-            <Style.Animations>
-                <Animation Duration="0:0:2" IterationCount="Infinite">
-                    <KeyFrame Cue="0%">
-                        <Setter Property="TranslateTransform.X" Value="0"/>
-                    </KeyFrame>
-                    <KeyFrame Cue="100%">
-                        <Setter Property="TranslateTransform.X" Value="-150"/> <!-- 移动距离要等于波浪纹理的一个周期宽度 -->
-                    </KeyFrame>
-                </Animation>
-            </Style.Animations>
-        </Style>
-        
-        <!-- 后层波浪：速度稍慢或相位不同，营造立体感 -->
-        <Style Selector="Path.WaveBack">
-            <Style.Animations>
-                <Animation Duration="0:0:3" IterationCount="Infinite">
-                    <KeyFrame Cue="0%">
-                        <Setter Property="TranslateTransform.X" Value="-50"/>
-                    </KeyFrame>
-                    <KeyFrame Cue="100%">
-                        <Setter Property="TranslateTransform.X" Value="-200"/>
-                    </KeyFrame>
-                </Animation>
-            </Style.Animations>
-        </Style>
-        <!-- 1. 胶囊容器：统一管理背景色 -->
-    <Style Selector="Border.CapsuleGroup">
-        <Setter Property="Background" Value="#F1F5F9"/> <!-- 正常背景：浅灰 -->
-        <Setter Property="CornerRadius" Value="0"/>
-        <Setter Property="Height" Value="32"/>
-        <Setter Property="BorderThickness" Value="0"/>
-        <Setter Property="Padding" Value="0"/>
-        <Setter Property="ClipToBounds" Value="True"/> <!-- 关键：裁剪内部溢出 -->
-    </Style>
-    
-    <!-- ★★★ 核心修复：当容器禁用时，统一变灰，且降低透明度 -->
-    <Style Selector="Border.CapsuleGroup:disabled">
-        <Setter Property="Background" Value="#E2E8F0"/> <!-- 禁用背景：深灰 -->
-        <Setter Property="Opacity" Value="0.8"/>        <!-- 整体变淡 -->
-    </Style>
+		<!-- 卡片容器 -->
+		<Style Selector="Border.Card">
+			<Setter Property="Background" Value="White"/>
+			<Setter Property="CornerRadius" Value="16"/>
+			<Setter Property="BoxShadow" Value="0 4 6 -1 #10000000, 0 2 4 -1 #06000000"/>
+			<Setter Property="Margin" Value="10"/>
+		</Style>
+		<!-- 波浪动画：让波浪在水平方向无限循环移动 -->
+		<Style Selector="Path.Wave">
+			<Style.Animations>
+				<Animation Duration="0:0:2" IterationCount="Infinite">
+					<KeyFrame Cue="0%">
+						<Setter Property="TranslateTransform.X" Value="0"/>
+					</KeyFrame>
+					<KeyFrame Cue="100%">
+						<Setter Property="TranslateTransform.X" Value="-150"/> <!-- 移动距离要等于波浪纹理的一个周期宽度 -->
+					</KeyFrame>
+				</Animation>
+			</Style.Animations>
+		</Style>
+
+		<!-- 后层波浪：速度稍慢或相位不同，营造立体感 -->
+		<Style Selector="Path.WaveBack">
+			<Style.Animations>
+				<Animation Duration="0:0:3" IterationCount="Infinite">
+					<KeyFrame Cue="0%">
+						<Setter Property="TranslateTransform.X" Value="-50"/>
+					</KeyFrame>
+					<KeyFrame Cue="100%">
+						<Setter Property="TranslateTransform.X" Value="-200"/>
+					</KeyFrame>
+				</Animation>
+			</Style.Animations>
+		</Style>
 
 
-    <!-- 2. 内部按钮：彻底去除默认样式 -->
-    <Style Selector="Button.CapsuleBtn">
-        <Setter Property="Background" Value="Transparent"/>
-        <Setter Property="Width" Value="32"/>
-        <Setter Property="VerticalAlignment" Value="Stretch"/>
-        <Setter Property="BorderThickness" Value="0"/>
-        <Setter Property="Padding" Value="0"/>
-        <Setter Property="CornerRadius" Value="4"/>
-        <Setter Property="Cursor" Value="Hand"/>
-        <!-- 默认文字/图标颜色：灰色 -->
-        <Setter Property="Foreground" Value="#64748B"/> 
-    </Style>
+		<!-- 1. 胶囊容器：统一管理背景色 -->
+		<Style Selector="Border.CapsuleGroup">
+			<Setter Property="Background" Value="#F1F5F9"/> <!-- 正常背景：浅灰 -->
+			<Setter Property="CornerRadius" Value="0"/>
+			<Setter Property="Height" Value="32"/>
+			<Setter Property="BorderThickness" Value="0"/>
+			<Setter Property="Padding" Value="0"/>
+			<Setter Property="ClipToBounds" Value="True"/> <!-- 关键：裁剪内部溢出 -->
+		</Style>
 
-    <!-- 2. ★★★ 关键修复：直接针对按钮内部的 PathIcon 设置悬停颜色 ★★★ -->
-    <!-- 翻译：当 CapsuleBtn 处于 pointerover 状态时，它内部的 PathIcon 变成蓝色 -->
-    <Style Selector="Button.CapsuleBtn:pointerover PathIcon">
-        <Setter Property="Foreground" Value="#0EA5E9"/>
-    </Style>
-
-    <!-- 3. 按下效果：图标变深蓝 -->
-    <Style Selector="Button.CapsuleBtn:pressed PathIcon">
-        <Setter Property="Foreground" Value="#0284C7"/>
-    </Style>
-
-    <!-- 为了保证背景也不变色，我们需要覆盖默认的 ContentPresenter 样式 -->
-    <Style Selector="Button.CapsuleBtn:pointerover /template/ ContentPresenter">
-        <Setter Property="Background" Value="Transparent"/> <!-- 强制背景透明 -->
-    </Style>
-    <Style Selector="Button.CapsuleBtn:pressed /template/ ContentPresenter">
-        <Setter Property="Background" Value="Transparent"/> <!-- 按下也透明，或者给极淡的色 -->
-    </Style>
-
-    <!-- 4. 禁用状态：图标变淡 -->
-    <Style Selector="Button.CapsuleBtn:disabled PathIcon">
-        <Setter Property="Foreground" Value="#CBD5E1"/>
-    </Style>
-    <!-- 禁用状态背景透明 -->
-    <Style Selector="Button.CapsuleBtn:disabled /template/ ContentPresenter#PART_ContentPresenter">
-        <Setter Property="Background" Value="Transparent"/>
-    </Style>
-    <!-- 1. 定义按钮内 TextBlock 的默认样式 (灰色) -->
-    <Style Selector="Button.CapsuleBtn TextBlock">
-        <Setter Property="Foreground" Value="#64748B"/>
-    </Style>
-
-    <!-- 2. ★★★ 关键：悬停时，让 TextBlock 变蓝 ★★★ -->
-    <Style Selector="Button.CapsuleBtn:pointerover TextBlock">
-        <Setter Property="Foreground" Value="#0EA5E9"/>
-    </Style>
-
-    <!-- 3. 按下时，让 TextBlock 变深蓝 -->
-    <Style Selector="Button.CapsuleBtn:pressed TextBlock">
-        <Setter Property="Foreground" Value="#0284C7"/>
-    </Style>
-
-    <!-- 4. 禁用时，让 TextBlock 变淡 -->
-    <Style Selector="Button.CapsuleBtn:disabled TextBlock">
-        <Setter Property="Foreground" Value="#CBD5E1"/>
-        <Setter Property="Opacity" Value="0.5"/>
-    </Style>
-
-    <!-- 3. 内部输入框：彻底去除默认样式 -->
-    <Style Selector="TextBox.CapsuleInput">
-        <Setter Property="Background" Value="Transparent"/>
-        <Setter Property="BorderThickness" Value="0"/>
-        <Setter Property="VerticalContentAlignment" Value="Center"/>
-        <Setter Property="HorizontalContentAlignment" Value="Center"/>
-        <Setter Property="Foreground" Value="#334155"/>
-        <Setter Property="FontWeight" Value="Bold"/>
-        <Setter Property="FontSize" Value="14"/>
-        <Setter Property="Padding" Value="0"/>
-        <Setter Property="Margin" Value="0"/>
-        <Setter Property="MinHeight" Value="0"/>
-    </Style>
-
-    <!-- 去除聚焦时的边框 -->
-    <Style Selector="TextBox.CapsuleInput:focus /template/ Border#PART_BorderElement">
-        <Setter Property="Background" Value="Transparent"/>
-        <Setter Property="BorderThickness" Value="0"/>
-    </Style>
-    
-    <!-- 鼠标悬停去除边框 -->
-    <Style Selector="TextBox.CapsuleInput:pointerover /template/ Border#PART_BorderElement">
-        <Setter Property="Background" Value="Transparent"/>
-        <Setter Property="BorderThickness" Value="0"/>
-    </Style>
-
-    <!-- ★★★ 核心修复：输入框禁用时，背景强制透明，去除边框 -->
-    <Style Selector="TextBox.CapsuleInput:disabled /template/ Border#PART_BorderElement">
-        <Setter Property="Background" Value="Transparent"/> <!-- 关键！ -->
-        <Setter Property="BorderThickness" Value="0"/>
-    </Style>
-    <!-- 禁用时文字颜色 -->
-    <Style Selector="TextBox.CapsuleInput:disabled">
-        <Setter Property="Foreground" Value="#94A3B8"/>
-    </Style>
-    </Window.Styles>
-
-    <Grid RowDefinitions="40, 60, *">
-        
-        <!-- === 1. 标题栏 (已修复拖动) === -->
-        <!-- PointerPressed="OnTitleBarPointerPressed" 是拖动的关键 -->
-        <Grid Grid.Row="0" Background="White" ColumnDefinitions="Auto, *, Auto" PointerPressed="OnTitleBarPointerPressed">
-            
-            <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="10" Margin="15,0,0,0" VerticalAlignment="Center">
-                <PathIcon Data="M12 2L2 7l10 5 10-5-10-5z" Foreground="#0ea5e9" Width="18" Height="18"/>
-                <TextBlock Text="DoboEngineer Pump Station" FontWeight="Bold" FontSize="14" Foreground="#0f172a" VerticalAlignment="Center"/>
-            </StackPanel>
-
-            <!-- 菜单按钮 (右对齐) -->
-            <Button Grid.Column="2" Classes="SysMenuBtn" Margin="0,0,140,0" ToolTip.Tip="系统菜单">
-                <StackPanel Orientation="Horizontal" Spacing="6">
-                    <PathIcon Data="M3 6h18v2H3V6zm0 5h18v2H3v-2zm0 5h18v2H3v-2z" Width="14" Height="14" Foreground="#64748b"/>
-                    <TextBlock Text="系统菜单" FontSize="13" Foreground="#475569" VerticalAlignment="Center"/>
-                </StackPanel>
-                <Button.Flyout>
-                    <MenuFlyout>
-                        <MenuItem Header="参数设置" InputGesture="Ctrl+P"/>
-                        <MenuItem Header="用户管理"/>
-                        <Separator/>
-                        <MenuItem Header="退出系统"/>
-                    </MenuFlyout>
-                </Button.Flyout>
-            </Button>
-        </Grid>
-
-        <!-- === 2. 全局控制栏 === -->
-        <Border Grid.Row="1" Margin="15,10" Background="White" CornerRadius="8" BoxShadow="0 1 2 0 #05000000">
-            <Grid ColumnDefinitions="Auto, *, Auto" Margin="20,0">
-                <StackPanel Orientation="Horizontal" Spacing="15" VerticalAlignment="Center">
-                    <TextBlock Text="控制模式：" FontWeight="Bold" VerticalAlignment="Center" FontSize="15"/>
-                    <Border Background="#f1f5f9" CornerRadius="6" Padding="4">
-                        <StackPanel Orientation="Horizontal">
-                            <RadioButton GroupName="M" Content="手动参数" IsChecked="{Binding !IsAutoMode}" 
-                                         Theme="{DynamicResource ButtonRadioButton}" Padding="15,8" CornerRadius="4"/>
-                            <RadioButton GroupName="M" Content="流量自动" IsChecked="{Binding IsAutoMode}" 
-                                         Theme="{DynamicResource ButtonRadioButton}" Padding="15,8" CornerRadius="4"/>
-                        </StackPanel>
-                    </Border>
-                    <TextBlock Text="{Binding IsAutoMode}" IsVisible="False"/> 
-                    <TextBlock Text="* 自动模式下仅需设定流量，参数由系统接管" FontSize="12" Foreground="#94a3b8" VerticalAlignment="Center" Margin="10,0,0,0"/>
-                </StackPanel>
-                <TextBlock Grid.Column="2" Text="{Binding SystemTime}" FontFamily="Consolas" FontWeight="Bold" Foreground="#475569" VerticalAlignment="Center" FontSize="16"/>
-            </Grid>
-        </Border>
-
-        <!-- === 3. 泵列表 === -->
-        <ScrollViewer Grid.Row="2" Padding="0">
-            <ItemsControl ItemsSource="{Binding Pumps}">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <!-- 卡片宽度 480，高度自适应，保证不重叠 -->
-                        <WrapPanel Orientation="Horizontal" ItemWidth="480" /> 
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <!-- 增加卡片高度到 260，给予充足空间 -->
-                        <Border Classes="Card" Height="260">
-                            <Grid RowDefinitions="50, *">
-                                
-                                <!-- A. 卡片 Header (包含启停按钮) -->
-                                <Border Grid.Row="0" BorderBrush="#f1f5f9" BorderThickness="0,0,0,1" Margin="20,0">
-                                    <Grid ColumnDefinitions="Auto, Auto, *, Auto, Auto">
-                                        <!-- 1. 状态点 -->
-                                        <Ellipse Grid.Column="0" Width="14" Height="14" Fill="{Binding StatusColor}" Margin="0,0,10,0"/>
-                                        <!-- 2. 名称 -->
-                                        <TextBlock Grid.Column="1" Text="{Binding Name}" FontWeight="Bold" FontSize="18" VerticalAlignment="Center"/>
-                                        
-                                        <!-- 3. 远程标签 -->
-                                        <Border Grid.Column="3" Background="{Binding RemoteColor}" CornerRadius="4" Padding="8,4" VerticalAlignment="Center" Margin="0,0,10,0">
-                                            <TextBlock Text="{Binding RemoteText}" FontSize="12" Foreground="White" FontWeight="Bold"/>
-                                        </Border>
-
-                                        <!-- 4. 启停按钮 (移到右上角) -->
-                                        <Button Grid.Column="4" 
-                                                Content="{Binding RunBtnText}"
-                                                Command="{Binding ToggleRunCommand}"
-                                                IsEnabled="{Binding IsRemote}"
-                                                Background="{Binding RunBtnColor}"
-                                                Foreground="{Binding RunBtnFg}"
-                                                FontWeight="Bold" 
-                                                FontSize="13"
-                                                CornerRadius="6"
-                                                Padding="15,6"
-                                                VerticalAlignment="Center"/>
-                                    </Grid>
-                                </Border>
-
-                                <!-- B. 内容区 -->
-                                <Grid Grid.Row="1" ColumnDefinitions="160, *" Margin="15,15,20,15">
-                                    
-                                    <!-- 左侧：流量控制区 -->
-                                    <Grid RowDefinitions="*, Auto">
-                                        <!-- 球状液位 -->
-                                        <!-- 球状液位 (带波浪动画) -->
-<Border Width="110" Height="110" CornerRadius="55" ClipToBounds="True" 
-        BorderBrush="#e2e8f0" BorderThickness="1" VerticalAlignment="Top" Background="#f8fafc">
-    <Grid>
-        <!-- 这里的 Grid 高度绑定液位，且靠底部对齐，实现水位升降 -->
-        <Grid Height="{Binding LiquidHeight}" VerticalAlignment="Bottom" MinHeight="15">
-            
-            <!-- 后层波浪 (浅色，移动速度不同) -->
-            <!-- Data 解释: 绘制一个很宽的波浪，M起笔, C贝塞尔曲线, V垂直向下, H水平闭合 -->
-            <Path Classes="WaveBack" 
-                  Fill="#bae6fd"
-                  Width="300" Height="120"
-                  HorizontalAlignment="Left" VerticalAlignment="Top" 
-                  Stretch="Fill"
-                  Margin="0,-10,0,0"
-                  Data="M 0,20 C 30,20 30,0 60,0 C 90,0 90,20 120,20 C 150,20 150,0 180,0 C 210,0 210,20 240,20 V 150 H 0 Z"/>
-
-            <!-- 前层波浪 (深色，主要视觉) -->
-            <Path Classes="Wave" 
-                  Fill="#0ea5e9" 
-                  Width="300" Height="120"
-                  HorizontalAlignment="Left" VerticalAlignment="Top" 
-                  Stretch="Fill"
-                  Margin="0,-5,0,0"
-                  Data="M 0,15 C 30,15 30,5 60,5 C 90,5 90,15 120,15 C 150,15 150,5 180,5 C 210,5 210,15 240,15 V 150 H 0 Z"/>
-        </Grid>
-
-        <!-- 文字层 (放在最上层，避免被水淹没看不清) -->
-        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-            <TextBlock Text="流量(0~100)" FontSize="14" Foreground="#64748b" HorizontalAlignment="Center"/>
-            <TextBlock Text="{Binding FlowPV, StringFormat='{}{0:F1}'}" 
-                       FontSize="24" FontWeight="Bold" Foreground="#0f172a" 
-                       HorizontalAlignment="Center">
-                <!-- 给文字加白色描边阴影，保证在深色水位上也能看清 -->
-                <TextBlock.Effect>
-                    <DropShadowEffect Color="White" BlurRadius="2" Opacity="1" OffsetX="0" OffsetY="0"/>
-                </TextBlock.Effect>
-            </TextBlock>
-        </StackPanel>
-    </Grid>
-</Border>
-                                        
-                                        <!-- 流量设定 SV (显示 + 控制) -->
-                                        <Grid Grid.Row="1" RowDefinitions="Auto, Auto" Margin="0,10,0,0">
-                                            <!-- 显示设定值 -->
-                                            <TextBlock Text="{Binding FlowSV, StringFormat='目标 SV: {0:F1}'}" 
-                                                       FontSize="12" Foreground="#64748b" HorizontalAlignment="Center" Margin="0,0,0,5"/>
-                                            
-                                            <!-- 控制按钮 -->
-                                            <Grid ColumnDefinitions="36,*,36" Width="120" IsVisible="{Binding CanEditFlow}">
-                                                <Button Classes="Step" Content="-" Command="{Binding AdjustValueCommand}" CommandParameter="Flow|-1"/>
-                                                <!-- 这里放一个不可编辑的框展示数值，或者留白，这里直接通过上方Text展示，简化UI -->
-                                                <Panel/> 
-                                                <Button Grid.Column="2" Classes="Step" Content="+" Command="{Binding AdjustValueCommand}" CommandParameter="Flow|1"/>
-                                            </Grid>
-                                        </Grid>
-                                    </Grid>
+		<!-- ★★★ 核心修复：当容器禁用时，统一变灰，且降低透明度 -->
+		<Style Selector="Border.CapsuleGroup:disabled">
+			<Setter Property="Background" Value="#E2E8F0"/> <!-- 禁用背景：深灰 -->
+			<Setter Property="Opacity" Value="0.8"/>        <!-- 整体变淡 -->
+		</Style>
 
 
-                                    <!-- 右侧：参数控制 (严格 Grid 布局防止重叠) -->
-                                    <!-- 使用 Grid 显式定义每一行的高度，彻底解决重叠 -->
-                                    <Grid Grid.Column="1" Margin="20,0,0,0" 
-                                          RowDefinitions="Auto, 10, Auto, 20, Auto, 10, Auto">
-                                        
-                                        <!-- === 冲程 Stroke === -->
-                                        <!-- Row 0: 标签 + 数值 -->
-                                        <Grid Grid.Row="0" ColumnDefinitions="*, Auto">
-                                            <TextBlock Text="冲程 Stroke" FontSize="13" Foreground="#64748b" VerticalAlignment="Bottom"/>
-                                            <StackPanel Grid.Column="1" Orientation="Horizontal">
-                                                <TextBlock Text="{Binding StrokePV, StringFormat='{}{0:F1}'}" FontWeight="Bold" FontSize="16" Foreground="#334155"/>
-                                                <TextBlock Text="%" FontSize="11" VerticalAlignment="Bottom" Margin="2,0,0,2" Foreground="#94a3b8"/>
-                                            </StackPanel>
-                                        </Grid>
-                                        
-                                        <!-- Row 1: 进度条 -->
-                                        <ProgressBar Grid.Row="1" Value="{Binding StrokePV}" Maximum="100" Height="6" CornerRadius="3" Foreground="#0ea5e9" Background="#f1f5f9" VerticalAlignment="Center"/>
-                                        
-                                        <!-- Row 2: 控制区 -->
-                                        <!--<Grid Grid.Row="2" ColumnDefinitions="40, *, 40">
-                                            <Button Grid.Column="0" Classes="Step" Content="-" Command="{Binding AdjustValueCommand}" CommandParameter="Stroke|-1" IsEnabled="{Binding CanEditParam}"/>
-                                            <TextBox Grid.Column="1" Classes="ValInput" Text="{Binding StrokeSV}" IsEnabled="{Binding CanEditParam}" Margin="8,0"/>
-                                            <Button Grid.Column="2" Classes="Step" Content="+" Command="{Binding AdjustValueCommand}" CommandParameter="Stroke|1" IsEnabled="{Binding CanEditParam}"/>
-                                        </Grid>-->
-                                        <Border Classes="CapsuleGroup" Grid.Row="2" >
-    <Grid ColumnDefinitions="Auto, *, Auto">
-        
-        <Button Grid.Column="0" Classes="CapsuleBtn" 
-                Command="{Binding AdjustValueCommand}" CommandParameter="Stroke|-1" 
-                IsEnabled="{Binding CanEditParam}">
-             <!--<PathIcon Data="M19 13H5v-2h14v2z" Width="10" Height="10"/>-->
-            <TextBlock Text="−" 
-               FontWeight="ExtraBold" 
-               FontSize="20" 
-               VerticalAlignment="Center" 
-               HorizontalAlignment="Center"
-               Margin="0,-2,0,0"/> <!-- 微调 Margin 让减号视觉居中 -->
-        </Button>
+		<!-- 2. 内部按钮：彻底去除默认样式 -->
+		<Style Selector="Button.CapsuleBtn">
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="Width" Value="32"/>
+			<Setter Property="VerticalAlignment" Value="Stretch"/>
+			<Setter Property="BorderThickness" Value="0"/>
+			<Setter Property="Padding" Value="0"/>
+			<Setter Property="CornerRadius" Value="4"/>
+			<Setter Property="Cursor" Value="Hand"/>
+			<!-- 默认文字/图标颜色：灰色 -->
+			<Setter Property="Foreground" Value="#64748B"/>
+		</Style>
 
-        <TextBox Grid.Column="1" Classes="CapsuleInput"
-                 Text="{Binding StrokeSV}"
-                 IsEnabled="{Binding CanEditParam}"/>
+		<!-- 2. ★★★ 关键修复：直接针对按钮内部的 PathIcon 设置悬停颜色 ★★★ -->
+		<!-- 翻译：当 CapsuleBtn 处于 pointerover 状态时，它内部的 PathIcon 变成蓝色 -->
+		<Style Selector="Button.CapsuleBtn:pointerover PathIcon">
+			<Setter Property="Foreground" Value="#0EA5E9"/>
+		</Style>
 
-        <Button Grid.Column="2" Classes="CapsuleBtn" 
-                Command="{Binding AdjustValueCommand}" CommandParameter="Stroke|1" 
-                IsEnabled="{Binding CanEditParam}">
-             <PathIcon Data="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" Width="10" Height="10"/>
-        </Button>
-    </Grid>
-</Border>
-                                        <!-- Row 3: 间隔 (Spacer) 由 RowDefinitions="20" 控制 -->
+		<!-- 3. 按下效果：图标变深蓝 -->
+		<Style Selector="Button.CapsuleBtn:pressed PathIcon">
+			<Setter Property="Foreground" Value="#0284C7"/>
+		</Style>
 
-                                        <!-- === 频率 Freq === -->
-                                        <!-- Row 4: 标签 + 数值 -->
-                                        <Grid Grid.Row="4" ColumnDefinitions="*, Auto">
-                                            <TextBlock Text="频率 Freq" FontSize="13" Foreground="#64748b" VerticalAlignment="Bottom"/>
-                                            <StackPanel Grid.Column="1" Orientation="Horizontal">
-                                                <TextBlock Text="{Binding FreqPV, StringFormat='{}{0:F1}'}" FontWeight="Bold" FontSize="16" Foreground="#334155"/>
-                                                <TextBlock Text="Hz" FontSize="11" VerticalAlignment="Bottom" Margin="2,0,0,2" Foreground="#94a3b8"/>
-                                            </StackPanel>
-                                        </Grid>
+		<!-- 为了保证背景也不变色，我们需要覆盖默认的 ContentPresenter 样式 -->
+		<Style Selector="Button.CapsuleBtn:pointerover /template/ ContentPresenter">
+			<Setter Property="Background" Value="Transparent"/> <!-- 强制背景透明 -->
+		</Style>
+		<Style Selector="Button.CapsuleBtn:pressed /template/ ContentPresenter">
+			<Setter Property="Background" Value="Transparent"/> <!-- 按下也透明，或者给极淡的色 -->
+		</Style>
 
-                                        <!-- Row 5: 进度条 -->
-                                        <ProgressBar Grid.Row="5" Value="{Binding FreqPV}" Maximum="100" Height="6" CornerRadius="3" Foreground="#f59e0b" Background="#f1f5f9" VerticalAlignment="Center"/>
+		<!-- 4. 禁用状态：图标变淡 -->
+		<Style Selector="Button.CapsuleBtn:disabled PathIcon">
+			<Setter Property="Foreground" Value="#CBD5E1"/>
+		</Style>
+		<!-- 禁用状态背景透明 -->
+		<Style Selector="Button.CapsuleBtn:disabled /template/ ContentPresenter#PART_ContentPresenter">
+			<Setter Property="Background" Value="Transparent"/>
+		</Style>
+		<!-- 1. 定义按钮内 TextBlock 的默认样式 (灰色) -->
+		<Style Selector="Button.CapsuleBtn TextBlock">
+			<Setter Property="Foreground" Value="#64748B"/>
+		</Style>
 
-                                        <!-- Row 6: 控制区 -->
-                                        <Grid Grid.Row="6" ColumnDefinitions="40, *, 40">
-                                            <Button Grid.Column="0" Classes="Step" Content="-" Command="{Binding AdjustValueCommand}" CommandParameter="Freq|-1" IsEnabled="{Binding CanEditParam}"/>
-                                            <TextBox Grid.Column="1" Classes="ValInput" Text="{Binding FreqSV}" IsEnabled="{Binding CanEditParam}" Margin="8,0"/>
-                                            <Button Grid.Column="2" Classes="Step" Content="+" Command="{Binding AdjustValueCommand}" CommandParameter="Freq|1" IsEnabled="{Binding CanEditParam}"/>
-                                        </Grid>
+		<!-- 2. ★★★ 关键：悬停时，让 TextBlock 变蓝 ★★★ -->
+		<Style Selector="Button.CapsuleBtn:pointerover TextBlock">
+			<Setter Property="Foreground" Value="#0EA5E9"/>
+		</Style>
 
-                                    </Grid> <!-- End Right Grid -->
-                                </Grid>
-                            </Grid>
-                        </Border>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </ScrollViewer>
-    </Grid>
+		<!-- 3. 按下时，让 TextBlock 变深蓝 -->
+		<Style Selector="Button.CapsuleBtn:pressed TextBlock">
+			<Setter Property="Foreground" Value="#0284C7"/>
+		</Style>
+
+		<!-- 4. 禁用时，让 TextBlock 变淡 -->
+		<Style Selector="Button.CapsuleBtn:disabled TextBlock">
+			<Setter Property="Foreground" Value="#CBD5E1"/>
+			<Setter Property="Opacity" Value="0.5"/>
+		</Style>
+
+		<!-- 3. 内部输入框：彻底去除默认样式 -->
+		<Style Selector="TextBox.CapsuleInput">
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="BorderThickness" Value="0"/>
+			<Setter Property="VerticalContentAlignment" Value="Center"/>
+			<Setter Property="HorizontalContentAlignment" Value="Center"/>
+			<Setter Property="Foreground" Value="#334155"/>
+			<Setter Property="FontWeight" Value="Bold"/>
+			<Setter Property="FontSize" Value="14"/>
+			<Setter Property="Padding" Value="0"/>
+			<Setter Property="Margin" Value="0"/>
+			<Setter Property="MinHeight" Value="0"/>
+		</Style>
+
+		<!-- 去除聚焦时的边框 -->
+		<Style Selector="TextBox.CapsuleInput:focus /template/ Border#PART_BorderElement">
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="BorderThickness" Value="0"/>
+		</Style>
+
+		<!-- 鼠标悬停去除边框 -->
+		<Style Selector="TextBox.CapsuleInput:pointerover /template/ Border#PART_BorderElement">
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="BorderThickness" Value="0"/>
+		</Style>
+
+		<!-- ★★★ 核心修复：输入框禁用时，背景强制透明，去除边框 -->
+		<Style Selector="TextBox.CapsuleInput:disabled /template/ Border#PART_BorderElement">
+			<Setter Property="Background" Value="Transparent"/> <!-- 关键！ -->
+			<Setter Property="BorderThickness" Value="0"/>
+		</Style>
+		<!-- 禁用时文字颜色 -->
+		<Style Selector="TextBox.CapsuleInput:disabled">
+			<Setter Property="Foreground" Value="#94A3B8"/>
+		</Style>
+	</Window.Styles>
+
+	<Grid RowDefinitions="40, 60, *">
+
+		<!-- === 1. 标题栏 (已修复拖动) === -->
+		<!-- PointerPressed="OnTitleBarPointerPressed" 是拖动的关键 -->
+		<Grid Grid.Row="0" Background="White" ColumnDefinitions="Auto, *, Auto" PointerPressed="OnTitleBarPointerPressed">
+
+			<StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="10" Margin="15,0,0,0" VerticalAlignment="Center">
+				<PathIcon Data="M12 2L2 7l10 5 10-5-10-5z" Foreground="#0ea5e9" Width="18" Height="18"/>
+				<TextBlock Text="DoboEngineer Pump Station" FontWeight="Bold" FontSize="14" Foreground="#0f172a" VerticalAlignment="Center"/>
+			</StackPanel>
+
+			<!-- 菜单按钮 (右对齐) -->
+			<Button Grid.Column="2" Classes="SysMenuBtn" Margin="0,0,140,0" ToolTip.Tip="系统菜单">
+				<StackPanel Orientation="Horizontal" Spacing="6">
+					<PathIcon Data="M3 6h18v2H3V6zm0 5h18v2H3v-2zm0 5h18v2H3v-2z" Width="14" Height="14" Foreground="#64748b"/>
+					<TextBlock Text="系统菜单" FontSize="13" Foreground="#475569" VerticalAlignment="Center"/>
+				</StackPanel>
+				<Button.Flyout>
+					<MenuFlyout>
+						<MenuItem Header="参数设置" InputGesture="Ctrl+P"/>
+						<MenuItem Header="用户管理"/>
+						<Separator/>
+						<MenuItem Header="退出系统"/>
+					</MenuFlyout>
+				</Button.Flyout>
+			</Button>
+		</Grid>
+
+		<!-- === 2. 全局控制栏 === -->
+		<Border Grid.Row="1" Margin="15,10" Background="White" CornerRadius="8" BoxShadow="0 1 2 0 #05000000">
+			<Grid ColumnDefinitions="Auto, *, Auto" Margin="20,0">
+				<StackPanel Orientation="Horizontal" Spacing="15" VerticalAlignment="Center">
+					<TextBlock Text="控制模式：" FontWeight="Bold" VerticalAlignment="Center" FontSize="15"/>
+					<Border Background="#f1f5f9" CornerRadius="6" Padding="4">
+						<StackPanel Orientation="Horizontal">
+							<RadioButton GroupName="M" Content="手动参数" IsChecked="{Binding !IsAutoMode}"
+										 Theme="{DynamicResource ButtonRadioButton}" Padding="15,8" CornerRadius="4"/>
+							<RadioButton GroupName="M" Content="流量自动" IsChecked="{Binding IsAutoMode}"
+										 Theme="{DynamicResource ButtonRadioButton}" Padding="15,8" CornerRadius="4"/>
+						</StackPanel>
+					</Border>
+					<TextBlock Text="{Binding IsAutoMode}" IsVisible="False"/>
+					<TextBlock Text="* 自动模式下仅需设定流量，参数由系统接管" FontSize="12" Foreground="#94a3b8" VerticalAlignment="Center" Margin="10,0,0,0"/>
+				</StackPanel>
+				<TextBlock Grid.Column="2" Text="{Binding SystemTime}" FontFamily="Consolas" FontWeight="Bold" Foreground="#475569" VerticalAlignment="Center" FontSize="16"/>
+			</Grid>
+		</Border>
+
+		<!-- === 3. 泵列表 === -->
+		<ScrollViewer Grid.Row="2" Padding="0">
+			<ItemsControl ItemsSource="{Binding Pumps}">
+				<ItemsControl.ItemsPanel>
+					<ItemsPanelTemplate>
+						<!-- 卡片宽度 480，高度自适应，保证不重叠 -->
+						<WrapPanel Orientation="Horizontal" ItemWidth="480" />
+					</ItemsPanelTemplate>
+				</ItemsControl.ItemsPanel>
+
+				<ItemsControl.ItemTemplate>
+					<DataTemplate>
+						<!-- 增加卡片高度到 260，给予充足空间 -->
+						<Border Classes="Card" Height="260">
+							<Grid RowDefinitions="50, *">
+
+								<!-- A. 卡片 Header (包含启停按钮) -->
+								<Border Grid.Row="0" BorderBrush="#f1f5f9" BorderThickness="0,0,0,1" Margin="20,0">
+									<Grid ColumnDefinitions="Auto, Auto, Auto,*,  Auto" ShowGridLines="False">
+										<!-- 1. 状态点 -->
+										<Ellipse Grid.Column="0" Width="14" Height="14" Fill="{Binding StatusColor}" Margin="0,0,10,0"/>
+										<!-- 2. 名称 -->
+										<TextBlock Grid.Column="1" Text="{Binding Name}" FontWeight="Bold" FontSize="18" VerticalAlignment="Center"/>
+
+										<!-- 3. 远程标签 -->
+										<Border Grid.Column="2" Background="{Binding RemoteColor}" CornerRadius="4" Padding="8,4" VerticalAlignment="Center" Margin="20,0,0,0">
+											<TextBlock Text="{Binding RemoteText}" FontSize="12" Foreground="White" FontWeight="Bold"/>
+										</Border>
+
+										<!-- 4. 启停按钮 (移到右上角) -->
+										<Button Grid.Column="4"
+												Content="{Binding RunBtnText}"
+												Command="{Binding ToggleRunCommand}"
+												IsEnabled="{Binding IsRemote}"
+												Background="{Binding RunBtnColor}"
+												Foreground="{Binding RunBtnFg}"
+												FontWeight="Bold"
+												FontSize="13"
+												CornerRadius="6"
+												Padding="15,6"
+												VerticalAlignment="Center"/>
+									</Grid>
+								</Border>
+
+								<!-- B. 内容区 -->
+								<Grid Grid.Row="1" ColumnDefinitions="160, *" Margin="15,15,20,15">
+
+									<!-- 左侧：流量控制区 -->
+									<Grid RowDefinitions="*, Auto">
+										<!-- 球状液位 -->
+										<!-- 球状液位 (带波浪动画) -->
+										<Border Width="110" Height="110" CornerRadius="55" ClipToBounds="True"
+												BorderBrush="#e2e8f0" BorderThickness="1" VerticalAlignment="Top" Background="#f8fafc">
+											<Grid>
+												<!-- 这里的 Grid 高度绑定液位，且靠底部对齐，实现水位升降 -->
+												<Grid Height="{Binding LiquidHeight}" VerticalAlignment="Bottom" MinHeight="15">
+
+													<!-- 后层波浪 (浅色，移动速度不同) -->
+													<!-- Data 解释: 绘制一个很宽的波浪，M起笔, C贝塞尔曲线, V垂直向下, H水平闭合 -->
+													<Path Classes="WaveBack"
+														  Fill="#bae6fd"
+														  Width="300" Height="120"
+														  HorizontalAlignment="Left" VerticalAlignment="Top"
+														  Stretch="Fill"
+														  Margin="0,-10,0,0"
+														  Data="M 0,20 C 30,20 30,0 60,0 C 90,0 90,20 120,20 C 150,20 150,0 180,0 C 210,0 210,20 240,20 V 150 H 0 Z"/>
+
+													<!-- 前层波浪 (深色，主要视觉) -->
+													<Path Classes="Wave"
+														  Fill="#0ea5e9"
+														  Width="300" Height="120"
+														  HorizontalAlignment="Left" VerticalAlignment="Top"
+														  Stretch="Fill"
+														  Margin="0,-5,0,0"
+														  Data="M 0,15 C 30,15 30,5 60,5 C 90,5 90,15 120,15 C 150,15 150,5 180,5 C 210,5 210,15 240,15 V 150 H 0 Z"/>
+												</Grid>
+
+												<!-- 文字层 (放在最上层，避免被水淹没看不清) -->
+												<StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+													<TextBlock Text="流量(0~100)" FontSize="14" Foreground="#64748b" HorizontalAlignment="Center"/>
+													<TextBlock Text="{Binding FlowPV, StringFormat='{}{0:F1}'}"
+															   FontSize="24" FontWeight="Bold" Foreground="#0f172a"
+															   HorizontalAlignment="Center">
+														<!-- 给文字加白色描边阴影，保证在深色水位上也能看清 -->
+														<TextBlock.Effect>
+															<DropShadowEffect Color="White" BlurRadius="2" Opacity="1" OffsetX="0" OffsetY="0"/>
+														</TextBlock.Effect>
+													</TextBlock>
+												</StackPanel>
+											</Grid>
+										</Border>
+
+										<!-- 流量设定 SV (显示 + 控制) -->
+										<!--<Grid Grid.Row="1" RowDefinitions="Auto, Auto" Margin="0,10,0,0">
+											--><!-- 显示设定值 --><!--
+											<TextBlock Text="{Binding FlowSV, StringFormat='目标 SV: {0:F1}'}"
+													   FontSize="12" Foreground="#64748b" HorizontalAlignment="Center" Margin="0,0,0,5"/>
+
+											--><!-- 控制按钮 --><!--
+											<Grid ColumnDefinitions="36,*,36" Width="120" IsVisible="{Binding CanEditFlow}">
+												<Button Classes="Step" Content="-" Command="{Binding AdjustValueCommand}" CommandParameter="Flow|-1"/>
+												--><!-- 这里放一个不可编辑的框展示数值，或者留白，这里直接通过上方Text展示，简化UI --><!--
+												<Panel/>
+												<Button Grid.Column="2" Classes="Step" Content="+" Command="{Binding AdjustValueCommand}" CommandParameter="Flow|1"/>
+											</Grid>
+										</Grid>-->
+										<Border Margin="0,5,0,0" Classes="CapsuleGroup" Grid.Row="2" HorizontalAlignment="Left" IsEnabled="{Binding CanEditFlow}">
+											<StackPanel Orientation="Horizontal">
+												<TextBlock Text="流量目标"
+														   FontWeight="Light"
+														   FontSize="14"
+														   VerticalAlignment="Center"
+														   HorizontalAlignment="Center"
+														   Margin="0,-2,0,0"/>
+												<Button Grid.Column="0" Classes="CapsuleBtn"
+														Command="{Binding AdjustValueCommand}" CommandParameter="Stroke|-1"
+														>
+													<!--<PathIcon Data="M19 13H5v-2h14v2z" Width="10" Height="10"/>-->
+													<TextBlock Text="−"
+															   FontWeight="ExtraBold"
+															   FontSize="20"
+															   VerticalAlignment="Center"
+															   HorizontalAlignment="Center"
+															   Margin="0,-2,0,0"/> <!-- 微调 Margin 让减号视觉居中 -->
+												</Button>
+												<TextBox Grid.Column="1" Classes="CapsuleInput" Width="40" MinWidth="10"
+														 
+														 />
+												<Button Grid.Column="2" Classes="CapsuleBtn"
+														Command="{Binding AdjustValueCommand}" CommandParameter="Stroke|1"
+														>
+													<PathIcon Data="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" Width="10" Height="10"/>
+												</Button>
+											</StackPanel>
+										</Border>
+									</Grid>
+
+
+									<!-- 右侧：参数控制 (严格 Grid 布局防止重叠) -->
+									<!-- 使用 Grid 显式定义每一行的高度，彻底解决重叠 -->
+									<Grid Grid.Column="1" Margin="20,0,0,0"
+										  RowDefinitions="Auto, 10, Auto, 20, Auto, 10, Auto">
+
+										<!-- === 冲程 Stroke === -->
+										<!-- Row 0: 标签 + 数值 -->
+										<Grid Grid.Row="0" ColumnDefinitions="*, Auto">
+											<TextBlock Text="冲程 Stroke" FontSize="13" Foreground="#64748b" VerticalAlignment="Bottom"/>
+											<StackPanel Grid.Column="1" Orientation="Horizontal">
+												<TextBlock Text="{Binding StrokePV, StringFormat='{}{0:F1}'}" FontWeight="Bold" FontSize="16" Foreground="#334155"/>
+												<TextBlock Text="%" FontSize="11" VerticalAlignment="Bottom" Margin="2,0,0,2" Foreground="#94a3b8"/>
+											</StackPanel>
+										</Grid>
+
+										<!-- Row 1: 进度条 -->
+										<ProgressBar Grid.Row="1" Value="{Binding StrokePV}" Maximum="100" Height="10" CornerRadius="3" Foreground="#0ea5e9" Background="#f1f5f9" VerticalAlignment="Center"/>
+
+										<!-- Row 2: 控制区 -->
+										<!--<Grid Grid.Row="2" ColumnDefinitions="40, *, 40">
+										<Button Grid.Column="0" Classes="Step" Content="-" Command="{Binding AdjustValueCommand}" CommandParameter="Stroke|-1" IsEnabled="{Binding CanEditParam}"/>
+										<TextBox Grid.Column="1" Classes="ValInput" Text="{Binding StrokeSV}" IsEnabled="{Binding CanEditParam}" Margin="8,0"/>
+										<Button Grid.Column="2" Classes="Step" Content="+" Command="{Binding AdjustValueCommand}" CommandParameter="Stroke|1" IsEnabled="{Binding CanEditParam}"/>
+										</Grid>--> <!--ColumnDefinitions="Auto, *, Auto"-->
+										<Border Margin="0,5,0,0" Classes="CapsuleGroup" Grid.Row="2" HorizontalAlignment="Left" >
+											<StackPanel Orientation="Horizontal">
+												<TextBlock Text=" 设置目标 "
+														   FontWeight="Light"
+														   FontSize="14"
+														   VerticalAlignment="Center"
+														   HorizontalAlignment="Center"
+														   Margin="0,-2,0,0"/>
+												<Button Grid.Column="0" Classes="CapsuleBtn"
+														Command="{Binding AdjustValueCommand}" CommandParameter="Stroke|-1"
+														IsEnabled="{Binding CanEditParam}">
+													<!--<PathIcon Data="M19 13H5v-2h14v2z" Width="10" Height="10"/>-->
+													<TextBlock Text="−"
+															   FontWeight="ExtraBold"
+															   FontSize="20"
+															   VerticalAlignment="Center"
+															   HorizontalAlignment="Center"
+															   Margin="0,-2,0,0"/> <!-- 微调 Margin 让减号视觉居中 -->
+												</Button>
+												<TextBox Grid.Column="1" Classes="CapsuleInput" Width="120"
+														 Text="{Binding StrokeSV}"
+														 IsEnabled="{Binding CanEditParam}"/>
+												<Button Grid.Column="2" Classes="CapsuleBtn"
+														Command="{Binding AdjustValueCommand}" CommandParameter="Stroke|1"
+														IsEnabled="{Binding CanEditParam}">
+													<PathIcon Data="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" Width="10" Height="10"/>
+												</Button>
+											</StackPanel>
+										</Border>
+										<!-- Row 3: 间隔 (Spacer) 由 RowDefinitions="20" 控制 -->
+
+										<!-- === 频率 Freq === -->
+										<!-- Row 4: 标签 + 数值 -->
+										<Grid Grid.Row="4" ColumnDefinitions="*, Auto">
+											<TextBlock Text="频率 Freq" FontSize="13" Foreground="#64748b" VerticalAlignment="Bottom"/>
+											<StackPanel Grid.Column="1" Orientation="Horizontal">
+												<TextBlock Text="{Binding FreqPV, StringFormat='{}{0:F1}'}" FontWeight="Bold" FontSize="16" Foreground="#334155"/>
+												<TextBlock Text="Hz" FontSize="11" VerticalAlignment="Bottom" Margin="2,0,0,2" Foreground="#94a3b8"/>
+											</StackPanel>
+										</Grid>
+
+										<!-- Row 5: 进度条 -->
+										<ProgressBar Grid.Row="5" Value="{Binding FreqPV}" Maximum="100" Height="10" CornerRadius="3" Foreground="#f59e0b" Background="#f1f5f9" VerticalAlignment="Center"/>
+
+										<!-- Row 6: 控制区 -->
+										<!--    <Grid Grid.Row="6" ColumnDefinitions="40, *, 40">
+										<Button Grid.Column="0" Classes="Step" Content="-" Command="{Binding AdjustValueCommand}" CommandParameter="Freq|-1" IsEnabled="{Binding CanEditParam}"/>
+										<TextBox Grid.Column="1" Classes="ValInput" Text="{Binding FreqSV}" IsEnabled="{Binding CanEditParam}" Margin="8,0"/>
+										<Button Grid.Column="2" Classes="Step" Content="+" Command="{Binding AdjustValueCommand}" CommandParameter="Freq|1" IsEnabled="{Binding CanEditParam}"/>
+										</Grid>-->
+										<Border Margin="0,5,0,0" Classes="CapsuleGroup" Grid.Row="6" HorizontalAlignment="Left" >
+											<StackPanel Orientation="Horizontal">
+												<TextBlock Text=" 设置目标 "
+														   FontWeight="Light"
+														   FontSize="14"
+														   VerticalAlignment="Center"
+														   HorizontalAlignment="Center"
+														   Margin="0,-2,0,0"/>
+												<Button Grid.Column="0" Classes="CapsuleBtn"
+														Command="{Binding AdjustValueCommand}" CommandParameter="Stroke|-1"
+														IsEnabled="{Binding CanEditParam}">
+													<!--<PathIcon Data="M19 13H5v-2h14v2z" Width="10" Height="10"/>-->
+													<TextBlock Text="−"
+															   FontWeight="ExtraBold"
+															   FontSize="20"
+															   VerticalAlignment="Center"
+															   HorizontalAlignment="Center"
+															   Margin="0,-2,0,0"/> <!-- 微调 Margin 让减号视觉居中 -->
+												</Button>
+												<TextBox Grid.Column="1" Classes="CapsuleInput" Width="120"
+														 Text="{Binding StrokeSV}"
+														 IsEnabled="{Binding CanEditParam}"/>
+												<Button Grid.Column="2" Classes="CapsuleBtn"
+														Command="{Binding AdjustValueCommand}" CommandParameter="Stroke|1"
+														IsEnabled="{Binding CanEditParam}">
+													<PathIcon Data="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" Width="10" Height="10"/>
+												</Button>
+											</StackPanel>
+										</Border>
+									</Grid> <!-- End Right Grid -->
+								</Grid>
+							</Grid>
+						</Border>
+					</DataTemplate>
+				</ItemsControl.ItemTemplate>
+			</ItemsControl>
+		</ScrollViewer>
+	</Grid>
 </Window>

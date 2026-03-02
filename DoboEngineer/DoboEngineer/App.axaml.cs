@@ -29,7 +29,9 @@ namespace DoboEngineer
                 };
                 //desktop.MainWindow = new StandardSet();
             }
-
+#if DEBUG
+            this.AttachDevTools();
+#endif
             base.OnFrameworkInitializationCompleted();
         }
 
