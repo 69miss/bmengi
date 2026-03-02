@@ -3,11 +3,12 @@
 		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 		xmlns:vm="using:DoboEngineer.Pump"
-		mc:Ignorable="d" d:DesignWidth="1100" d:DesignHeight="700"
+		mc:Ignorable="d" d:DesignWidth="960" d:DesignHeight="660"
 		x:Class="DoboEngineer.Pump.Window1"
 		x:DataType="vm:MainWindowViewModel"
+		xmlns:cc="using:DoboEngineer.Controls"
 		Title="DoboEngineer Pump Station"
-		Width="1100" Height="750" MinWidth="1024" MinHeight="600"
+		Width="960" Height="660" MinWidth="950" MinHeight="650"
 		Background="#f1f5f9"
 		ExtendClientAreaToDecorationsHint="True"
 		ExtendClientAreaChromeHints="PreferSystemChrome"
@@ -308,17 +309,17 @@
 								<Grid Grid.Row="1" ColumnDefinitions="160, *" Margin="15,15,20,15">
 
 									<!-- 左侧：流量控制区 -->
-									<Grid RowDefinitions="*, Auto">
+									<Grid RowDefinitions="140, auto">
 										<!-- 球状液位 -->
 										<!-- 球状液位 (带波浪动画) -->
-										<Border Width="110" Height="110" CornerRadius="55" ClipToBounds="True"
+										<Border IsVisible="False" Width="110" Height="110" CornerRadius="55" ClipToBounds="True"
 												BorderBrush="#e2e8f0" BorderThickness="1" VerticalAlignment="Top" Background="#f8fafc">
 											<Grid>
-												<!-- 这里的 Grid 高度绑定液位，且靠底部对齐，实现水位升降 -->
+												 <!--这里的 Grid 高度绑定液位，且靠底部对齐，实现水位升降--> 
 												<Grid Height="{Binding LiquidHeight}" VerticalAlignment="Bottom" MinHeight="15">
 
-													<!-- 后层波浪 (浅色，移动速度不同) -->
-													<!-- Data 解释: 绘制一个很宽的波浪，M起笔, C贝塞尔曲线, V垂直向下, H水平闭合 -->
+													<!-- 后层波浪 (浅色，移动速度不同) 
+													 Data 解释: 绘制一个很宽的波浪，M起笔, C贝塞尔曲线, V垂直向下, H水平闭合 -->
 													<Path Classes="WaveBack"
 														  Fill="#bae6fd"
 														  Width="300" Height="120"
@@ -327,7 +328,7 @@
 														  Margin="0,-10,0,0"
 														  Data="M 0,20 C 30,20 30,0 60,0 C 90,0 90,20 120,20 C 150,20 150,0 180,0 C 210,0 210,20 240,20 V 150 H 0 Z"/>
 
-													<!-- 前层波浪 (深色，主要视觉) -->
+													 <!--前层波浪 (深色，主要视觉)--> 
 													<Path Classes="Wave"
 														  Fill="#0ea5e9"
 														  Width="300" Height="120"
@@ -337,13 +338,13 @@
 														  Data="M 0,15 C 30,15 30,5 60,5 C 90,5 90,15 120,15 C 150,15 150,5 180,5 C 210,5 210,15 240,15 V 150 H 0 Z"/>
 												</Grid>
 
-												<!-- 文字层 (放在最上层，避免被水淹没看不清) -->
+												 <!--文字层 (放在最上层，避免被水淹没看不清)--> 
 												<StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
 													<TextBlock Text="流量(0~100)" FontSize="14" Foreground="#64748b" HorizontalAlignment="Center"/>
 													<TextBlock Text="{Binding FlowPV, StringFormat='{}{0:F1}'}"
 															   FontSize="24" FontWeight="Bold" Foreground="#0f172a"
 															   HorizontalAlignment="Center">
-														<!-- 给文字加白色描边阴影，保证在深色水位上也能看清 -->
+														 <!--给文字加白色描边阴影，保证在深色水位上也能看清--> 
 														<TextBlock.Effect>
 															<DropShadowEffect Color="White" BlurRadius="2" Opacity="1" OffsetX="0" OffsetY="0"/>
 														</TextBlock.Effect>
@@ -351,20 +352,25 @@
 												</StackPanel>
 											</Grid>
 										</Border>
-
+										<cc:WaveGauge Width="110" Height="110"
+													  Value="{Binding FlowPV}"
+													  Text="{Binding FlowPV, StringFormat='{}{0:F1}'}"
+													  SubText="流量"
+													  WaveColor="#0ea5e9"
+													  VerticalAlignment="Top"/>
 										<!-- 流量设定 SV (显示 + 控制) -->
 										<!--<Grid Grid.Row="1" RowDefinitions="Auto, Auto" Margin="0,10,0,0">
-											--><!-- 显示设定值 --><!--
-											<TextBlock Text="{Binding FlowSV, StringFormat='目标 SV: {0:F1}'}"
-													   FontSize="12" Foreground="#64748b" HorizontalAlignment="Center" Margin="0,0,0,5"/>
+										--><!-- 显示设定值 --><!--
+										<TextBlock Text="{Binding FlowSV, StringFormat='目标 SV: {0:F1}'}"
+										FontSize="12" Foreground="#64748b" HorizontalAlignment="Center" Margin="0,0,0,5"/>
 
-											--><!-- 控制按钮 --><!--
-											<Grid ColumnDefinitions="36,*,36" Width="120" IsVisible="{Binding CanEditFlow}">
-												<Button Classes="Step" Content="-" Command="{Binding AdjustValueCommand}" CommandParameter="Flow|-1"/>
-												--><!-- 这里放一个不可编辑的框展示数值，或者留白，这里直接通过上方Text展示，简化UI --><!--
-												<Panel/>
-												<Button Grid.Column="2" Classes="Step" Content="+" Command="{Binding AdjustValueCommand}" CommandParameter="Flow|1"/>
-											</Grid>
+										--><!-- 控制按钮 --><!--
+										<Grid ColumnDefinitions="36,*,36" Width="120" IsVisible="{Binding CanEditFlow}">
+										<Button Classes="Step" Content="-" Command="{Binding AdjustValueCommand}" CommandParameter="Flow|-1"/>
+										--><!-- 这里放一个不可编辑的框展示数值，或者留白，这里直接通过上方Text展示，简化UI --><!--
+										<Panel/>
+										<Button Grid.Column="2" Classes="Step" Content="+" Command="{Binding AdjustValueCommand}" CommandParameter="Flow|1"/>
+										</Grid>
 										</Grid>-->
 										<Border Margin="0,5,0,0" Classes="CapsuleGroup" Grid.Row="2" HorizontalAlignment="Left" IsEnabled="{Binding CanEditFlow}">
 											<StackPanel Orientation="Horizontal">
@@ -375,7 +381,7 @@
 														   HorizontalAlignment="Center"
 														   Margin="0,-2,0,0"/>
 												<Button Grid.Column="0" Classes="CapsuleBtn"
-														Command="{Binding AdjustValueCommand}" CommandParameter="Stroke|-1"
+														Command="{Binding AdjustValueCommand}" CommandParameter="Flow|-1"
 														>
 													<!--<PathIcon Data="M19 13H5v-2h14v2z" Width="10" Height="10"/>-->
 													<TextBlock Text="−"
@@ -385,11 +391,9 @@
 															   HorizontalAlignment="Center"
 															   Margin="0,-2,0,0"/> <!-- 微调 Margin 让减号视觉居中 -->
 												</Button>
-												<TextBox Grid.Column="1" Classes="CapsuleInput" Width="40" MinWidth="10"
-														 
-														 />
+												<TextBox Grid.Column="1" Classes="CapsuleInput" Width="40" MinWidth="10" Text="{Binding FlowSV, StringFormat='{}{0:F1}'}"/>
 												<Button Grid.Column="2" Classes="CapsuleBtn"
-														Command="{Binding AdjustValueCommand}" CommandParameter="Stroke|1"
+														Command="{Binding AdjustValueCommand}" CommandParameter="Flow|1"
 														>
 													<PathIcon Data="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" Width="10" Height="10"/>
 												</Button>
@@ -481,7 +485,7 @@
 														   HorizontalAlignment="Center"
 														   Margin="0,-2,0,0"/>
 												<Button Grid.Column="0" Classes="CapsuleBtn"
-														Command="{Binding AdjustValueCommand}" CommandParameter="Stroke|-1"
+														Command="{Binding AdjustValueCommand}" CommandParameter="Freq|-1"
 														IsEnabled="{Binding CanEditParam}">
 													<!--<PathIcon Data="M19 13H5v-2h14v2z" Width="10" Height="10"/>-->
 													<TextBlock Text="−"
@@ -492,10 +496,10 @@
 															   Margin="0,-2,0,0"/> <!-- 微调 Margin 让减号视觉居中 -->
 												</Button>
 												<TextBox Grid.Column="1" Classes="CapsuleInput" Width="120"
-														 Text="{Binding StrokeSV}"
+														 Text="{Binding FreqSV}"
 														 IsEnabled="{Binding CanEditParam}"/>
 												<Button Grid.Column="2" Classes="CapsuleBtn"
-														Command="{Binding AdjustValueCommand}" CommandParameter="Stroke|1"
+														Command="{Binding AdjustValueCommand}" CommandParameter="Freq|1"
 														IsEnabled="{Binding CanEditParam}">
 													<PathIcon Data="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" Width="10" Height="10"/>
 												</Button>

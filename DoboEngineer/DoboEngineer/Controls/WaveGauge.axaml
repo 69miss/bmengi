@@ -52,7 +52,7 @@
 
             <!-- 文字层 -->
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <TextBlock Text="当前流量" FontSize="10" Foreground="#64748b" HorizontalAlignment="Center"/>
+                <TextBlock Text="{Binding SubText, ElementName=Root}" FontSize="14" Foreground="#64748b" HorizontalAlignment="Center"/>
                 <TextBlock Text="{Binding Text, ElementName=Root}" 
                            FontSize="24" FontWeight="Bold" Foreground="#0f172a" 
                            HorizontalAlignment="Center">

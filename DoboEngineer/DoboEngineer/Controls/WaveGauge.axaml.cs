@@ -45,7 +45,14 @@ public partial class WaveGauge : UserControl
         get => GetValue(TextProperty);
         set => SetValue(TextProperty, value);
     }
+    public static readonly StyledProperty<string> SubTextProperty =
+        AvaloniaProperty.Register<WaveGauge, string>(nameof(Text), "子文本");
 
+    public string SubText
+    {
+        get => GetValue(SubTextProperty);
+        set => SetValue(SubTextProperty, value);
+    }
     // --- 核心逻辑：无需 Converter，直接监听属性变化 ---
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
     {
@@ -62,7 +69,7 @@ public partial class WaveGauge : UserControl
     {
         base.OnApplyTemplate(e);
         // 找到 XAML 中名为 PART_WaveContainer 的控件
-        _waveContainer = e.NameScope.Find<Grid>("PART_WaveContainer");
+        _waveContainer = PART_WaveContainer;// e.NameScope.Find<Grid>("PART_WaveContainer"); 
         UpdateWaveHeight();
     }
 
