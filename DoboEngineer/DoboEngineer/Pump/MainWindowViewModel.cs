@@ -1,7 +1,10 @@
 ﻿using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Threading.Tasks;
+using static FreeSql.Internal.GlobalFilter;
 
 namespace DoboEngineer.Pump;
 
@@ -9,10 +12,65 @@ namespace DoboEngineer.Pump;
 public partial class MainWindowViewModel : ObservableObject
 {
     public ObservableCollection<PumpViewModel> Pumps { get; } = new();
+    PumpCmd cmd;
     [ObservableProperty] private bool _isAutoMode;
     [ObservableProperty] private string _systemTime = string.Empty;
 
     public MainWindowViewModel()
+    {
+        Mock();    
+    }
+    public async Task Init()
+    {
+        var Items = new List<IDataItemBase>
+        {
+            CreateItem(40001, "心跳", false),
+            new PumpStatus(),
+            new PumpCtl(),
+            new PumpCtlMode()
+        };
+        for (ushort i = 40005; i <= 40032;)
+        {
+            var pNum = (i - 40005) / 7 + 1;
+            // 模拟 泵1 (地址 40008-40011)
+            Items.Add(CreateItem(i++, $"泵{pNum}-频率", false, "Hz"));
+            Items.Add(CreateItem(i++, $"泵{pNum}-冲程", false, "%"));
+            Items.Add(CreateItem(i++, $"泵{pNum}-流量", false, "L/min"));
+            //
+            Items.Add(CreateItem(i++, $"泵{pNum}-最大流量", true, "L/min"));
+            Items.Add(CreateItem(i++, $"泵{pNum}-频率设定", true, "Hz"));
+            Items.Add(CreateItem(i++, $"泵{pNum}-冲程设定", true, "%"));
+            Items.Add(CreateItem(i++, $"泵{pNum}-流量设定", true, "L/min"));
+        }
+        cmd = new PumpCmd(Items.ToArray());
+        await cmd.Connect();
+        cmd.Items.ItemPropertyChanged += Items_ItemPropertyChanged;
+    }
+
+
+    private IDataItemBase CreateItem(ushort addr, string name, bool canWrite, string remark = "", byte? fmtRadix = null)
+    {
+        return new DataItemBase()
+        {
+            Address = addr,
+            Name = name,
+            CanWrite = canWrite,
+        };
+    }
+    private void Items_ItemPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (sender is not IDataItemBase item)
+            return;
+        switch (item.Address)
+        {
+            case 40002:
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void Mock()
     {
         for (int i = 1; i <= 4; i++)
         {

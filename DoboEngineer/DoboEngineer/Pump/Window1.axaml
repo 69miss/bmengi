@@ -30,37 +30,7 @@
 			<Setter Property="Background" Value="#e2e8f0"/>
 		</Style>
 
-		<!-- 步进按钮 (加减号) -->
-		<Style Selector="Button.Step">
-			<Setter Property="Width" Value="36"/> <!-- 加大尺寸防止误触 -->
-			<Setter Property="Height" Value="36"/>
-			<Setter Property="Background" Value="#ffffff"/>
-			<Setter Property="BorderBrush" Value="#cbd5e1"/>
-			<Setter Property="BorderThickness" Value="1"/>
-			<Setter Property="CornerRadius" Value="6"/>
-			<Setter Property="FontWeight" Value="Bold"/>
-			<Setter Property="FontSize" Value="18"/>
-			<Setter Property="Foreground" Value="#64748b"/>
-			<Setter Property="Padding" Value="0"/>
-			<Setter Property="HorizontalContentAlignment" Value="Center"/>
-			<Setter Property="VerticalContentAlignment" Value="Center"/>
-		</Style>
-		<Style Selector="Button.Step:pressed">
-			<Setter Property="Background" Value="#f8fafc"/>
-			<Setter Property="RenderTransform" Value="scale(0.95)"/>
-		</Style>
-
-		<!-- 数值输入框 -->
-		<Style Selector="TextBox.ValInput">
-			<Setter Property="Height" Value="36"/>
-			<Setter Property="VerticalContentAlignment" Value="Center"/>
-			<Setter Property="HorizontalContentAlignment" Value="Center"/>
-			<Setter Property="BorderBrush" Value="#e2e8f0"/>
-			<Setter Property="CornerRadius" Value="6"/>
-			<Setter Property="FontSize" Value="16"/>
-			<Setter Property="FontWeight" Value="Bold"/>
-			<Setter Property="Foreground" Value="#334155"/>
-		</Style>
+		
 
 		<!-- 卡片容器 -->
 		<Style Selector="Border.Card">
@@ -69,35 +39,7 @@
 			<Setter Property="BoxShadow" Value="0 4 6 -1 #10000000, 0 2 4 -1 #06000000"/>
 			<Setter Property="Margin" Value="10"/>
 		</Style>
-		<!-- 波浪动画：让波浪在水平方向无限循环移动 -->
-		<Style Selector="Path.Wave">
-			<Style.Animations>
-				<Animation Duration="0:0:2" IterationCount="Infinite">
-					<KeyFrame Cue="0%">
-						<Setter Property="TranslateTransform.X" Value="0"/>
-					</KeyFrame>
-					<KeyFrame Cue="100%">
-						<Setter Property="TranslateTransform.X" Value="-150"/> <!-- 移动距离要等于波浪纹理的一个周期宽度 -->
-					</KeyFrame>
-				</Animation>
-			</Style.Animations>
-		</Style>
-
-		<!-- 后层波浪：速度稍慢或相位不同，营造立体感 -->
-		<Style Selector="Path.WaveBack">
-			<Style.Animations>
-				<Animation Duration="0:0:3" IterationCount="Infinite">
-					<KeyFrame Cue="0%">
-						<Setter Property="TranslateTransform.X" Value="-50"/>
-					</KeyFrame>
-					<KeyFrame Cue="100%">
-						<Setter Property="TranslateTransform.X" Value="-200"/>
-					</KeyFrame>
-				</Animation>
-			</Style.Animations>
-		</Style>
-
-
+		
 		<!-- 1. 胶囊容器：统一管理背景色 -->
 		<Style Selector="Border.CapsuleGroup">
 			<Setter Property="Background" Value="#F1F5F9"/> <!-- 正常背景：浅灰 -->
@@ -228,7 +170,7 @@
 			<Button Grid.Column="2" Classes="SysMenuBtn" Margin="0,0,140,0" ToolTip.Tip="系统菜单">
 				<StackPanel Orientation="Horizontal" Spacing="6">
 					<PathIcon Data="M3 6h18v2H3V6zm0 5h18v2H3v-2zm0 5h18v2H3v-2z" Width="14" Height="14" Foreground="#64748b"/>
-					<TextBlock Text="系统菜单" FontSize="13" Foreground="#475569" VerticalAlignment="Center"/>
+					<!--<TextBlock Text="系统菜单" FontSize="13" Foreground="#475569" VerticalAlignment="Center"/>-->
 				</StackPanel>
 				<Button.Flyout>
 					<MenuFlyout>

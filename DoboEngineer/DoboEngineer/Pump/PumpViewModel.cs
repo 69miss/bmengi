@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System;
+using System.ComponentModel;
 using System.Threading.Tasks;
 
 namespace DoboEngineer.Pump;
@@ -15,7 +16,9 @@ public partial class PumpViewModel : ObservableObject
     [ObservableProperty] private double _flowSV;
     [ObservableProperty] private double _strokeSV;
     [ObservableProperty] private double _freqSV;
-
+    [ObservableProperty] private double _flowMax;
+    [ObservableProperty] private double _strokeMax;
+    [ObservableProperty] private double _strokeMin;
     // --- 实际反馈 (PV) ---
     [ObservableProperty][NotifyPropertyChangedFor(nameof(LiquidHeight))] private double _flowPV;
     [ObservableProperty] private double _strokePV;
@@ -46,6 +49,8 @@ public partial class PumpViewModel : ObservableObject
 
     public bool IsFaulty => IsFault;
 
+    public IDataItemBase[] PumpsInfo { get => pumpsInfo; set => pumpsInfo = value; }
+
     public PumpViewModel(int id)
     {
         Id = id;
@@ -70,5 +75,59 @@ public partial class PumpViewModel : ObservableObject
         if (target == "Flow" && CanEditFlow) FlowSV = Math.Clamp(FlowSV + amount, 0, 100);
         else if (target == "Stroke" && CanEditParam) StrokeSV = Math.Clamp(StrokeSV + amount, 0, 100);
         else if (target == "Freq" && CanEditParam) FreqSV = Math.Clamp(FreqSV + amount, 0, 100);
+    }
+    IDataItemBase[] pumpsInfo;
+    void get( )
+    {
+        PumpViewModel pumpVM = this;
+        var num = pumpVM.Id;
+        var statusInt = pumpsInfo[1].Value.ToInt16(null);
+        var ctlMode = (pumpsInfo[3] as PumpCtlMode);
+        pumpVM.IsRemote = (statusInt & (1 << num - 1)) != 0;
+        pumpVM.IsFault = (statusInt & (1 << num + 3)) != 0;
+        pumpVM.IsRunning = (statusInt & (1 << num + 7)) != 0;
+        pumpVM.CanEditFlow = ctlMode.Flow && pumpVM.IsRemote;
+        pumpVM.CanEditParam = ctlMode.Manual && pumpVM.IsRemote;
+        var index = num + 3;
+        pumpVM.FreqPV = PumpsInfo[index++].Value.ToInt16(null);
+        pumpVM.StrokePV = PumpsInfo[index++].Value.ToInt16(null);
+        pumpVM.FlowPV = PumpsInfo[index++].Value.ToInt16(null);
+        pumpVM.FlowMax = PumpsInfo[index++].Value.ToInt16(null);
+        pumpVM.FreqSV = PumpsInfo[index++].Value.ToInt16(null);
+        pumpVM.StrokeSV = PumpsInfo[index++].Value.ToInt16(null);
+        pumpVM.FlowSV = PumpsInfo[index++].Value.ToInt16(null);
+        pumpVM.StrokeMax = PumpsInfo[num+31].Value.ToInt16(null);
+        pumpVM.StrokeMin = PumpsInfo[num + 32].Value.ToInt16(null);
+    }
+    protected override void OnPropertyChanged(PropertyChangedEventArgs e)
+    {
+        base.OnPropertyChanged(e);
+        set(e.PropertyName);
+    }
+    void set(string prop) {
+        var num = this.Id;
+        if (nameof(FlowMax) == prop)
+        {
+            PumpsInfo[num + 6].Value = FlowMax;
+        }
+        else if (nameof(FreqSV) == prop) {
+            PumpsInfo[num + 7].Value = FlowMax;
+        }
+        else if (nameof(StrokeSV) == prop)
+        {
+            PumpsInfo[num + 8].Value = StrokeSV;
+        }
+        else if (nameof(FlowSV) == prop)
+        {
+            PumpsInfo[num + 9].Value = FlowSV;
+        }
+        else if (nameof(StrokeMax) == prop)
+        {
+            PumpsInfo[num + 31].Value = StrokeMax;
+        }
+        else if (nameof(StrokeMin) == prop)
+        {
+            PumpsInfo[num + 32].Value = StrokeMin;
+        }
     }
 }

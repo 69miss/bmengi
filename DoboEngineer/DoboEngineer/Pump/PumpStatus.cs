@@ -10,17 +10,20 @@ using System.Threading.Tasks;
 namespace DoboEngineer.Pump;
 
 
-public interface IDataItemBase {
+public interface IDataItemBase: INotifyPropertyChanged
+{
    public ushort Address{get;set;}
    public string Name { get; set;}
    public abstract IConvertible Value { get;set;}
    public bool CanWrite { get; set; }
 }
-public abstract class DataItemBase: IDataItemBase, INotifyPropertyChangedExt2
+public  class DataItemBase: IDataItemBase, INotifyPropertyChangedExt2
 {
+    private IConvertible _value;
+
     public ushort Address { get; set; }
     public string Name { get; set; }
-    public abstract IConvertible Value { get; set; }
+    public virtual IConvertible Value { get => _value; set =>NotifyThis.SetField(ref _value,value); }
     public bool CanWrite { get; set; }
     protected INotifyPropertyChangedExt2 NotifyThis { get => this; }
     public event PropertyChangedEventHandler? PropertyChanged;
@@ -46,6 +49,16 @@ public class PumpStatus : DataItemBase, INotifyPropertyChangedExt2
     private bool _pump2Running;  // 第9位
     private bool _pump3Running;  // 第10位
     private bool _pump4Running;  // 第11位
+
+    /// <summary>
+    /// (40002, "状态反馈", false, "", 2)
+    /// </summary>
+    public PumpStatus()
+    {
+        Address = 40002;
+        Name = "状态反馈";
+        CanWrite = false;
+    }
 
     #region 完整属性（带变更通知）
     // 第0-3位：泵远程状态
@@ -123,9 +136,9 @@ public class PumpStatus : DataItemBase, INotifyPropertyChangedExt2
         set => NotifyThis.SetField(ref _pump4Running, value);
     }
     #endregion
-    public ushort Address { get; set; }
-    public string Name { get; set; }
-    public bool CanWrite { get; set; }
+    //public  ushort Address { get; set; } = 40002;
+    //public string Name { get; set; } = "状态反馈";
+    //public bool CanWrite { get; set; }=false;
     public override IConvertible Value
     {
         get
@@ -222,7 +235,18 @@ public class PumpCtl : DataItemBase
     private bool _pump2Running;  // 第9位
     private bool _pump3Running;  // 第10位
     private bool _pump4Running;  // 第11位
-                                 // 第8-11位：泵运行状态
+
+    /// <summary>
+    /// (40003, "控制字", true, "", 2)
+    /// </summary>
+    public PumpCtl()
+    {
+        Address = 40003;
+        Name = "控制位";
+        CanWrite = true;
+    }
+
+    // 第8-11位：泵运行状态
     public bool Pump1Running
     {
         get => _pump1Running;
@@ -275,6 +299,16 @@ public class PumpCtlMode: DataItemBase
 {
     private bool flow;
     private bool manual;
+
+    /// <summary>
+    /// (40004, "控制模式", true, "", 2)
+    /// </summary>
+    public PumpCtlMode()
+    {
+        Address = 40004;
+        Name = "控制模式";
+        CanWrite = true;
+    }
 
     public bool Flow { get => flow; set => NotifyThis.SetField(ref flow, value);}
     public bool Manual { get => manual; set => NotifyThis.SetField(ref manual, value); }

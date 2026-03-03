@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
@@ -107,5 +109,36 @@ public interface INotifyPropertyChangedExt2 : INotifyPropertyChanged
 
 }
 
+public class ObservableItemCollection<T> : ObservableCollection<T> where T : INotifyPropertyChanged
+{
+    protected override void OnCollectionChanged(NotifyCollectionChangedEventArgs e)
+    {
+        // 取消旧元素的订阅
+        if (e.OldItems != null)
+        {
+            foreach (INotifyPropertyChanged item in e.OldItems)
+                item.PropertyChanged -= Item_PropertyChanged;
+        }
+        // 订阅新元素的事件
+        if (e.NewItems != null)
+        {
+            foreach (INotifyPropertyChanged item in e.NewItems)
+                item.PropertyChanged += Item_PropertyChanged;
+        }
+        base.OnCollectionChanged(e);
+    }
+    public event PropertyChangedEventHandler? ItemPropertyChanged;
+    private void Item_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        ItemPropertyChanged?.Invoke(sender, e);
+    }
 
+    // 清理时取消所有订阅
+    protected override void ClearItems()
+    {
+        foreach (INotifyPropertyChanged item in this)
+            item.PropertyChanged -= Item_PropertyChanged;
+        base.ClearItems();
+    }
+}
 

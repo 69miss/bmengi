@@ -1,6 +1,7 @@
 ﻿using Avalonia.Threading;
 using Dobo.Appl.Device;
 using Dobo.Appl.HunterCmd;
+using Dobo.Appl.Utility;
 using FluentModbus;
 using System;
 using System.Collections.Generic;
@@ -17,15 +18,26 @@ internal class PumpCmd
 {
     IProtocolAdapter client ;
     private CancellationTokenSource cts;
-    public  ObservableCollection<IDataItemBase> Items { get; } = new();
+    public  ObservableItemCollection<IDataItemBase> Items { get; } = new();
     ushort minAddr;
     ushort maxAddr;
-    public PumpCmd() {
-        Init();
-       // client = new PumpProtocolAdapter();     
-    }
-    protected virtual void Init()
+    ushort modbusBeginIndex = 40001;
+    public PumpCmd(IDataItemBase[] items = null)
     {
+        Init(items);
+        minAddr = Items.Min(x => x.Address);
+        maxAddr = Items.Max(x => x.Address);
+    }
+    protected virtual void Init(IDataItemBase[] items = null)
+    {
+
+        if (items != null) {
+            foreach (IDataItemBase item in items)
+            {
+                Items.Add(item);
+            }
+            return;
+        }
         Items.Add(CreateItem(40001, "心跳", false));
         Items.Add(CreateItem(40002, "状态反馈", false, "", 2));
         Items.Add(CreateItem(40003, "控制字", true, "", 2));
@@ -43,8 +55,7 @@ internal class PumpCmd
             Items.Add(CreateItem(i++, $"泵{pNum}-冲程设定", true, "%"));
             Items.Add(CreateItem(i++, $"泵{pNum}-流量设定", true, "L/min"));
         }
-        minAddr = Items.Min(x => x.Address);
-        maxAddr = Items.Max(x => x.Address);
+       
     }
     public async Task Connect()
     {
@@ -78,6 +89,9 @@ internal class PumpCmd
             Remark = remark,
         };
     }
+    public async Task WriteValue(int address,short val) {
+      await  client.WriteAsync(address + "", val);
+    }
     public async Task ReconnectionAsync(CancellationToken token, int msDelay, Func<Exception?, int, IDictionary<string, object>, Task<bool>> reconnectFunc)
     {
         var i = 0;
@@ -108,7 +122,7 @@ internal class PumpCmd
             {
                 int count = maxAddr - minAddr + 1;
                 if (count > 120) count = 120;
-                int startReadAddr = minAddr - 40001;
+                int startReadAddr = minAddr - modbusBeginIndex;
                 var arr = new string[count];
                 arr[0] = startReadAddr.ToString();
                 IDictionary<string, short> reDic = null;
