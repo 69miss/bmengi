@@ -130,7 +130,7 @@ namespace DoboEngineer.Pump
 
         private ModbusTcpClient client=new ModbusTcpClient();
 
-        public PumpProtocolAdapter(string connectionStr="192.168.2.8:502",bool isBigEndian=false)
+        public PumpProtocolAdapter(string connectionStr="192.168.0.8:502",bool isBigEndian=false)
         {
             ConnectionString = connectionStr;
             IsBigEndian = isBigEndian;

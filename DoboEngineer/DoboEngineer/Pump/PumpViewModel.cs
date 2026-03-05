@@ -1,6 +1,7 @@
 ﻿using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Dobo.Appl.Utility;
 using System;
 using System.ComponentModel;
 using System.Threading.Tasks;
@@ -58,7 +59,14 @@ public partial class PumpViewModel : ObservableObject
 
     public bool IsFaulty => IsFault;
 
-    public IDataItemBase[] PumpsInfo { get => pumpsInfo; set => pumpsInfo = value; }
+    public ObservableItemCollection<IDataItemBase> PumpsInfo { get => pumpsInfo; set   { pumpsInfo = value;if(pumpsInfo!=null) pumpsInfo.ItemsPropertyChangedEnd += PumpsInfo_ItemsPropertyChangedEnd; } }
+
+    private void PumpsInfo_ItemsPropertyChangedEnd(object arg1, DateTime arg2)
+    {
+        get();
+    }
+
+    
 
     public PumpViewModel(int id)
     {
@@ -86,7 +94,7 @@ public partial class PumpViewModel : ObservableObject
         else if (target == "Stroke" && CanEditParam) StrokeSV = Math.Clamp(StrokeSV + amount, 0, 100);
         else if (target == "Freq" && CanEditParam) FreqSV = Math.Clamp(FreqSV + amount, 0, 100);
     }
-    IDataItemBase[] pumpsInfo;
+    ObservableItemCollection<IDataItemBase> pumpsInfo;
     void get( )
     {
         PumpViewModel pumpVM = this;

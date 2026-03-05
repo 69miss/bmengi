@@ -22,6 +22,7 @@ internal class PumpCmd:IDisposable
     ushort minAddr;
     ushort maxAddr;
     ushort modbusBeginIndex = 40001;
+    string[] readBatchAddrs;
     public PumpCmd(IDataItemBase[] items = null)
     {
         Init(items);
@@ -61,6 +62,12 @@ internal class PumpCmd:IDisposable
     {
         await ReConnect();
         cts = new CancellationTokenSource();
+        //
+        int count = maxAddr - minAddr + 1;
+        if (count > 120) count = 120;
+        int startReadAddr = minAddr - modbusBeginIndex;
+        readBatchAddrs = new string[count];
+        readBatchAddrs[0] = startReadAddr.ToString();
         _ = PollingLoop(cts.Token);
     }
 
@@ -121,11 +128,7 @@ internal class PumpCmd:IDisposable
             if (!client.IsConnected || Items.Count == 0) continue;
             try
             {
-                int count = maxAddr - minAddr + 1;
-                if (count > 120) count = 120;
-                int startReadAddr = minAddr - modbusBeginIndex;
-                var arr = new string[count];
-                arr[0] = startReadAddr.ToString();
+                string[] arr = readBatchAddrs;
                 IDictionary<string, short> reDic = null;
                 try
                 {
@@ -145,6 +148,8 @@ internal class PumpCmd:IDisposable
                 }
 
                 var rawBytes = reDic.Values.ToArray();
+                var beginTIme = DateTime.Now;
+                var isChange = false;
                 foreach (var item in Items)
                 {
                     // 计算该项在读取数组中的索引
@@ -153,21 +158,28 @@ internal class PumpCmd:IDisposable
                     // 越界检查 (防止读取长度被截断后访问越界)
                     if (index >= 0 && index < rawBytes.Length)
                     {
-                        item.Value = rawBytes[index];
+                        if (item.Value != (IConvertible)rawBytes[index])
+                        {
+                            item.Value = rawBytes[index];
+                            isChange = true;
+                        }
                     }
                 }
+                if (isChange == true)
+                    Items.OnItemsPropertyChangedEnd(beginTIme);
                 var msg = (short)(num++ % 9);
                 await client.WriteAsync("40001", msg);
                 Console.WriteLine(msg);
             }
             catch (Exception ex)
             {
-                //AddLog(ex + "");
+                Console.WriteLine(ex + "");
             }
         }
         var StatusMsg = $"轮询停止";
     }
 
+ 
     public void Dispose()
     {
         cts?.Dispose();

@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Net;
 using System.Threading.Tasks;
 using static FreeSql.Internal.GlobalFilter;
 
@@ -15,6 +16,7 @@ public partial class MainWindowViewModel : ObservableObject,IDisposable
     public ObservableCollection<PumpViewModel> Pumps { get; } = new();
     PumpCmd cmd;
     [ObservableProperty] private bool _isAutoMode;
+    [ObservableProperty] private bool _isAutoModeSet;
     [ObservableProperty] private string _systemTime = string.Empty;
 
     public MainWindowViewModel()
@@ -50,11 +52,11 @@ public partial class MainWindowViewModel : ObservableObject,IDisposable
             
         }
         var pArr = Items.ToArray();
-        foreach (var item in Pumps)
-        { 
-            item.PumpsInfo= pArr;
-        }
         cmd = new PumpCmd(pArr);
+        foreach (var item in Pumps)
+        {
+            item.PumpsInfo = cmd.Items;
+        }
         await cmd.Connect();
         cmd.Items.ItemPropertyChanged += Items_ItemPropertyChanged;
     }
@@ -64,7 +66,7 @@ public partial class MainWindowViewModel : ObservableObject,IDisposable
     async Task ConnectCmd()
     {
         IsConnection = !IsConnection;
-        return; //todo 测试
+        //return; //todo 测试
         var isConn = cmd?.IsConnection;
         if (isConn == true)
         {
@@ -109,9 +111,18 @@ public partial class MainWindowViewModel : ObservableObject,IDisposable
                 break;
             default:
                 break;
-        }
+        }  
     }
 
+    partial void OnIsAutoModeSetChanged(bool val)
+    {
+
+        var mode = new PumpCtlMode();
+        mode.Value = cmd.Items[3].Value;
+        mode.Flow = val;
+        cmd.WriteValue(40004, mode.Value.ToInt16(null));
+
+    }
     private void Mock()
     {
         for (int i = 1; i <= 4; i++)

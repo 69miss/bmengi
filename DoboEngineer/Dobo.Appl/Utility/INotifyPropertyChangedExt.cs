@@ -109,7 +109,7 @@ public interface INotifyPropertyChangedExt2 : INotifyPropertyChanged
 
 }
 
-public class ObservableItemCollection<T> : ObservableCollection<T> where T : INotifyPropertyChanged
+public class ObservableItemCollection<T> : ObservableCollection<T>,IDisposable where T : INotifyPropertyChanged
 {
     protected override void OnCollectionChanged(NotifyCollectionChangedEventArgs e)
     {
@@ -128,6 +128,10 @@ public class ObservableItemCollection<T> : ObservableCollection<T> where T : INo
         base.OnCollectionChanged(e);
     }
     public event PropertyChangedEventHandler? ItemPropertyChanged;
+    public event Action<object,DateTime>? ItemsPropertyChangedEnd;
+    public void OnItemsPropertyChangedEnd(DateTime beginTime) {
+        ItemsPropertyChangedEnd?.Invoke(this, beginTime);
+    }
     private void Item_PropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         ItemPropertyChanged?.Invoke(sender, e);
@@ -139,6 +143,11 @@ public class ObservableItemCollection<T> : ObservableCollection<T> where T : INo
         foreach (INotifyPropertyChanged item in this)
             item.PropertyChanged -= Item_PropertyChanged;
         base.ClearItems();
+    }
+
+    public void Dispose()
+    {
+        ClearItems();
     }
 }
 
