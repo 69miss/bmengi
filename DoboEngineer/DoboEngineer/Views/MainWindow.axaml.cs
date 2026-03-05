@@ -34,5 +34,10 @@ namespace DoboEngineer.Views
         {
             new Window1().Show();
         }
+
+        private void Button_Click_4(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+        {
+            new PumpCfgWnd().Show();    
+        }
     }
 }

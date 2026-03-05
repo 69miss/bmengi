@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 using static FreeSql.Internal.GlobalFilter;
 
 namespace DoboEngineer.Pump;
-internal class PumpCmd
+internal class PumpCmd:IDisposable
 {
     IProtocolAdapter client ;
     private CancellationTokenSource cts;
@@ -111,6 +111,7 @@ internal class PumpCmd
             await Task.Delay(msDelay, token);
         }
     }
+    public bool IsConnection { get => client.IsConnected; }
     private async Task PollingLoop(CancellationToken token)
     {
         using var timer = new PeriodicTimer(TimeSpan.FromMilliseconds(1000));
@@ -165,6 +166,12 @@ internal class PumpCmd
             }
         }
         var StatusMsg = $"轮询停止";
+    }
+
+    public void Dispose()
+    {
+        cts?.Dispose();
+        client?.Dispose();
     }
 }
 

@@ -16,8 +16,17 @@ public partial class PumpViewModel : ObservableObject
     [ObservableProperty] private double _flowSV;
     [ObservableProperty] private double _strokeSV;
     [ObservableProperty] private double _freqSV;
+    /// <summary>
+    /// 最大流量
+    /// </summary>
     [ObservableProperty] private double _flowMax;
+    /// <summary>
+    /// 最大冲程
+    /// </summary>
     [ObservableProperty] private double _strokeMax;
+    /// <summary>
+    /// 最小冲程
+    /// </summary>
     [ObservableProperty] private double _strokeMin;
     // --- 实际反馈 (PV) ---
     [ObservableProperty][NotifyPropertyChangedFor(nameof(LiquidHeight))] private double _flowPV;
@@ -39,7 +48,7 @@ public partial class PumpViewModel : ObservableObject
     public double LiquidHeight => Math.Clamp((FlowPV / 100.0) * 120.0, 0, 120);
 
     // 2. 状态显示优化
-    public string RemoteText => IsRemote ? "远程 (Remote)" : "就地 (Local)";
+    public string RemoteText => IsRemote ? "远程 (Remote)" : "本地 (Local)";
     public IBrush RemoteColor => IsRemote ? SolidColorBrush.Parse("#3b82f6") : SolidColorBrush.Parse("#f97316"); // 蓝/橙
     public IBrush StatusColor => IsRunning ? SolidColorBrush.Parse("#22c55e") : SolidColorBrush.Parse("#cbd5e1"); // 绿/灰
 
@@ -55,14 +64,15 @@ public partial class PumpViewModel : ObservableObject
     {
         Id = id;
         Name = $"{id}# 泵";
-        FlowSV = 50; StrokeSV = 45; FreqSV = 30;
-        IsRemote = true;
+        FlowSV = 0; StrokeSV = 0; FreqSV = 0;
+        //IsRemote = true;
     }
 
     [RelayCommand]
     public void ToggleRun()
     {
         if (IsRemote) IsRunning = !IsRunning;
+
     }
 
     [RelayCommand]
@@ -106,11 +116,18 @@ public partial class PumpViewModel : ObservableObject
     }
     void set(string prop) {
         var num = this.Id;
-        if (nameof(FlowMax) == prop)
+        if (nameof(IsRunning) == prop)
+        {
+            var val = PumpsInfo[2].Value.ToUInt16(null);
+            val |= (ushort)(1 << (num - 1));
+            PumpsInfo[2].Value = val;
+        }
+        else if (nameof(FlowMax) == prop)
         {
             PumpsInfo[num + 6].Value = FlowMax;
         }
-        else if (nameof(FreqSV) == prop) {
+        else if (nameof(FreqSV) == prop)
+        {
             PumpsInfo[num + 7].Value = FlowMax;
         }
         else if (nameof(StrokeSV) == prop)

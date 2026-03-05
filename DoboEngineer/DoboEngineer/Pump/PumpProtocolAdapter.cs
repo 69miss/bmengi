@@ -38,6 +38,7 @@ namespace DoboEngineer.Pump
             catch (Exception ex)
             {
                 AddLog($"连接失败: {ex.Message}");
+                throw;
             }
             return Task.FromResult(false);
         }
@@ -137,7 +138,7 @@ namespace DoboEngineer.Pump
 
         public void AddLog(string msg)
         {
-          
+            Console.WriteLine(DateTime.Now+" : "+msg);
         }
 
         public void Dispose()

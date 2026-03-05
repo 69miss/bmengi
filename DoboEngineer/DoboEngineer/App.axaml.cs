@@ -1,9 +1,11 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core;
 using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
+using Avalonia.Threading;
 using DoboEngineer.ViewModels;
 using DoboEngineer.Views;
 
@@ -13,11 +15,13 @@ namespace DoboEngineer
     {
         public override void Initialize()
         {
-            AvaloniaXamlLoader.Load(this);
+            AvaloniaXamlLoader.Load(this); 
         }
 
         public override void OnFrameworkInitializationCompleted()
         {
+            Dispatcher.UIThread.UnhandledException += UIThread_UnhandledException;
+            Dispatcher.UIThread.UnhandledExceptionFilter += UIThread_UnhandledExceptionFilter;
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
                 // Avoid duplicate validations from both Avalonia and the CommunityToolkit. 
@@ -35,6 +39,17 @@ namespace DoboEngineer
             base.OnFrameworkInitializationCompleted();
         }
 
+        private void UIThread_UnhandledExceptionFilter(object sender, DispatcherUnhandledExceptionFilterEventArgs e)
+        {
+            e.RequestCatch = true;
+        }
+
+        private void UIThread_UnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
+        {
+            Console.WriteLine($"{DateTime.Now} : UIThread_UnhandledException :" +e.Exception);
+           e.Handled = true;
+        }
+
         private void DisableAvaloniaDataAnnotationValidation()
         {
             // Get an array of plugins to remove
@@ -47,5 +62,6 @@ namespace DoboEngineer
                 BindingPlugins.DataValidators.Remove(plugin);
             }
         }
+      
     }
 }
