@@ -95,7 +95,7 @@ public interface INotifyPropertyChangedExt2 : INotifyPropertyChanged
     }
 
     //public INotifyPropertyChangedExt2 NotifyThis { get => this; }
-    public bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = "")
+    public bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = "", params string[] props)
     {
         //OnPropertyChanged(new DependencyPropertyChangedEventArgs( DependencyProperty.Register(propertyName,typeof(T),this.GetType()), field, value));
         if (EqualityComparer<T>.Default.Equals(field, value))
@@ -103,6 +103,11 @@ public interface INotifyPropertyChangedExt2 : INotifyPropertyChanged
         var oldVal = field;
         field = value;
         OnPropertyChanged(oldVal, value, propertyName);
+        if (props != null && props.Length > 0)
+            foreach (var item in props)
+            {
+                OnPropertyChanged(item);
+            }
         return true;
     }
     protected PropertyChangedEventHandler PropertyChangedEventHandlerGet();

@@ -65,75 +65,75 @@ public class PumpStatus : DataItemBase, INotifyPropertyChangedExt2
     public bool Pump1Remote
     {
         get => _pump1Remote;
-        set => NotifyThis.SetField(ref _pump1Remote, value);
+        set => NotifyThis.SetField(ref _pump1Remote, value, props: "Value");
     }
 
     public bool Pump2Remote
     {
         get => _pump2Remote;
-        set => NotifyThis.SetField(ref _pump2Remote, value);
+        set => NotifyThis.SetField(ref _pump2Remote, value, props: "Value");
     }
 
     public bool Pump3Remote
     {
         get => _pump3Remote;
-        set => NotifyThis.SetField(ref _pump3Remote, value);
+        set => NotifyThis.SetField(ref _pump3Remote, value, props: "Value");
     }
 
     public bool Pump4Remote
     {
         get => _pump4Remote;
-        set => NotifyThis.SetField(ref _pump4Remote, value);
+        set => NotifyThis.SetField(ref _pump4Remote, value, props: "Value");
     }
 
     // 第4-7位：泵故障状态
     public bool Pump1Fault
     {
         get => _pump1Fault;
-        set => NotifyThis.SetField(ref _pump1Fault, value);
+        set => NotifyThis.SetField(ref _pump1Fault, value, props: "Value");
     }
 
     public bool Pump2Fault
     {
         get => _pump2Fault;
-        set => NotifyThis.SetField(ref _pump2Fault, value);
+        set => NotifyThis.SetField(ref _pump2Fault, value, props: "Value");
     }
 
     public bool Pump3Fault
     {
         get => _pump3Fault;
-        set => NotifyThis.SetField(ref _pump3Fault, value);
+        set => NotifyThis.SetField(ref _pump3Fault, value, props: "Value");
     }
 
     public bool Pump4Fault
     {
         get => _pump4Fault;
-        set => NotifyThis.SetField(ref _pump4Fault, value);
+        set => NotifyThis.SetField(ref _pump4Fault, value, props: "Value");
     }
 
     // 第8-11位：泵运行状态
     public bool Pump1Running
     {
         get => _pump1Running;
-        set => NotifyThis.SetField(ref _pump1Running, value);
+        set => NotifyThis.SetField(ref _pump1Running, value, props: "Value");
     }
 
     public bool Pump2Running
     {
         get => _pump2Running;
-        set => NotifyThis.SetField(ref _pump2Running, value);
+        set => NotifyThis.SetField(ref _pump2Running, value, props: "Value");
     }
 
     public bool Pump3Running
     {
         get => _pump3Running;
-        set => NotifyThis.SetField(ref _pump3Running, value);
+        set => NotifyThis.SetField(ref _pump3Running, value, props: "Value");
     }
 
     public bool Pump4Running
     {
         get => _pump4Running;
-        set => NotifyThis.SetField(ref _pump4Running, value);
+        set => NotifyThis.SetField(ref _pump4Running, value, props: "Value");
     }
     #endregion
     //public  ushort Address { get; set; } = 40002;
@@ -250,25 +250,25 @@ public class PumpCtl : DataItemBase
     public bool Pump1Running
     {
         get => _pump1Running;
-        set => NotifyThis.SetField(ref _pump1Running, value);
+        set => NotifyThis.SetField(ref _pump1Running, value, props: "Value");
     }
 
     public bool Pump2Running
     {
         get => _pump2Running;
-        set => NotifyThis.SetField(ref _pump2Running, value);
+        set => NotifyThis.SetField(ref _pump2Running, value, props: "Value");
     }
 
     public bool Pump3Running
     {
         get => _pump3Running;
-        set => NotifyThis.SetField(ref _pump3Running, value);
+        set => NotifyThis.SetField(ref _pump3Running, value, props: "Value");
     }
 
     public bool Pump4Running
     {
         get => _pump4Running;
-        set => NotifyThis.SetField(ref _pump4Running, value);
+        set => NotifyThis.SetField(ref _pump4Running, value, props: "Value");
     }
 
     public override IConvertible Value
@@ -310,8 +310,8 @@ public class PumpCtlMode: DataItemBase
         CanWrite = true;
     }
 
-    public bool Flow { get => flow; set => NotifyThis.SetField(ref flow, value);}
-    public bool Manual { get => manual; set => NotifyThis.SetField(ref manual, value); }
+    public bool Flow { get => flow; set => NotifyThis.SetField(ref flow, value, props: "Value");}
+    public bool Manual { get => manual; set => NotifyThis.SetField(ref manual, value, props: "Value"); }
     public override IConvertible Value
     {
         get

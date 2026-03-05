@@ -59,7 +59,21 @@ public partial class PumpViewModel : ObservableObject
 
     public bool IsFaulty => IsFault;
 
-    public ObservableItemCollection<IDataItemBase> PumpsInfo { get => pumpsInfo; set   { pumpsInfo = value;if(pumpsInfo!=null) pumpsInfo.ItemsPropertyChangedEnd += PumpsInfo_ItemsPropertyChangedEnd; } }
+     bool isInited=false;
+
+    public ObservableItemCollection<IDataItemBase> PumpsInfo
+    {
+        get => pumpsInfo;
+        set
+        {
+            pumpsInfo = value;
+            if (pumpsInfo != null)
+            {
+                pumpsInfo.ItemsPropertyChangedEnd += PumpsInfo_ItemsPropertyChangedEnd;
+                isInited = false;
+            }
+        }
+    }
 
     private void PumpsInfo_ItemsPropertyChangedEnd(object arg1, DateTime arg2)
     {
@@ -68,8 +82,9 @@ public partial class PumpViewModel : ObservableObject
 
     
 
-    public PumpViewModel(int id)
+    public PumpViewModel(int id, Func<IDataItemBase, ushort,Task> fun=null)
     {
+       EditValFun = fun;
         Id = id;
         Name = $"{id}# 泵";
         FlowSV = 0; StrokeSV = 0; FreqSV = 0;
@@ -82,7 +97,7 @@ public partial class PumpViewModel : ObservableObject
         if (IsRemote) IsRunning = !IsRunning;
 
     }
-
+    
     [RelayCommand]
     public void AdjustValue(string args)
     {
@@ -90,12 +105,20 @@ public partial class PumpViewModel : ObservableObject
         string target = parts[0];
         double amount = double.Parse(parts[1]);
 
-        if (target == "Flow" && CanEditFlow) FlowSV = Math.Clamp(FlowSV + amount, 0, 100);
-        else if (target == "Stroke" && CanEditParam) StrokeSV = Math.Clamp(StrokeSV + amount, 0, 100);
-        else if (target == "Freq" && CanEditParam) FreqSV = Math.Clamp(FreqSV + amount, 0, 100);
+        if (target == "Flow" && CanEditFlow) {
+           
+            FlowSV = FlowSV + amount;// Math.Clamp(FlowSV + amount, 0, 100);
+        }
+        else if (target == "Stroke" && CanEditParam) { 
+            StrokeSV = Math.Clamp(StrokeSV + amount, 0, 100);
+        }
+        else if (target == "Freq" && CanEditParam) {
+            FreqSV = Math.Clamp(FreqSV + amount, 0, 100); 
+        }
     }
     ObservableItemCollection<IDataItemBase> pumpsInfo;
-    void get( )
+
+    void get()
     {
         PumpViewModel pumpVM = this;
         var num = pumpVM.Id;
@@ -110,49 +133,61 @@ public partial class PumpViewModel : ObservableObject
         pumpVM.FreqPV = PumpsInfo[index++].Value.ToInt16(null);
         pumpVM.StrokePV = PumpsInfo[index++].Value.ToInt16(null);
         pumpVM.FlowPV = PumpsInfo[index++].Value.ToInt16(null);
+        //
+        if (isInited)
+            return;
         pumpVM.FlowMax = PumpsInfo[index++].Value.ToInt16(null);
         pumpVM.FreqSV = PumpsInfo[index++].Value.ToInt16(null);
         pumpVM.StrokeSV = PumpsInfo[index++].Value.ToInt16(null);
         pumpVM.FlowSV = PumpsInfo[index++].Value.ToInt16(null);
-        pumpVM.StrokeMax = PumpsInfo[num+31].Value.ToInt16(null);
+        pumpVM.StrokeMax = PumpsInfo[num + 31].Value.ToInt16(null);
         pumpVM.StrokeMin = PumpsInfo[num + 32].Value.ToInt16(null);
+        isInited = true;
     }
-    protected override void OnPropertyChanged(PropertyChangedEventArgs e)
+    protected override async void OnPropertyChanged(PropertyChangedEventArgs e)
     {
         base.OnPropertyChanged(e);
-        set(e.PropertyName);
+       await set(e.PropertyName);
     }
-    void set(string prop) {
+    Func<IDataItemBase, ushort,Task> EditValFun;
+    async Task set(string prop) {
         var num = this.Id;
         if (nameof(IsRunning) == prop)
         {
             var val = PumpsInfo[2].Value.ToUInt16(null);
             val |= (ushort)(1 << (num - 1));
-            PumpsInfo[2].Value = val;
+          await  EditValFun?.Invoke(PumpsInfo[2], val);
+            //PumpsInfo[2].Value = val;
         }
         else if (nameof(FlowMax) == prop)
         {
-            PumpsInfo[num + 6].Value = FlowMax;
+            await EditValFun?.Invoke(PumpsInfo[6], (ushort)FlowMax);
+            //PumpsInfo[num + 6].Value = FlowMax;
         }
         else if (nameof(FreqSV) == prop)
         {
-            PumpsInfo[num + 7].Value = FlowMax;
+            await EditValFun?.Invoke(PumpsInfo[7], (ushort)FreqSV);
+            //PumpsInfo[num + 7].Value = FreqSV;
         }
         else if (nameof(StrokeSV) == prop)
         {
-            PumpsInfo[num + 8].Value = StrokeSV;
+            await EditValFun?.Invoke(PumpsInfo[8], (ushort)StrokeSV);
+            //PumpsInfo[num + 8].Value = StrokeSV;
         }
         else if (nameof(FlowSV) == prop)
         {
-            PumpsInfo[num + 9].Value = FlowSV;
+            //PumpsInfo[num + 9].Value = FlowSV;
+            await EditValFun?.Invoke(PumpsInfo[9], (ushort)FlowSV);
         }
         else if (nameof(StrokeMax) == prop)
         {
-            PumpsInfo[num + 31].Value = StrokeMax;
+            //PumpsInfo[num + 31].Value = StrokeMax;
+            await EditValFun?.Invoke(PumpsInfo[31], (ushort)StrokeMax);
         }
         else if (nameof(StrokeMin) == prop)
         {
-            PumpsInfo[num + 32].Value = StrokeMin;
+            //PumpsInfo[num + 32].Value = StrokeMin;
+            await EditValFun?.Invoke(PumpsInfo[32], (ushort)StrokeMin);
         }
     }
 }

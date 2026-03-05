@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using static FreeSql.Internal.GlobalFilter;
@@ -24,8 +25,11 @@ public partial class MainWindowViewModel : ObservableObject,IDisposable
        // Mock();
         for (int i = 1; i < 5; i++)
         {
-            Pumps.Add(new PumpViewModel(i));
+            Pumps.Add(new PumpViewModel(i,ValEdit));
         }
+    }
+    async Task ValEdit(IDataItemBase dataItem, ushort val) {
+       await cmd.WriteValue(dataItem.Address, (short)val);
     }
     public async Task InitConnect()
     {
@@ -49,9 +53,12 @@ public partial class MainWindowViewModel : ObservableObject,IDisposable
             Items.Add(CreateItem(i++, $"泵{pNum}-频率设定", true, "Hz"));
             Items.Add(CreateItem(i++, $"泵{pNum}-冲程设定", true, "%"));
             Items.Add(CreateItem(i++, $"泵{pNum}-流量设定", true, "L/min"));
-            
+            //
+            CreateItem((ushort)(pNum + 31), $"泵{pNum}-最大冲程", false);
+            CreateItem((ushort)(pNum + 31), $"泵{pNum}-最小冲程", false);
         }
-        var pArr = Items.ToArray();
+        
+        var pArr = Items.OrderBy(p => p.Address).ToArray();
         cmd = new PumpCmd(pArr);
         foreach (var item in Pumps)
         {
@@ -111,7 +118,8 @@ public partial class MainWindowViewModel : ObservableObject,IDisposable
                 break;
             default:
                 break;
-        }  
+        }
+        
     }
 
     partial void OnIsAutoModeSetChanged(bool val)
