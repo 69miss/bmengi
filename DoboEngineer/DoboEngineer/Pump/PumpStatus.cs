@@ -299,6 +299,7 @@ public class PumpCtlMode: DataItemBase
 {
     private bool flow;
     private bool manual;
+    bool engineering;
 
     /// <summary>
     /// (40004, "控制模式", true, "", 2)
@@ -312,6 +313,7 @@ public class PumpCtlMode: DataItemBase
 
     public bool Flow { get => flow; set => NotifyThis.SetField(ref flow, value, props: "Value");}
     public bool Manual { get => manual; set => NotifyThis.SetField(ref manual, value, props: "Value"); }
+    public bool Engineering { get => engineering; set => NotifyThis.SetField(ref engineering, value, props: "Value"); }
     public override IConvertible Value
     {
         get
@@ -319,15 +321,20 @@ public class PumpCtlMode: DataItemBase
             int value = 0;
             if (Flow) value |= 1 << 0;
             if (Manual) value |= 1 << 1;
+            if (Engineering) value |= 1 << 3;
             return value;
         }
         set
         {
             var statusValue = value.ToInt32(null);
-            Flow = (statusValue & (1 << 0)) != 0;
-            Manual = (statusValue & (1 << 1)) != 0;
+
+            flow = (statusValue & (1 << 0)) != 0;
+            manual = (statusValue & (1 << 1)) != 0;
+            engineering=(statusValue & (1 << 3)) != 0;
             NotifyThis.OnPropertyChanged();
         }
     }
+
+    
 }
 

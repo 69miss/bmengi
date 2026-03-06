@@ -72,7 +72,7 @@ public partial class MainWindowViewModel : ObservableObject,IDisposable
     [RelayCommand]
     async Task ConnectCmd()
     {
-        IsConnection = !IsConnection;
+        //IsConnection = !IsConnection;
         //return; //todo 测试
         var isConn = cmd?.IsConnection;
         if (isConn == true)
@@ -83,7 +83,7 @@ public partial class MainWindowViewModel : ObservableObject,IDisposable
         else
         {
             await InitConnect();
-            isConnection =  cmd.IsConnection;
+            IsConnection =  cmd.IsConnection;
         }
     }
     partial void OnIsConnectionChanged(bool value)
@@ -124,12 +124,13 @@ public partial class MainWindowViewModel : ObservableObject,IDisposable
 
     partial void OnIsAutoModeSetChanged(bool val)
     {
-
         var mode = new PumpCtlMode();
-        mode.Value = cmd.Items[3].Value;
-        mode.Flow = val;
+        //mode.Value = cmd.Items[3].Value;
+        if (val)
+            mode.Flow = val;
+        else
+            mode.Manual = true;
         cmd.WriteValue(40004, mode.Value.ToInt16(null));
-
     }
     private void Mock()
     {

@@ -177,7 +177,6 @@ public partial class PumpViewModel : ObservableObject
     Func<IDataItemBase, ushort,Task> EditValFun;
     async Task set(string prop) {
         Console.WriteLine($"{DateTime.Now}==>set {prop}");
-        //return;   //todo
         var num = this.Id;
         if (nameof(IsRunning) == prop)
         {
@@ -191,33 +190,33 @@ public partial class PumpViewModel : ObservableObject
         }
         else if (nameof(FlowMax) == prop)
         {
-            await EditValFun?.Invoke(PumpsInfo[6], (ushort)FlowMax);
+            await EditValFun?.Invoke(PumpsInfo[num+6], (ushort)FlowMax);
             //PumpsInfo[num + 6].Value = FlowMax;
         }
         else if (nameof(FreqSV) == prop)
         {
-            await EditValFun?.Invoke(PumpsInfo[8], (ushort)FreqSV);
+            await EditValFun?.Invoke(PumpsInfo[num+7], (ushort)FreqSV);
             //PumpsInfo[num + 7].Value = FreqSV;
         }
         else if (nameof(StrokeSV) == prop)
         {
-            await EditValFun?.Invoke(PumpsInfo[9], (ushort)StrokeSV);
+            await EditValFun?.Invoke(PumpsInfo[num+8], (ushort)StrokeSV);
             //PumpsInfo[num + 8].Value = StrokeSV;
         }
         else if (nameof(FlowSV) == prop)
         {
             //PumpsInfo[num + 9].Value = FlowSV;
-            await EditValFun?.Invoke(PumpsInfo[10], (ushort)FlowSV);
+            await EditValFun?.Invoke(PumpsInfo[num+9], (ushort)FlowSV);
         }
         else if (nameof(StrokeMax) == prop)
         {
             //PumpsInfo[num + 31].Value = StrokeMax;
-            await EditValFun?.Invoke(PumpsInfo[31], (ushort)StrokeMax);
+            await EditValFun?.Invoke(PumpsInfo[num+31], (ushort)StrokeMax);
         }
         else if (nameof(StrokeMin) == prop)
         {
             //PumpsInfo[num + 32].Value = StrokeMin;
-            await EditValFun?.Invoke(PumpsInfo[32], (ushort)StrokeMin);
+            await EditValFun?.Invoke(PumpsInfo[num+32], (ushort)StrokeMin);
         }
     }
 }
