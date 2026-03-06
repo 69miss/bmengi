@@ -155,8 +155,11 @@ public partial class PumpViewModel : ObservableObject
         if (nameof(IsRunning) == prop)
         {
             var val = PumpsInfo[2].Value.ToUInt16(null);
-            val |= (ushort)(1 << (num - 1));
-          await  EditValFun?.Invoke(PumpsInfo[2], val);
+            if (IsRunning) 
+                val |= (ushort)(1 << (num - 1));
+            else
+                val &= (ushort)~(1 << (num - 1));
+            await EditValFun?.Invoke(PumpsInfo[2], val);
             //PumpsInfo[2].Value = val;
         }
         else if (nameof(FlowMax) == prop)

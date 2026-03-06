@@ -121,7 +121,7 @@ namespace DoboEngineer.Pump
             var index = ToFIndex(address);
             if (value is short val)
                 await client.WriteSingleRegisterAsync(0, index, val);
-            if (value is ushort val1)
+            else if (value is ushort val1)
                 await client.WriteSingleRegisterAsync(0, index, val1);
             else
                 throw new ArgumentException("不支持的类型");
