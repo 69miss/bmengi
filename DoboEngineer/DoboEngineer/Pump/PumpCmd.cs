@@ -65,7 +65,7 @@ internal class PumpCmd:IDisposable
         //
         int count = maxAddr - minAddr + 1;
         if (count > 120) count = 120;
-        int startReadAddr = minAddr - modbusBeginIndex;
+        ushort startReadAddr = (ushort)(minAddr - modbusBeginIndex);
         readBatchAddrs = new string[count];
         readBatchAddrs[0] = startReadAddr.ToString();
         _ = PollingLoop(cts.Token);
@@ -80,10 +80,10 @@ internal class PumpCmd:IDisposable
             throw new System.Net.Sockets.SocketException(-1, "连接失败");
     }
 
-    public void Disconnect()
+    public async Task Disconnect()
     {
         cts?.Cancel();
-        client.DisconnectAsync();
+       await client.DisconnectAsync();
        // StatusMsg = "已断开";
     }
     private DataItem CreateItem(ushort addr, string name, bool canWrite, string remark = "", byte? fmtRadix = null)
@@ -96,8 +96,10 @@ internal class PumpCmd:IDisposable
             Remark = remark,
         };
     }
-    public async Task WriteValue(int address,short val) {
-      await  client.WriteAsync(address + "", val);
+    public async Task WriteValue(int address, short val)
+    {
+        if (client.IsConnected)
+            await client.WriteAsync(address + "", val);
     }
     public async Task ReconnectionAsync(CancellationToken token, int msDelay, Func<Exception?, int, IDictionary<string, object>, Task<bool>> reconnectFunc)
     {
@@ -158,7 +160,7 @@ internal class PumpCmd:IDisposable
                     // 越界检查 (防止读取长度被截断后访问越界)
                     if (index >= 0 && index < rawBytes.Length)
                     {
-                        if (item.Value != (IConvertible)rawBytes[index])
+                        if (!rawBytes[index].Equals(item.Value))
                         {
                             item.Value = rawBytes[index];
                             isChange = true;
@@ -167,7 +169,7 @@ internal class PumpCmd:IDisposable
                 }
                 if (isChange == true)
                     Items.OnItemsPropertyChangedEnd(beginTIme);
-                var msg = (short)(num++ % 9);
+                var msg = (short)(num++ % 2);
                 await client.WriteAsync("40001", msg);
                 Console.WriteLine(msg);
             }

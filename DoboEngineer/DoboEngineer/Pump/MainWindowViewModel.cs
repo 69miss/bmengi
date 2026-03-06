@@ -54,8 +54,8 @@ public partial class MainWindowViewModel : ObservableObject,IDisposable
             Items.Add(CreateItem(i++, $"泵{pNum}-冲程设定", true, "%"));
             Items.Add(CreateItem(i++, $"泵{pNum}-流量设定", true, "L/min"));
             //
-            CreateItem((ushort)(pNum + 31), $"泵{pNum}-最大冲程", false);
-            CreateItem((ushort)(pNum + 31), $"泵{pNum}-最小冲程", false);
+            Items.Add(CreateItem((ushort)(40004+pNum + 31), $"泵{pNum}-最大冲程", false));
+            Items.Add(CreateItem((ushort)(40004+pNum + 32), $"泵{pNum}-最小冲程", false));
         }
         
         var pArr = Items.OrderBy(p => p.Address).ToArray();

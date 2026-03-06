@@ -151,6 +151,8 @@ public partial class PumpViewModel : ObservableObject
     }
     Func<IDataItemBase, ushort,Task> EditValFun;
     async Task set(string prop) {
+        Console.WriteLine($"{DateTime.Now}==>set {prop}");
+        //return;
         var num = this.Id;
         if (nameof(IsRunning) == prop)
         {
