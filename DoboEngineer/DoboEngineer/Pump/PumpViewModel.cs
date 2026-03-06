@@ -98,7 +98,7 @@ public partial class PumpViewModel : ObservableObject
             return;
         var num = this.Id;
         var val = PumpsInfo[2].Value.ToUInt16(null);
-        if (IsRunning)
+        if (!IsRunning)
             val |= (ushort)(1 << (num - 1));
         else
             val &= (ushort)~(1 << (num - 1));
@@ -196,18 +196,18 @@ public partial class PumpViewModel : ObservableObject
         }
         else if (nameof(FreqSV) == prop)
         {
-            await EditValFun?.Invoke(PumpsInfo[7], (ushort)FreqSV);
+            await EditValFun?.Invoke(PumpsInfo[8], (ushort)FreqSV);
             //PumpsInfo[num + 7].Value = FreqSV;
         }
         else if (nameof(StrokeSV) == prop)
         {
-            await EditValFun?.Invoke(PumpsInfo[8], (ushort)StrokeSV);
+            await EditValFun?.Invoke(PumpsInfo[9], (ushort)StrokeSV);
             //PumpsInfo[num + 8].Value = StrokeSV;
         }
         else if (nameof(FlowSV) == prop)
         {
             //PumpsInfo[num + 9].Value = FlowSV;
-            await EditValFun?.Invoke(PumpsInfo[9], (ushort)FlowSV);
+            await EditValFun?.Invoke(PumpsInfo[10], (ushort)FlowSV);
         }
         else if (nameof(StrokeMax) == prop)
         {

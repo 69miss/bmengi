@@ -114,7 +114,7 @@ public partial class MainWindowViewModel : ObservableObject,IDisposable
         switch (item.Address)
         {
             case 40004:
-                IsAutoMode= (item as PumpCtlMode).Flow;
+                IsAutoMode= (item as PumpCtlMode).Flow; //todo
                 break;
             default:
                 break;
