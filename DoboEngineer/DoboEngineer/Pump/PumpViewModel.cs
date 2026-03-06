@@ -92,10 +92,24 @@ public partial class PumpViewModel : ObservableObject
     }
 
     [RelayCommand]
-    public void ToggleRun()
+    public async void ToggleRun()
     {
-        if (IsRemote) IsRunning = !IsRunning;
-
+        if (!IsRemote) //IsRunning = !IsRunning;
+            return;
+        var num = this.Id;
+        var val = PumpsInfo[2].Value.ToUInt16(null);
+        if (IsRunning)
+            val |= (ushort)(1 << (num - 1));
+        else
+            val &= (ushort)~(1 << (num - 1));
+        try
+        {
+            await EditValFun?.Invoke(PumpsInfo[2], val);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+        }
     }
     
     [RelayCommand]
@@ -109,59 +123,70 @@ public partial class PumpViewModel : ObservableObject
            
             FlowSV = FlowSV + amount;// Math.Clamp(FlowSV + amount, 0, 100);
         }
-        else if (target == "Stroke" && CanEditParam) { 
-            StrokeSV = Math.Clamp(StrokeSV + amount, 0, 100);
+        else if (target == "Stroke" && CanEditParam) {
+            StrokeSV = StrokeSV + amount;//Math.Clamp(StrokeSV + amount, 0, 100);
         }
         else if (target == "Freq" && CanEditParam) {
-            FreqSV = Math.Clamp(FreqSV + amount, 0, 100); 
+            FreqSV = FreqSV + amount; // Math.Clamp(FreqSV + amount, 0, 100); 
         }
     }
     ObservableItemCollection<IDataItemBase> pumpsInfo;
-
+    bool isUpdatingFromPlc;
     void get()
     {
-        PumpViewModel pumpVM = this;
-        var num = pumpVM.Id;
-        var statusInt = pumpsInfo[1].Value.ToInt16(null);
-        var ctlMode = (pumpsInfo[3] as PumpCtlMode);
-        pumpVM.IsRemote = (statusInt & (1 << num - 1)) != 0;
-        pumpVM.IsFault = (statusInt & (1 << num + 3)) != 0;
-        pumpVM.IsRunning = (statusInt & (1 << num + 7)) != 0;
-        pumpVM.CanEditFlow = ctlMode.Flow && pumpVM.IsRemote;
-        pumpVM.CanEditParam = ctlMode.Manual && pumpVM.IsRemote;
-        var index = num + 3;
-        pumpVM.FreqPV = PumpsInfo[index++].Value.ToInt16(null);
-        pumpVM.StrokePV = PumpsInfo[index++].Value.ToInt16(null);
-        pumpVM.FlowPV = PumpsInfo[index++].Value.ToInt16(null);
-        //
-        if (isInited)
-            return;
-        pumpVM.FlowMax = PumpsInfo[index++].Value.ToInt16(null);
-        pumpVM.FreqSV = PumpsInfo[index++].Value.ToInt16(null);
-        pumpVM.StrokeSV = PumpsInfo[index++].Value.ToInt16(null);
-        pumpVM.FlowSV = PumpsInfo[index++].Value.ToInt16(null);
-        pumpVM.StrokeMax = PumpsInfo[num + 31].Value.ToInt16(null);
-        pumpVM.StrokeMin = PumpsInfo[num + 32].Value.ToInt16(null);
-        isInited = true;
+        isUpdatingFromPlc = true;
+        try
+        {
+
+
+            PumpViewModel pumpVM = this;
+            var num = pumpVM.Id;
+            var statusInt = pumpsInfo[1].Value.ToInt16(null);
+            var ctlMode = (pumpsInfo[3] as PumpCtlMode);
+            pumpVM.IsRemote = (statusInt & (1 << num - 1)) != 0;
+            pumpVM.IsFault = (statusInt & (1 << num + 3)) != 0;
+            pumpVM.IsRunning = (statusInt & (1 << num + 7)) != 0;
+            pumpVM.CanEditFlow = ctlMode.Flow && pumpVM.IsRemote;
+            pumpVM.CanEditParam = ctlMode.Manual && pumpVM.IsRemote;
+            var index = num + 3;
+            pumpVM.FreqPV = PumpsInfo[index++].Value.ToInt16(null);
+            pumpVM.StrokePV = PumpsInfo[index++].Value.ToInt16(null);
+            pumpVM.FlowPV = PumpsInfo[index++].Value.ToInt16(null);
+            //
+            if (isInited)
+                return;
+            pumpVM.FlowMax = PumpsInfo[index++].Value.ToInt16(null);
+            pumpVM.FreqSV = PumpsInfo[index++].Value.ToInt16(null);
+            pumpVM.StrokeSV = PumpsInfo[index++].Value.ToInt16(null);
+            pumpVM.FlowSV = PumpsInfo[index++].Value.ToInt16(null);
+            pumpVM.StrokeMax = PumpsInfo[num + 31].Value.ToInt16(null);
+            pumpVM.StrokeMin = PumpsInfo[num + 32].Value.ToInt16(null);
+            isInited = true;
+        }
+        finally
+        {
+            isUpdatingFromPlc = false;
+        }
     }
     protected override async void OnPropertyChanged(PropertyChangedEventArgs e)
     {
         base.OnPropertyChanged(e);
-       await set(e.PropertyName);
+        if (!isUpdatingFromPlc)
+            await set(e.PropertyName);
     }
     Func<IDataItemBase, ushort,Task> EditValFun;
     async Task set(string prop) {
         Console.WriteLine($"{DateTime.Now}==>set {prop}");
-        //return;
+        //return;   //todo
         var num = this.Id;
         if (nameof(IsRunning) == prop)
         {
-            var val = PumpsInfo[2].Value.ToUInt16(null);
-            if (IsRunning) 
-                val |= (ushort)(1 << (num - 1));
-            else
-                val &= (ushort)~(1 << (num - 1));
-            await EditValFun?.Invoke(PumpsInfo[2], val);
+            //var val = PumpsInfo[2].Value.ToUInt16(null);
+            //if (IsRunning) 
+            //    val |= (ushort)(1 << (num - 1));
+            //else
+            //    val &= (ushort)~(1 << (num - 1));
+            //await EditValFun?.Invoke(PumpsInfo[2], val);
             //PumpsInfo[2].Value = val;
         }
         else if (nameof(FlowMax) == prop)
