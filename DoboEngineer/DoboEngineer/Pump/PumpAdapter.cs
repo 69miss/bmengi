@@ -54,7 +54,8 @@ namespace DoboEngineer.Pump;
         // 确保在UI线程更新
         Dispatcher.UIThread.Post(() =>
         {
-            LogText = $"【{time}】 {msg}\n" + LogText;
+            LogText = $"{time} [PumpAdapter] {msg}";// + LogText;
+            Console.WriteLine(LogText);
             if (LogText.Length > 2000) LogText = LogText.Substring(0, 2000); // 限制长度
         });
     }

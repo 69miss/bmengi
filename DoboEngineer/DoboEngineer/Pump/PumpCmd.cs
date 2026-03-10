@@ -68,6 +68,7 @@ internal class PumpCmd:IDisposable
         ushort startReadAddr = (ushort)(minAddr - modbusBeginIndex);
         readBatchAddrs = new string[count];
         readBatchAddrs[0] = startReadAddr.ToString();
+        await StatueInfoGet(cts.Token,false);
         _ = PollingLoop(cts.Token);
     }
 
@@ -130,57 +131,79 @@ internal class PumpCmd:IDisposable
             if (!client.IsConnected || Items.Count == 0) continue;
             try
             {
-                string[] arr = readBatchAddrs;
-                IDictionary<string, short> reDic = null;
-                try
-                {
-                    reDic = await client.ReadBatchAsync<short>(arr);
-                }
-                catch (Exception)
-                {
-                    await ReconnectionAsync(token, 1000, async (p1, p2, p3) =>
-                    {
-                        if (p2 == 0)
-                            reDic = await client.ReadBatchAsync<short>(arr);
-                        if (p2 > 0)
-                            await ReConnect();
-                        reDic = await client.ReadBatchAsync<short>(arr);
-                        return true;
-                    });
-                }
-
-                var rawBytes = reDic.Values.ToArray();
-                var beginTIme = DateTime.Now;
-                var isChange = false;
-                foreach (var item in Items)
-                {
-                    // 计算该项在读取数组中的索引
-                    int index = item.Address - minAddr;
-
-                    // 越界检查 (防止读取长度被截断后访问越界)
-                    if (index >= 0 && index < rawBytes.Length)
-                    {
-                        if (!rawBytes[index].Equals(item.Value))
-                        {
-                            item.Value = rawBytes[index];
-                            isChange = true;
-                        }
-                    }
-                }
-                if (isChange == true)
-                    Items.OnItemsPropertyChangedEnd(beginTIme);
+                await StatueInfoGet(token);
                 var msg = (short)(num++ % 2);
                 await client.WriteAsync("40001", msg);
-                Console.WriteLine(msg);
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex + "");
+                WriteLog(ex + "");
             }
         }
         var StatusMsg = $"轮询停止";
     }
 
+    /// <summary>
+    /// 状态获取，如果不重试，失败则异常
+    /// </summary>
+    /// <param name="token"></param>
+    /// <param name="isRetry"></param>
+    /// <returns></returns>
+    private async Task<IDictionary<string, short>> StatueInfoGet(CancellationToken token,bool isRetry=true)
+    {
+        string[] arr = readBatchAddrs;
+        IDictionary<string, short> reDic = null;
+        try
+        {
+            reDic = await client.ReadBatchAsync<short>(arr);
+        }
+        catch (Exception)
+        {
+            if(!isRetry)
+                throw;
+            await ReconnectionAsync(token, 1000, async (p1, p2, p3) =>
+            {
+                if (p2 == 0)
+                    reDic = await client.ReadBatchAsync<short>(arr);
+                if (p2 > 0)
+                    await ReConnect();
+                reDic = await client.ReadBatchAsync<short>(arr);
+                return true;
+            });
+        }
+
+        var rawBytes = reDic.Values.ToArray();
+        var beginTIme = DateTime.Now;
+        var isChange = false;
+        var strMsg = "";
+        foreach (var item in Items)
+        {
+            // 计算该项在读取数组中的索引
+            int index = item.Address - minAddr;
+
+            // 越界检查 (防止读取长度被截断后访问越界)
+            if (index >= 0 && index < rawBytes.Length)
+            {
+                if (!rawBytes[index].Equals(item.Value))
+                {
+                    strMsg += $"{item.Name}:{item.Value}-->{rawBytes[index]}";
+                    item.Value = rawBytes[index];
+                    isChange = true;
+                }
+            }
+        }
+        if (isChange == true)
+        {
+            WriteLog(strMsg);
+            Items.OnItemsPropertyChangedEnd(beginTIme);
+        }
+        return reDic;
+
+    }
+
+    void WriteLog(string msg) {
+        Console.WriteLine($"{DateTime.Now} [{nameof(PumpCmd)}.PollingLoop] {msg}");
+    }
  
     public void Dispose()
     {

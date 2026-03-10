@@ -240,7 +240,7 @@
 										<TextBlock Grid.Column="1" Text="{Binding Name}" FontWeight="Bold" FontSize="18" VerticalAlignment="Center"/>
 
 										<!-- 3. 远程标签 -->
-										<Border Grid.Column="2" Background="{Binding RemoteColor}" CornerRadius="4" Padding="8,4" VerticalAlignment="Center" Margin="20,0,0,0">
+										<Border Grid.Column="2" IsVisible="{Binding $parent[ItemsControl].DataContext.IsConnection}" Background="{Binding RemoteColor}" CornerRadius="4" Padding="8,4" VerticalAlignment="Center" Margin="20,0,0,0">
 											<TextBlock Text="{Binding RemoteText}" FontSize="12" Foreground="White" FontWeight="Bold"/>
 										</Border>
 

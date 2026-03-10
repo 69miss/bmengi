@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using Dobo.Appl.Utility;
 using System;
 using System.ComponentModel;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace DoboEngineer.Pump;
@@ -137,7 +138,7 @@ public partial class PumpViewModel : ObservableObject
         isUpdatingFromPlc = true;
         try
         {
-
+            //todo 进行展示转换，将原始值转为用户展示值,应先做一次连接后的初始，然后再监听
 
             PumpViewModel pumpVM = this;
             var num = pumpVM.Id;
@@ -149,9 +150,11 @@ public partial class PumpViewModel : ObservableObject
             pumpVM.CanEditFlow = ctlMode.Flow && pumpVM.IsRemote;
             pumpVM.CanEditParam = ctlMode.Manual && pumpVM.IsRemote;
             var index = num + 3;
-            pumpVM.FreqPV = PumpsInfo[index++].Value.ToInt16(null);
-            pumpVM.StrokePV = PumpsInfo[index++].Value.ToInt16(null);
-            pumpVM.FlowPV = PumpsInfo[index++].Value.ToInt16(null);
+            //short freqRaw = PumpsInfo[index++].Value.ToInt16(null); //频率 5530--27648对应0-100
+            //pumpVM.FreqPV = Math.Round((freqRaw-5530)/(27648-5530)*100d);
+            //pumpVM.StrokePV = Math.Round(PumpsInfo[index++].Value.ToInt16(null)/ 27648*100d);
+            //pumpVM.FlowPV = Math.Round(PumpsInfo[index++].Value.ToInt16(null)/ 27648*100d);
+            GetPVInfo(pumpVM, PumpsInfo[index++].Value.ToInt16(null), PumpsInfo[index++].Value.ToInt16(null), PumpsInfo[index++].Value.ToInt16(null));
             //
             if (isInited)
                 return;
@@ -168,6 +171,13 @@ public partial class PumpViewModel : ObservableObject
             isUpdatingFromPlc = false;
         }
     }
+    void GetPVInfo(PumpViewModel pumpVM, double freqRaw,double strokeRaw,double flowRaw) {
+
+        pumpVM.FreqPV = Math.Round((freqRaw - 5530) / (27648 - 5530) * 100d);
+        pumpVM.StrokePV = Math.Round(strokeRaw / 27648 * 100d);
+        pumpVM.FlowPV = Math.Round(flowRaw / 27648 * 100d);
+    }
+
     protected override async void OnPropertyChanged(PropertyChangedEventArgs e)
     {
         base.OnPropertyChanged(e);
@@ -195,18 +205,19 @@ public partial class PumpViewModel : ObservableObject
         }
         else if (nameof(FreqSV) == prop)
         {
-            await EditValFun?.Invoke(PumpsInfo[num+7], (ushort)FreqSV);
+            double freqRaw = (FreqSV / 100 * (27648 - 5530) + 5530);
+            await EditValFun?.Invoke(PumpsInfo[num+7], (ushort)freqRaw);
             //PumpsInfo[num + 7].Value = FreqSV;
         }
         else if (nameof(StrokeSV) == prop)
         {
-            await EditValFun?.Invoke(PumpsInfo[num+8], (ushort)StrokeSV);
-            //PumpsInfo[num + 8].Value = StrokeSV;
+            double strokeRaw = (StrokeSV / 100 * 27648);
+            await EditValFun?.Invoke(PumpsInfo[num+8], (ushort)strokeRaw);
         }
         else if (nameof(FlowSV) == prop)
         {
-            //PumpsInfo[num + 9].Value = FlowSV;
-            await EditValFun?.Invoke(PumpsInfo[num+9], (ushort)FlowSV);
+            var flowRaw = (FlowSV / 100 * 27648);
+            await EditValFun?.Invoke(PumpsInfo[num+9], (ushort)flowRaw);
         }
         else if (nameof(StrokeMax) == prop)
         {

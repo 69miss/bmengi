@@ -110,7 +110,7 @@ public partial class MainWindowViewModel : ObservableObject,IDisposable
         
         if (sender is not IDataItemBase item)
             return;
-        Console.WriteLine($"ItemPropertyChanged:{item.Address}:{e.PropertyName}");
+        //Console.WriteLine($"ItemPropertyChanged:{item.Address}:{e.PropertyName}");
         switch (item.Address)
         {
             case 40004:
