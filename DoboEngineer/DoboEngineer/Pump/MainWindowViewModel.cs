@@ -65,6 +65,7 @@ public partial class MainWindowViewModel : ObservableObject,IDisposable
             item.PumpsInfo = cmd.Items;
         }
         await cmd.Connect();
+        isInited = false;
         cmd.Items.ItemPropertyChanged += Items_ItemPropertyChanged;
     }
     [ObservableProperty] string btnConnectionText = "连接";
@@ -84,6 +85,7 @@ public partial class MainWindowViewModel : ObservableObject,IDisposable
         {
             await InitConnect();
             IsConnection =  cmd.IsConnection;
+            
         }
     }
     partial void OnIsConnectionChanged(bool value)
@@ -105,6 +107,7 @@ public partial class MainWindowViewModel : ObservableObject,IDisposable
             CanWrite = canWrite,
         };
     }
+    bool isInited=false;
     private void Items_ItemPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
         
@@ -114,7 +117,12 @@ public partial class MainWindowViewModel : ObservableObject,IDisposable
         switch (item.Address)
         {
             case 40004:
-                IsAutoMode= (item as PumpCtlMode).Flow; //todo
+                IsAutoMode= (item as PumpCtlMode).Flow;
+                if (!isInited)
+                {
+                    IsAutoModeSet = IsAutoMode;
+                    isInited = true;
+                }
                 break;
             default:
                 break;
@@ -124,6 +132,9 @@ public partial class MainWindowViewModel : ObservableObject,IDisposable
 
     partial void OnIsAutoModeSetChanged(bool val)
     {
+
+        if (!isInited)
+            return;
         var mode = new PumpCtlMode();
         //mode.Value = cmd.Items[3].Value;
         if (val)

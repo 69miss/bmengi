@@ -6,6 +6,7 @@ using FluentModbus;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -205,9 +206,9 @@ internal class PumpCmd:IDisposable
         Console.WriteLine($"{DateTime.Now} [{nameof(PumpCmd)}.PollingLoop] {msg}");
     }
  
-    public void Dispose()
+    public async void Dispose()
     {
-        cts?.Dispose();
+        await Disconnect();
         client?.Dispose();
     }
 }

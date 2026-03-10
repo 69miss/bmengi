@@ -149,21 +149,25 @@ public partial class PumpViewModel : ObservableObject
             pumpVM.IsRunning = (statusInt & (1 << num + 7)) != 0;
             pumpVM.CanEditFlow = ctlMode.Flow && pumpVM.IsRemote;
             pumpVM.CanEditParam = ctlMode.Manual && pumpVM.IsRemote;
-            var index = num + 3;
+            var indexArr = GetPumpsInfoIndex(Id);
+            var index = indexArr[0];
             //short freqRaw = PumpsInfo[index++].Value.ToInt16(null); //频率 5530--27648对应0-100
             //pumpVM.FreqPV = Math.Round((freqRaw-5530)/(27648-5530)*100d);
             //pumpVM.StrokePV = Math.Round(PumpsInfo[index++].Value.ToInt16(null)/ 27648*100d);
             //pumpVM.FlowPV = Math.Round(PumpsInfo[index++].Value.ToInt16(null)/ 27648*100d);
-            GetPVInfo(pumpVM, PumpsInfo[index++].Value.ToInt16(null), PumpsInfo[index++].Value.ToInt16(null), PumpsInfo[index++].Value.ToInt16(null));
+            //GetPVInfo(pumpVM, PumpsInfo[index++].Value.ToInt16(null), PumpsInfo[index++].Value.ToInt16(null), PumpsInfo[index++].Value.ToInt16(null));
+            GetToInfo(pumpVM, false, PumpsInfo[index++], PumpsInfo[index++], PumpsInfo[index++]);
             //
             if (isInited)
                 return;
             pumpVM.FlowMax = PumpsInfo[index++].Value.ToInt16(null);
-            pumpVM.FreqSV = PumpsInfo[index++].Value.ToInt16(null);
-            pumpVM.StrokeSV = PumpsInfo[index++].Value.ToInt16(null);
-            pumpVM.FlowSV = PumpsInfo[index++].Value.ToInt16(null);
-            pumpVM.StrokeMax = PumpsInfo[num + 31].Value.ToInt16(null);
-            pumpVM.StrokeMin = PumpsInfo[num + 32].Value.ToInt16(null);
+            //pumpVM.FreqSV = PumpsInfo[index++].Value.ToInt16(null);
+            //pumpVM.StrokeSV = PumpsInfo[index++].Value.ToInt16(null);
+            //pumpVM.FlowSV = PumpsInfo[index++].Value.ToInt16(null);
+            GetToInfo(pumpVM, true, PumpsInfo[index++], PumpsInfo[index++], PumpsInfo[index++]);
+            var index2 = indexArr[1];
+            pumpVM.StrokeMax = PumpsInfo[index2].Value.ToInt16(null);
+            pumpVM.StrokeMin = PumpsInfo[index2+1].Value.ToInt16(null);
             isInited = true;
         }
         finally
@@ -177,7 +181,25 @@ public partial class PumpViewModel : ObservableObject
         pumpVM.StrokePV = Math.Round(strokeRaw / 27648 * 100d);
         pumpVM.FlowPV = Math.Round(flowRaw / 27648 * 100d);
     }
+    void GetToInfo(PumpViewModel pumpVM,bool isSV ,IDataItemBase freqRaw, IDataItemBase strokeRaw, IDataItemBase flowRaw) {
 
+        if (isSV) {
+            pumpVM.FreqSV = Math.Round((ToShort(freqRaw) - 5530) / (27648d - 5530) * 100d);
+            pumpVM.StrokeSV = Math.Round(ToShort(strokeRaw) / 27648d * 100d);
+            pumpVM.FlowSV = Math.Round(ToShort(flowRaw) / 27648d * 100d);
+            return;
+        }
+        pumpVM.FreqPV = Math.Round((ToShort(freqRaw) - 5530) / (27648d - 5530) * 100d);
+        pumpVM.StrokePV = Math.Round(ToShort(strokeRaw) / 27648d * 100d);
+        pumpVM.FlowPV = Math.Round(ToShort(flowRaw) / 27648d * 100d);
+    }
+    short ToShort(IDataItemBase dataItem) {
+
+        return dataItem.Value.ToInt16(null);
+    }
+    int[] GetPumpsInfoIndex(int num) {
+        return [(num - 1)*7 + 4,(num-1)*2+32];
+    }
     protected override async void OnPropertyChanged(PropertyChangedEventArgs e)
     {
         base.OnPropertyChanged(e);
@@ -187,7 +209,8 @@ public partial class PumpViewModel : ObservableObject
     Func<IDataItemBase, ushort,Task> EditValFun;
     async Task set(string prop) {
         Console.WriteLine($"{DateTime.Now}==>set {prop}");
-        var num = this.Id;
+        var indexArr = GetPumpsInfoIndex(Id);
+        var num = indexArr[0];
         if (nameof(IsRunning) == prop)
         {
             //var val = PumpsInfo[2].Value.ToUInt16(null);
@@ -200,34 +223,34 @@ public partial class PumpViewModel : ObservableObject
         }
         else if (nameof(FlowMax) == prop)
         {
-            await EditValFun?.Invoke(PumpsInfo[num+6], (ushort)FlowMax);
+            await EditValFun?.Invoke(PumpsInfo[num+3], (ushort)FlowMax);
             //PumpsInfo[num + 6].Value = FlowMax;
         }
         else if (nameof(FreqSV) == prop)
         {
-            double freqRaw = (FreqSV / 100 * (27648 - 5530) + 5530);
-            await EditValFun?.Invoke(PumpsInfo[num+7], (ushort)freqRaw);
+            double freqRaw = (FreqSV / 100d * (27648 - 5530) + 5530);
+            await EditValFun?.Invoke(PumpsInfo[num+4], (ushort)freqRaw);
             //PumpsInfo[num + 7].Value = FreqSV;
         }
         else if (nameof(StrokeSV) == prop)
         {
-            double strokeRaw = (StrokeSV / 100 * 27648);
-            await EditValFun?.Invoke(PumpsInfo[num+8], (ushort)strokeRaw);
+            double strokeRaw = (StrokeSV / 100d * 27648);
+            await EditValFun?.Invoke(PumpsInfo[num+5], (ushort)strokeRaw);
         }
         else if (nameof(FlowSV) == prop)
         {
-            var flowRaw = (FlowSV / 100 * 27648);
-            await EditValFun?.Invoke(PumpsInfo[num+9], (ushort)flowRaw);
+            var flowRaw = (FlowSV / 100d * 27648);
+            await EditValFun?.Invoke(PumpsInfo[num+6], (ushort)flowRaw);
         }
         else if (nameof(StrokeMax) == prop)
         {
             //PumpsInfo[num + 31].Value = StrokeMax;
-            await EditValFun?.Invoke(PumpsInfo[num+31], (ushort)StrokeMax);
+            await EditValFun?.Invoke(PumpsInfo[indexArr[1]], (ushort)StrokeMax);
         }
         else if (nameof(StrokeMin) == prop)
         {
             //PumpsInfo[num + 32].Value = StrokeMin;
-            await EditValFun?.Invoke(PumpsInfo[num+32], (ushort)StrokeMin);
+            await EditValFun?.Invoke(PumpsInfo[indexArr[1]+1], (ushort)StrokeMin);
         }
     }
 }
