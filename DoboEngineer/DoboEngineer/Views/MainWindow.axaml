@@ -24,7 +24,7 @@
          <Button Click="Button_Click_1" IsVisible="False">校准2</Button>
             <Button Click="Button_Click_2">泵站测试</Button>
             <Button Click="Button_Click_3">泵站控制</Button>
-            <Button Click="Button_Click_4">泵站配置</Button>
+ 
             </StackPanel>
     </Grid>
 </Window>

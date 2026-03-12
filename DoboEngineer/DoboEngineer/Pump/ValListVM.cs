@@ -1,4 +1,5 @@
-﻿using Avalonia.Threading;
+﻿using Avalonia.Controls;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using DoboEngineer.Pump;
 using System;
@@ -14,7 +15,8 @@ namespace DoboEngineer.Pump
 
         public ValListVM()
         {
-            //mock();
+            if (Design.IsDesignMode)
+                mock();
         }
 
         private void mock()
@@ -22,7 +24,7 @@ namespace DoboEngineer.Pump
             DataItems = new ObservableCollection<IDataItemBase>
             {
                 new DataItemBase { Address = 0x0010, Name = "温度传感器(只读)", Value = 25.5, CanWrite = false },
-                new DataItemBase { Address = 0x0011, Name = "报警阈值(可写)", Value = 40.0, CanWrite = true },
+                new DataItemBase { Address = 0x0011, Name = "报警阈值(可写)", Value = 63340, CanWrite = true },
                 new DataItemBase { Address = 0x0012, Name = "目标转速(可写)", Value = 1500, CanWrite = true },
                 new DataItemBase { Address = 0x0013, Name = "运行状态(只读)", Value = 1, CanWrite = false }
             };

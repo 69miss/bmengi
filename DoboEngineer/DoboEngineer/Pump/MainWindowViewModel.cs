@@ -1,4 +1,5 @@
-﻿using Avalonia.Media;
+﻿using Avalonia.Controls;
+using Avalonia.Media;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -23,14 +24,22 @@ public partial class MainWindowViewModel : ObservableObject,IDisposable
     [ObservableProperty] private string _systemTime = string.Empty;
     DataDictSvc dataDictSvc;
    internal Func<string, Task<int>> MsgBoxShowFun;
+    PumpModel[] pumpCfgs;
     public MainWindowViewModel()
     {
-       // Mock();
-        for (int i = 1; i < 5; i++)
-        {
-            Pumps.Add(new PumpViewModel(i,ValEdit));
+        if (Design.IsDesignMode)
+            Mock();
+        dataDictSvc = new DataDictSvc();
+        pumpCfgs = dataDictSvc.GetByJson<PumpModel[]>("PumpListCfg");
+        if (pumpCfgs == null) { 
+            return;
         }
-        dataDictSvc=new DataDictSvc();
+        pumpCfgs = pumpCfgs.OrderBy(p => p.Id).ToArray();
+        for (int i = 0; i < 4; i++)
+        {
+            var cfg = pumpCfgs[i];
+            Pumps.Add(new PumpViewModel(i + 1, ValEdit) { Name = cfg.Name, WaveGaugeFg = SolidColorBrush.Parse(cfg.DisplayColor) });
+        }
     }
     async Task ValEdit(IDataItemBase dataItem, ushort val) {
        await cmd.WriteValue(dataItem.Address, (short)val);
@@ -47,11 +56,10 @@ public partial class MainWindowViewModel : ObservableObject,IDisposable
             new PumpCtl(),
             new PumpCtlMode()
         };
-            int idIndex = 1;
             for (ushort i = 40005; i <= 40032;)
             {
-               var indArr= GetPumpsInfoIndex(idIndex++);
                 var pNum = (i - 40005) / 7 + 1;
+                var indArr = GetPumpsInfoIndex(pNum);
                 // 模拟 泵1 (地址 40008-40011)
                 Items.Add(CreateItem(i++, $"泵{pNum}-频率", false, "Hz"));
                 Items.Add(CreateItem(i++, $"泵{pNum}-冲程", false, "%"));
@@ -62,8 +70,8 @@ public partial class MainWindowViewModel : ObservableObject,IDisposable
                 Items.Add(CreateItem(i++, $"泵{pNum}-冲程设定", true, "%"));
                 Items.Add(CreateItem(i++, $"泵{pNum}-流量设定", true, "L/min"));
                 //
-                Items.Add(CreateItem((ushort)(40001 + indArr[1]), $"泵{pNum}-最大冲程", false));
-                Items.Add(CreateItem((ushort)(40001 + indArr[1] + 1), $"泵{pNum}-最小冲程", false));
+                Items.Add(CreateItem((ushort)(40001 + indArr[1]), $"泵{pNum}-最大冲程", true));
+                Items.Add(CreateItem((ushort)(40001 + indArr[1] + 1), $"泵{pNum}-最小冲程", true));
             }
 
             var pArr = Items.OrderBy(p => p.Address).ToArray();
@@ -76,12 +84,13 @@ public partial class MainWindowViewModel : ObservableObject,IDisposable
             isInited = false;
             await CfgChenk();
             cmd.Items.ItemPropertyChanged += Items_ItemPropertyChanged;
-
         }
         catch (Exception ex)
         {
             Console.WriteLine(ex);
             MsgBoxShowFun("连接异常："+ex.Message);
+            cmd?.Dispose();
+            cmd = null;
             throw;
 
         }
@@ -109,13 +118,13 @@ public partial class MainWindowViewModel : ObservableObject,IDisposable
     async Task CfgChenk()
     {
         //检查plc配置是否与本地不同，如果不同就更新plc配置
-        var cfgs = dataDictSvc.GetByJson<PumpModel[]>("PumpListCfg");
-        if(cfgs?.Length>3)
-        for (int i = 0; i < cfgs.Length; i++)
+       // var cfgs = dataDictSvc.GetByJson<PumpModel[]>("PumpListCfg");
+        if(pumpCfgs?.Length>3)
+        for (int i = 0; i < pumpCfgs.Length; i++)
         {
-            var cfg = cfgs[i];
-            Pumps[i].Name = cfg.Name;
-            Pumps[i].WaveGaugeFg = SolidColorBrush.Parse(cfg.DisplayColor);
+            var cfg = pumpCfgs[i];
+            //Pumps[i].Name = cfg.Name;
+            //Pumps[i].WaveGaugeFg = SolidColorBrush.Parse(cfg.DisplayColor);
             var indexs = GetPumpsInfoIndex(i + 1);
 
 

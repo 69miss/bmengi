@@ -24,11 +24,12 @@
         
         <!-- 表头 (固定在顶部不随列表滚动) -->
         <Border Grid.Row="0" Background="#EEEEEE" Padding="10,8">
-            <Grid ColumnDefinitions="80, 150, 100, *">
+            <Grid ColumnDefinitions="80, 150, 80,150, *">
                 <TextBlock Grid.Column="0" Text="地址" FontWeight="Bold"/>
                 <TextBlock Grid.Column="1" Text="名称" FontWeight="Bold"/>
-                <TextBlock Grid.Column="2" Text="当前值" FontWeight="Bold"/>
-                <TextBlock Grid.Column="3" Text="操作" FontWeight="Bold"/>
+                <TextBlock Grid.Column="2" Text="值" FontWeight="Bold"/>
+                <TextBlock Grid.Column="3" Text="值2" FontWeight="Bold"/>
+                <TextBlock Grid.Column="4" Text="操作" FontWeight="Bold"/>
             </Grid>
         </Border>
 
@@ -44,7 +45,7 @@
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <!-- 3. 将原先的 Margin="0,8" 改小为 Margin="0,2" -->
-                    <Grid ColumnDefinitions="80, 150, 100, *" Margin="0,2">
+                    <Grid ColumnDefinitions="80, 150,80, 150, *" Margin="0,2">
                         
                         <!-- 地址 -->
                         <TextBlock Grid.Column="0" Text="{Binding Address}" VerticalAlignment="Center"/>
@@ -58,9 +59,13 @@
                                    Foreground="DarkOrange" 
                                    FontWeight="Bold" 
                                    VerticalAlignment="Center"/>
-                        
+                        <TextBlock Grid.Column="3" 
+                                   Text="{Binding Value,StringFormat='{}{0:B}'}" 
+                                   Foreground="DarkOrange" 
+                                   FontWeight="Bold" 
+                                   VerticalAlignment="Center"/>
                         <!-- 操作列 -->
-                        <Grid Grid.Column="3">
+                        <Grid Grid.Column="4">
                             <StackPanel Orientation="Horizontal" Spacing="8" IsVisible="{Binding CanWrite}">
                                 <!-- 4. 降低 TextBox 和 Button 的内边距和高度，防止它们把当前行撑得太高 {Binding InputValue}{Binding SendUpdateCommand}-->
                                 <TextBox Text="" 

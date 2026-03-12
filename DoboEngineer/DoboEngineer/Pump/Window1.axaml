@@ -7,7 +7,7 @@
 		x:Class="DoboEngineer.Pump.Window1"
 		x:DataType="vm:MainWindowViewModel"
 		xmlns:cc="using:DoboEngineer.Controls"
-		Title="DoboEngineer Pump Station"
+		Title="Dobo - Pump Station"
 		Width="960" Height="660" MinWidth="950" MinHeight="650"
 		Background="#f1f5f9"
 		ExtendClientAreaToDecorationsHint="True"
@@ -175,6 +175,7 @@
 				<Button.Flyout>
 					<MenuFlyout>
 						<MenuItem Header="参数监控" Click="MenuItem_Click" InputGesture="Ctrl+P"/>
+						<MenuItem Header="泵站配置" Click="MenuItem_Click_1" />
 						<Separator/>
 						<MenuItem Header="退出系统"/>
 					</MenuFlyout>

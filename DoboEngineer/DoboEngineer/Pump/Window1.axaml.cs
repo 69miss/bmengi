@@ -15,7 +15,7 @@ public partial class Window1 : Window
     {
         InitializeComponent();
         Closed += Window1_Closed;
-          mainWindowViewModel = new() { MsgBoxShowFun = MsgBoxShow };
+        mainWindowViewModel = new() { MsgBoxShowFun = MsgBoxShow };
         this.DataContext = mainWindowViewModel;
     }
 
@@ -41,12 +41,17 @@ public partial class Window1 : Window
     {
         if (mainWindowViewModel.cmd == null)
             return;
-        var vWin= new ValList();
+        var vWin = new ValList();
         foreach (var item in mainWindowViewModel.cmd.Items)
         {
             vWin.VM.DataItems.Add(item);
         }
         vWin.Show();
 
+    }
+
+    private void MenuItem_Click_1(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        new PumpCfgWnd().ShowDialog(this);
     }
 }

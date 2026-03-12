@@ -133,7 +133,7 @@ internal class PumpCmd:IDisposable
             try
             {
                 await StatueInfoGet(token);
-                var msg = (short)(num++ % 2);
+                var msg = (short)(num++ % 8);
                 await client.WriteAsync("40001", msg);
             }
             catch (Exception ex)
