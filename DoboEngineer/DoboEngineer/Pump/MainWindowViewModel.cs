@@ -47,8 +47,10 @@ public partial class MainWindowViewModel : ObservableObject,IDisposable
             new PumpCtl(),
             new PumpCtlMode()
         };
+            int idIndex = 1;
             for (ushort i = 40005; i <= 40032;)
             {
+               var indArr= GetPumpsInfoIndex(idIndex++);
                 var pNum = (i - 40005) / 7 + 1;
                 // 模拟 泵1 (地址 40008-40011)
                 Items.Add(CreateItem(i++, $"泵{pNum}-频率", false, "Hz"));
@@ -60,8 +62,8 @@ public partial class MainWindowViewModel : ObservableObject,IDisposable
                 Items.Add(CreateItem(i++, $"泵{pNum}-冲程设定", true, "%"));
                 Items.Add(CreateItem(i++, $"泵{pNum}-流量设定", true, "L/min"));
                 //
-                Items.Add(CreateItem((ushort)(40004 + pNum + 31), $"泵{pNum}-最大冲程", false));
-                Items.Add(CreateItem((ushort)(40004 + pNum + 32), $"泵{pNum}-最小冲程", false));
+                Items.Add(CreateItem((ushort)(40001 + indArr[1]), $"泵{pNum}-最大冲程", false));
+                Items.Add(CreateItem((ushort)(40001 + indArr[1] + 1), $"泵{pNum}-最小冲程", false));
             }
 
             var pArr = Items.OrderBy(p => p.Address).ToArray();
