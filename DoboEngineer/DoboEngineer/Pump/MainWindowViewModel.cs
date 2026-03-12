@@ -17,7 +17,7 @@ namespace DoboEngineer.Pump;
 public partial class MainWindowViewModel : ObservableObject,IDisposable
 {
     public ObservableCollection<PumpViewModel> Pumps { get; } = new();
-    PumpCmd cmd;
+   internal PumpCmd cmd;
     [ObservableProperty] private bool _isAutoMode;
     [ObservableProperty] private bool _isAutoModeSet;
     [ObservableProperty] private string _systemTime = string.Empty;

@@ -174,8 +174,7 @@
 				</StackPanel>
 				<Button.Flyout>
 					<MenuFlyout>
-						<MenuItem Header="参数设置" InputGesture="Ctrl+P"/>
-						<MenuItem Header="用户管理"/>
+						<MenuItem Header="参数监控" Click="MenuItem_Click" InputGesture="Ctrl+P"/>
 						<Separator/>
 						<MenuItem Header="退出系统"/>
 					</MenuFlyout>
