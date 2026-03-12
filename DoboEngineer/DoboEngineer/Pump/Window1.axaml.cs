@@ -2,6 +2,7 @@
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Markup.Xaml;
+using DoboEngineer.ViewModels;
 using System;
 using System.Threading.Tasks;
 
@@ -9,12 +10,13 @@ namespace DoboEngineer.Pump;
 
 public partial class Window1 : Window
 {
-
+    MainWindowViewModel mainWindowViewModel;
     public Window1()
     {
         InitializeComponent();
         Closed += Window1_Closed;
-        this.DataContext = new MainWindowViewModel() { MsgBoxShowFun=MsgBoxShow };
+          mainWindowViewModel = new() { MsgBoxShowFun = MsgBoxShow };
+        this.DataContext = mainWindowViewModel;
     }
 
     private void Window1_Closed(object? sender, System.EventArgs e)
@@ -33,5 +35,18 @@ public partial class Window1 : Window
     {
         var box = new MsgBox();
         return await MsgBox.Show(this, "提示消息", msg, false);
+    }
+
+    private void MenuItem_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        if (mainWindowViewModel.cmd == null)
+            return;
+        var vWin= new ValList();
+        foreach (var item in mainWindowViewModel.cmd.Items)
+        {
+            vWin.VM.DataItems.Add(item);
+        }
+        vWin.Show();
+
     }
 }

@@ -25,11 +25,35 @@ public  class DataItemBase: IDataItemBase, INotifyPropertyChangedExt2
     public string Name { get; set; }
     public virtual IConvertible Value { get => _value; set =>NotifyThis.SetField(ref _value,value); }
     public bool CanWrite { get; set; }
+    private string _inputValue;
     protected INotifyPropertyChangedExt2 NotifyThis { get => this; }
+    public string InputValue { get => _inputValue; set => NotifyThis.SetField(ref _inputValue , value); }
+
     public event PropertyChangedEventHandler? PropertyChanged;
     public PropertyChangedEventHandler PropertyChangedEventHandlerGet()
     {
         return PropertyChanged;
+    }
+    public void SendUpdate()
+    {
+        try
+        {
+            if (Value != null && !string.IsNullOrEmpty(InputValue))
+            {
+                // 转换并更新数据
+                var newValue = (IConvertible)Convert.ChangeType(InputValue, Value.GetTypeCode());
+                Value = newValue;
+
+                Console.WriteLine($"[向设备发送数据] 地址: 0x{Address:X4}, 新值: {newValue}");
+
+                // 清空输入框
+                InputValue = string.Empty;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"转换或发送失败: {ex.Message}");
+        }
     }
 }
 /// <summary>
