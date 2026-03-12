@@ -193,7 +193,7 @@ public partial class PumpViewModel : ObservableObject
         }
         pumpVM.FreqPV = Math.Round((ToShort(freqRaw) - 5530) / (27648d - 5530) * 100d);
         pumpVM.StrokePV = Math.Round(ToShort(strokeRaw) / 27648d * 100d);
-        pumpVM.FlowPV = Math.Round(ToShort(flowRaw) / 27648d * 100d);
+        pumpVM.FlowPV = ToShort(flowRaw);// Math.Round(ToShort(flowRaw) / 27648d * 100d);
     }
     short ToShort(IDataItemBase dataItem) {
 
@@ -241,7 +241,7 @@ public partial class PumpViewModel : ObservableObject
         }
         else if (nameof(FlowSV) == prop)
         {
-            var flowRaw = (FlowSV / 100d * 27648);
+            var flowRaw = FlowSV; //(FlowSV / 100d * 27648);
             await EditValFun?.Invoke(PumpsInfo[num+6], (ushort)flowRaw);
         }
         else if (nameof(StrokeMax) == prop)

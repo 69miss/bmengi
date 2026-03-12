@@ -30,6 +30,7 @@ public partial class MainWindowViewModel : ObservableObject,IDisposable
         {
             Pumps.Add(new PumpViewModel(i,ValEdit));
         }
+        dataDictSvc=new DataDictSvc();
     }
     async Task ValEdit(IDataItemBase dataItem, ushort val) {
        await cmd.WriteValue(dataItem.Address, (short)val);
@@ -38,8 +39,6 @@ public partial class MainWindowViewModel : ObservableObject,IDisposable
     {
         try
         {
-
-
             cmd?.Dispose();
             var Items = new List<IDataItemBase>
         {
@@ -81,6 +80,7 @@ public partial class MainWindowViewModel : ObservableObject,IDisposable
         {
             Console.WriteLine(ex);
             MsgBoxShowFun("连接异常："+ex.Message);
+            throw;
 
         }
     }
