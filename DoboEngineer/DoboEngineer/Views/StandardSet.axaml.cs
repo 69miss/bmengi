@@ -38,28 +38,37 @@ public partial class StandardSet : Window
         //var result = await DialogHost.Show("确认删除吗？", "dlg");
         //if (result == null)
         //    return;
-        spcTcpCommand.Connect();
-        spcTcpCommand.ReadStatus();
-       var re=await htCommand.ResetTcp();
-        if (re)
+        try
         {
-            htCommand.RemotoMode(true);
-        }
-        
-        spcTcpCommand.StateSetAction = StateHandleAsync;
-        spcTcpCommand.SpcStartPollingAsync();
-        isBeginStandard = true;
-        btnBegin.IsEnabled = !isBeginStandard;
-        WriteLineText("准备校准,请插入外部白校准盒,并触发校准按钮!");
-        msgBox=new MsgBox();
-        msgBox.ShowCancel=false;
-        msgBox.ContentTxt = """
+
+
+            spcTcpCommand.Connect();
+            spcTcpCommand.ReadStatus();
+            var re = await htCommand.ResetTcp();
+            if (re)
+            {
+                htCommand.RemotoMode(true);
+            }
+
+            spcTcpCommand.StateSetAction = StateHandleAsync;
+            spcTcpCommand.SpcStartPollingAsync();
+            isBeginStandard = true;
+            btnBegin.IsEnabled = !isBeginStandard;
+            WriteLineText("准备校准,请插入外部白校准盒,并触发校准按钮!");
+            msgBox = new MsgBox();
+            msgBox.ShowCancel = false;
+            msgBox.ContentTxt = """
             准备校准：
             1、请将白校准盒插入颜色传感器下端盖处
             2、完成步骤1后,请触发校准按钮
             注意：校准完成前请勿移动校准盒
             """;
-       await msgBox.ShowDialog(this);
+            await msgBox.ShowDialog(this);
+        }
+        catch (Exception)
+        {
+            WriteLineText("连接失败！");
+        }
         //workService.StateHandle
         //请插入外部白板后点击确认开关
         //白板校准
@@ -85,10 +94,11 @@ public partial class StandardSet : Window
             isBeginStandard = false;
             msgBox?.Close();
             var calc = new XYZCalc(XYZCalc.CmfType.R400_700_10);
-            WriteLineText(DateTime.Now+" 开始校准...");
+            WriteLineText(DateTime.Now + " 开始校准...");
             spcTcpCommand.ExecuteIOCommand(Dobo.Appl.SPC100.IOFunctionCode.OpenLensCover);
             await Task.Delay(2000);
-            if (true) {
+            if (true)
+            {
                 WriteLineText("标定前外部白测试中...");
                 var re = htCommand.PhotometricDataSingle(98);
                 var xyz = calc.CalcXyzByR(re.Data.Data.Select(p => (double)p).ToArray());
@@ -121,10 +131,14 @@ public partial class StandardSet : Window
                 var lab = calc.XyzToLab(xyz[0], xyz[1], xyz[2]);
                 WriteLineText($"外部白测试完成 Lab:{lab[0]:F2},{lab[1]:F2},{lab[2]:F2}");
                 //if (lab[0] > 80 && lab[0] < 100)
-                    await MsgBox.Show(this, "提示", "校准完成");
+                await MsgBox.Show(this, "提示", "校准完成");
                 //else
                 //    await MsgBox.Show(this, "提示", "请擦拭内部白板后重新校准",false);
             }
+        }
+        catch (Exception ex)
+        {
+            WriteLineText("校准失败，请稍后重试！"+ex.Message);
         }
         finally
         {

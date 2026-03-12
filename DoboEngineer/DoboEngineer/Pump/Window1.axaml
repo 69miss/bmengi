@@ -310,7 +310,7 @@
 													  Value="{Binding FlowPV}"
 													  Text="{Binding FlowPV, StringFormat='{}{0:F1}'}"
 													  SubText="流量"
-													  WaveColor="#0ea5e9"
+													  WaveColor="{Binding WaveGaugeFg}"
 													  VerticalAlignment="Top"/>
 										<!-- 流量设定 SV (显示 + 控制) -->
 										<!--<Grid Grid.Row="1" RowDefinitions="Auto, Auto" Margin="0,10,0,0">

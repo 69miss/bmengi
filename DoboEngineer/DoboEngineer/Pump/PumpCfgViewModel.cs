@@ -2,11 +2,13 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Input;
+using Dobo.Appl.Service;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 namespace DoboEngineer.Pump;
 public partial class PumpModel : ObservableObject
 {
@@ -47,18 +49,19 @@ public partial class PumpModel : ObservableObject
 public partial class PumpCfgViewModel : ObservableObject
 {
     public ObservableCollection<PumpModel> PumpList { get; } = new();
-
+    DataDictSvc dataDictSvc=new DataDictSvc();
+    internal Func<string, Task<int>> MsgBoxShowFun;
     // 【修改点】使用元组 (名称, Hex值)
     public List<Tuple<string,string>> AvailableColors { get; } = new()
         {
-            Tuple.Create("科技蓝", "#0078D4"),
-            Tuple.Create("成功绿", "#107C10"),
-            Tuple.Create("警示红", "#D13438"),
-            Tuple.Create("警告橙", "#FF8C00"),
-            Tuple.Create("优雅紫", "#5C2D91"),
-            Tuple.Create("深青色", "#008272"),
-            Tuple.Create("工业灰", "#69797E"),
-            Tuple.Create("暗夜黑", "#333333")
+            Tuple.Create("蓝", "#0078D4"),
+            Tuple.Create("绿", "#107C10"),
+            Tuple.Create("红", "#D13438"),
+            Tuple.Create("橙", "#FF8C00"),
+            //Tuple.Create("优雅紫", "#5C2D91"),
+            //Tuple.Create("深青色", "#008272"),
+            Tuple.Create("灰", "#69797E"),
+            Tuple.Create("黑", "#333333")
         };
 
     private PumpModel? _originalSelectedItem;
@@ -79,17 +82,27 @@ public partial class PumpCfgViewModel : ObservableObject
     private string _detailTitle = "详细配置";
 
     public PumpCfgViewModel()
-    {
+    { 
+    }
+    public void Init() {
         // 初始化模拟数据
-        PumpList.Add(new PumpModel { Id = "1", Name = "1#泵", DisplayColor = "#0078D4", MaxFlow = 120, MaxStroke = 100, MinStroke = 10, ProtectionThreshold = 150 });
-        PumpList.Add(new PumpModel { Id = "2", Name = "2#泵", DisplayColor = "#107C10", MaxFlow = 80.5, MaxStroke = 80, MinStroke = 5, ProtectionThreshold = 90 });
-        PumpList.Add(new PumpModel { Id = "3", Name = "3#泵", DisplayColor = "#D13438", MaxFlow = 15, MaxStroke = 40, MinStroke = 0, ProtectionThreshold = 25 });
-        PumpList.Add(new PumpModel { Id = "4", Name = "4#泵", DisplayColor = "#D13438", MaxFlow = 15, MaxStroke = 40, MinStroke = 0, ProtectionThreshold = 25 });
-
-
+        var list = dataDictSvc.GetByJson<PumpModel[]>("PumpListCfg");
+        if (list?.Length > 0)
+        {
+            foreach (var item in list)
+            {
+                PumpList.Add(item);
+            }
+        }
+        else
+        {
+            PumpList.Add(new PumpModel { Id = "1", Name = "1#泵", DisplayColor = "#0078D4", MaxFlow = 120, MaxStroke = 100, MinStroke = 10, ProtectionThreshold = 150 });
+            PumpList.Add(new PumpModel { Id = "2", Name = "2#泵", DisplayColor = "#107C10", MaxFlow = 80.5, MaxStroke = 80, MinStroke = 5, ProtectionThreshold = 90 });
+            PumpList.Add(new PumpModel { Id = "3", Name = "3#泵", DisplayColor = "#D13438", MaxFlow = 15, MaxStroke = 40, MinStroke = 0, ProtectionThreshold = 25 });
+            PumpList.Add(new PumpModel { Id = "4", Name = "4#泵", DisplayColor = "#FF8C00", MaxFlow = 15, MaxStroke = 40, MinStroke = 0, ProtectionThreshold = 25 });
+        }
         if (PumpList.Count > 0) SelectedPump = PumpList[0];
     }
-
     partial void OnSelectedPumpChanged(PumpModel? value)
     {
         if (value != null)
@@ -132,6 +145,8 @@ public partial class PumpCfgViewModel : ObservableObject
             if (_originalSelectedItem != null)
             {
                 _originalSelectedItem.CopyFrom(EditingPump);
+                dataDictSvc.SetJson("PumpListCfg", PumpList);
+                MsgBoxShowFun?.Invoke("修改成功!");
             }
         }
     }

@@ -220,11 +220,11 @@
                             </Grid>
 
                             <!-- 7. 保护阈值 -->
-                            <Grid ColumnDefinitions="100, 350, Auto">
+                            <!--<Grid ColumnDefinitions="100, 350, Auto">
                                 <TextBlock Grid.Column="0" Text="保护阈值" Classes="FormLabel"/>
                                 <TextBox Grid.Column="1" Text="{Binding EditingPump.ProtectionThreshold}" Watermark="压力报警阈值"/>
                                 <TextBlock Grid.Column="2" Classes="Required"/>
-                            </Grid>
+                            </Grid>-->
 
                         </StackPanel>
                     </ScrollViewer>
@@ -232,8 +232,8 @@
                     <!-- 底部按钮 -->
                     <Border Grid.Row="1" Background="#FAFAFA" BorderBrush="#EBEEF5" BorderThickness="0,1,0,0" CornerRadius="0,0,8,8" Padding="20">
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="15">
-                            <Button Classes="Default" Content="取消" Command="{Binding CancelCommand}" Width="100" Height="36"/>
-                            <Button Classes="Primary" Content="保存配置" Command="{Binding SaveCommand}" Width="120" Height="36"/>
+                            <Button Classes="Default" Content="取消" Command="{Binding CancelCommand}" HorizontalContentAlignment="Center" Width="100" Height="36"/>
+                            <Button Classes="Primary" Content="保存配置" Command="{Binding SaveCommand}" Width="120" Height="36" HorizontalContentAlignment="Center"/>
                         </StackPanel>
                     </Border>
                 </Grid>

@@ -58,6 +58,8 @@ public partial class PumpViewModel : ObservableObject
     public IBrush RunBtnColor => IsRunning ? SolidColorBrush.Parse("#fee2e2") : SolidColorBrush.Parse("#dcfce7"); // 浅红背景/浅绿背景
     public IBrush RunBtnFg => IsRunning ? SolidColorBrush.Parse("#ef4444") : SolidColorBrush.Parse("#16a34a");   // 深红字/深绿字
 
+    [ObservableProperty]
+      IBrush waveGaugeFg = SolidColorBrush.Parse("#0ea5e9");
     public bool IsFaulty => IsFault;
 
      bool isInited=false;

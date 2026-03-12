@@ -1,6 +1,8 @@
-﻿using Avalonia.Threading;
+﻿using Avalonia.Media;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Dobo.Appl.Service;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -19,7 +21,8 @@ public partial class MainWindowViewModel : ObservableObject,IDisposable
     [ObservableProperty] private bool _isAutoMode;
     [ObservableProperty] private bool _isAutoModeSet;
     [ObservableProperty] private string _systemTime = string.Empty;
-
+    DataDictSvc dataDictSvc;
+   internal Func<string, Task<int>> MsgBoxShowFun;
     public MainWindowViewModel()
     {
        // Mock();
@@ -33,40 +36,53 @@ public partial class MainWindowViewModel : ObservableObject,IDisposable
     }
     public async Task InitConnect()
     {
-        cmd?.Dispose();
-        var Items = new List<IDataItemBase>
+        try
+        {
+
+
+            cmd?.Dispose();
+            var Items = new List<IDataItemBase>
         {
             CreateItem(40001, "心跳", false),
             new PumpStatus(),
             new PumpCtl(),
             new PumpCtlMode()
         };
-        for (ushort i = 40005; i <= 40032;)
-        {
-            var pNum = (i - 40005) / 7 + 1;
-            // 模拟 泵1 (地址 40008-40011)
-            Items.Add(CreateItem(i++, $"泵{pNum}-频率", false, "Hz"));
-            Items.Add(CreateItem(i++, $"泵{pNum}-冲程", false, "%"));
-            Items.Add(CreateItem(i++, $"泵{pNum}-流量", false, "L/min"));
-            //
-            Items.Add(CreateItem(i++, $"泵{pNum}-最大流量", true, "L/min"));
-            Items.Add(CreateItem(i++, $"泵{pNum}-频率设定", true, "Hz"));
-            Items.Add(CreateItem(i++, $"泵{pNum}-冲程设定", true, "%"));
-            Items.Add(CreateItem(i++, $"泵{pNum}-流量设定", true, "L/min"));
-            //
-            Items.Add(CreateItem((ushort)(40004+pNum + 31), $"泵{pNum}-最大冲程", false));
-            Items.Add(CreateItem((ushort)(40004+pNum + 32), $"泵{pNum}-最小冲程", false));
+            for (ushort i = 40005; i <= 40032;)
+            {
+                var pNum = (i - 40005) / 7 + 1;
+                // 模拟 泵1 (地址 40008-40011)
+                Items.Add(CreateItem(i++, $"泵{pNum}-频率", false, "Hz"));
+                Items.Add(CreateItem(i++, $"泵{pNum}-冲程", false, "%"));
+                Items.Add(CreateItem(i++, $"泵{pNum}-流量", false, "L/min"));
+                //
+                Items.Add(CreateItem(i++, $"泵{pNum}-最大流量", true, "L/min"));
+                Items.Add(CreateItem(i++, $"泵{pNum}-频率设定", true, "Hz"));
+                Items.Add(CreateItem(i++, $"泵{pNum}-冲程设定", true, "%"));
+                Items.Add(CreateItem(i++, $"泵{pNum}-流量设定", true, "L/min"));
+                //
+                Items.Add(CreateItem((ushort)(40004 + pNum + 31), $"泵{pNum}-最大冲程", false));
+                Items.Add(CreateItem((ushort)(40004 + pNum + 32), $"泵{pNum}-最小冲程", false));
+            }
+
+            var pArr = Items.OrderBy(p => p.Address).ToArray();
+            cmd = new PumpCmd(pArr);
+            foreach (var item in Pumps)
+            {
+                item.PumpsInfo = cmd.Items;
+            }
+            await cmd.Connect();
+            isInited = false;
+            await CfgChenk();
+            cmd.Items.ItemPropertyChanged += Items_ItemPropertyChanged;
+
         }
-        
-        var pArr = Items.OrderBy(p => p.Address).ToArray();
-        cmd = new PumpCmd(pArr);
-        foreach (var item in Pumps)
+        catch (Exception ex)
         {
-            item.PumpsInfo = cmd.Items;
+            Console.WriteLine(ex);
+            MsgBoxShowFun("连接异常："+ex.Message);
+
         }
-        await cmd.Connect();
-        isInited = false;
-        cmd.Items.ItemPropertyChanged += Items_ItemPropertyChanged;
     }
     [ObservableProperty] string btnConnectionText = "连接";
     [ObservableProperty]  bool isConnection = false;
@@ -87,6 +103,45 @@ public partial class MainWindowViewModel : ObservableObject,IDisposable
             IsConnection =  cmd.IsConnection;
             
         }
+    }
+    async Task CfgChenk()
+    {
+        //检查plc配置是否与本地不同，如果不同就更新plc配置
+        var cfgs = dataDictSvc.GetByJson<PumpModel[]>("PumpListCfg");
+        if(cfgs?.Length>3)
+        for (int i = 0; i < cfgs.Length; i++)
+        {
+            var cfg = cfgs[i];
+            Pumps[i].Name = cfg.Name;
+            Pumps[i].WaveGaugeFg = SolidColorBrush.Parse(cfg.DisplayColor);
+            var indexs = GetPumpsInfoIndex(i + 1);
+
+
+            IDataItemBase dataItem = cmd.Items[indexs[0] + 3];
+            if (cfg.MaxFlow != ToShort(dataItem))
+            {
+                await cmd.WriteValue(dataItem.Address, (short)cfg.MaxFlow);
+            }
+            dataItem = cmd.Items[indexs[1]];
+            if (cfg.MaxStroke != ToShort(dataItem))
+            {
+                await cmd.WriteValue(dataItem.Address, (short)cfg.MaxStroke);
+            }
+            dataItem = cmd.Items[indexs[1] + 1];
+            if (cfg.MinStroke != ToShort(dataItem))
+            {
+                await cmd.WriteValue(dataItem.Address, (short)cfg.MinStroke);
+            }
+        }
+
+    }
+    short ToShort(IDataItemBase dataItem)
+    {
+        return dataItem.Value.ToInt16(null);
+    }
+    int[] GetPumpsInfoIndex(int num)
+    {
+        return [(num - 1) * 7 + 4, (num - 1) * 2 + 32];
     }
     partial void OnIsConnectionChanged(bool value)
     {

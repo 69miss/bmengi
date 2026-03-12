@@ -35,7 +35,7 @@ public partial class MsgBox : Window, INotifyPropertyChangedExt2
     {
         var msgBox = new MsgBox();
         msgBox.Title = title;
-        msgBox.showCancel = showCancel;
+        msgBox.ShowCancel = showCancel;
         // 找到控件并赋值
         var textBlock = msgBox.FindControl<TextBlock>("MessageText");
         if (textBlock != null) textBlock.Text = message;
