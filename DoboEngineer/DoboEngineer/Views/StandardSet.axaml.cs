@@ -26,11 +26,13 @@ public partial class StandardSet : Window
         Height = 400;
         Width = 600;
         htCommand = new HTCommand("192.168.0.55", 10001);
+        btnBegin2.IsVisible = true;
+        btnBegin.IsVisible = false;
     }
     public Lang L { get; set; } = Lang.d;
     SPCCommand spcTcpCommand = new SPCCommand();
     HTCommand htCommand;
-    bool isBeginStandard=false;
+    bool isBeginStandard = false;
     public string Txt { get; set; } = "tttttttttt2";
     MsgBox msgBox;
     private async void Button_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
@@ -138,7 +140,7 @@ public partial class StandardSet : Window
         }
         catch (Exception ex)
         {
-            WriteLineText("校准失败，请稍后重试！"+ex.Message);
+            WriteLineText("校准失败，请稍后重试！" + ex.Message);
         }
         finally
         {
@@ -147,5 +149,37 @@ public partial class StandardSet : Window
         }
     }
 
+    private async void btnBegin2_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        try
+        {
+            spcTcpCommand.Connect();
+            spcTcpCommand.ReadStatus();
+            var re = await htCommand.ResetTcp();
+            if (re)
+            {
+                htCommand.RemotoMode(true);
+            }
 
+            //spcTcpCommand.StateSetAction = StateHandleAsync;
+            //spcTcpCommand.SpcStartPollingAsync();
+            isBeginStandard = true;
+            btnBegin.IsEnabled = !isBeginStandard;
+            WriteLineText("准备校准,请插入外部白校准盒!");
+            var contentTxt = """
+            准备校准：
+            1、请将白校准盒插入颜色传感器下端盖处
+            2、完成步骤1后,请点击确认按钮
+            注意：校准完成前请勿移动校准盒
+            """;
+            await msgBox.ShowDialog<int>(this);
+            var dlgRe = await MsgBox.Show(this, "提示", contentTxt);
+            if (dlgRe == 1)
+                StateHandleAsync(new Dobo.Appl.SPC100.SpcStateInfo() { SubInAuxSwitch = true });
+        }
+        catch (Exception)
+        {
+            WriteLineText("连接失败！");
+        }
+    }
 }

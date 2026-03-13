@@ -88,7 +88,7 @@ public partial class MainWindowViewModel : ObservableObject,IDisposable
         catch (Exception ex)
         {
             Console.WriteLine(ex);
-            MsgBoxShowFun("连接异常："+ex.Message);
+            MsgBoxShowFun("连接异常：" + ex.Message);
             cmd?.Dispose();
             cmd = null;
             throw;
@@ -103,7 +103,9 @@ public partial class MainWindowViewModel : ObservableObject,IDisposable
         //IsConnection = !IsConnection;
         //return; //todo 测试
         var isConn = cmd?.IsConnection;
-        if (isConn == true)
+        if (isConn != IsConnection)
+            IsConnection = isConn == null ? false : isConn.Value;
+        else if (isConn == true)
         {
             cmd.Dispose();
             IsConnection = false;
@@ -111,8 +113,8 @@ public partial class MainWindowViewModel : ObservableObject,IDisposable
         else
         {
             await InitConnect();
-            IsConnection =  cmd.IsConnection;
-            
+            IsConnection = cmd.IsConnection;
+
         }
     }
     async Task CfgChenk()

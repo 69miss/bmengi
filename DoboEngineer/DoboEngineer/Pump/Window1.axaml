@@ -417,7 +417,7 @@
 											<TextBlock Text="频率 Freq" FontSize="13" Foreground="#64748b" VerticalAlignment="Bottom"/>
 											<StackPanel Grid.Column="1" Orientation="Horizontal">
 												<TextBlock Text="{Binding FreqPV, StringFormat='{}{0:F1}'}" FontWeight="Bold" FontSize="16" Foreground="#334155"/>
-												<TextBlock Text="Hz" FontSize="11" VerticalAlignment="Bottom" Margin="2,0,0,2" Foreground="#94a3b8"/>
+												<TextBlock Text="%" FontSize="11" VerticalAlignment="Bottom" Margin="2,0,0,2" Foreground="#94a3b8"/>
 											</StackPanel>
 										</Grid>
 

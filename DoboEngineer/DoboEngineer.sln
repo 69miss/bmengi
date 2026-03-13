@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dobo.Appl", "Dobo.Appl\Dobo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UI.Avalonia", "UI.Avalonia\UI.Avalonia.csproj", "{39897103-59F4-441A-87D1-8B7C6A06CAC6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PumpsSystem", "PumpsSystem\PumpsSystem.csproj", "{37E0591C-4D7B-44F6-98F1-CEFE5AFF4C2F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{39897103-59F4-441A-87D1-8B7C6A06CAC6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{39897103-59F4-441A-87D1-8B7C6A06CAC6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{39897103-59F4-441A-87D1-8B7C6A06CAC6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{37E0591C-4D7B-44F6-98F1-CEFE5AFF4C2F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{37E0591C-4D7B-44F6-98F1-CEFE5AFF4C2F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{37E0591C-4D7B-44F6-98F1-CEFE5AFF4C2F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{37E0591C-4D7B-44F6-98F1-CEFE5AFF4C2F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

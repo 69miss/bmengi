@@ -5,6 +5,7 @@ using Dobo.Appl.Utility;
 using System;
 using System.ComponentModel;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace DoboEngineer.Pump;
@@ -133,6 +134,47 @@ public partial class PumpViewModel : ObservableObject
             FreqSV = FreqSV + amount; // Math.Clamp(FreqSV + amount, 0, 100); 
         }
     }
+    // 1. 定义一个取消令牌源，用于管理延时任务
+    private CancellationTokenSource? _debounceCts;
+    string nowDebounceName;
+    private void TriggerDebounceWrite(string name,params object[] args)
+    {
+        if (name == nowDebounceName)
+        {// 1. 如果之前有正在等待的任务，取消它！
+            _debounceCts?.Cancel();
+        }
+        else
+            name = nowDebounceName;
+        // 2. 创建新的令牌
+        _debounceCts = new CancellationTokenSource();
+        var token = _debounceCts.Token;
+
+        // 3. 启动后台任务
+        Task.Run(async () =>
+        {
+            try
+            {
+                // 4. 等待 500毫秒 (可调整)
+                // 如果在等待期间用户又点了一下，token.IsCancellationRequested 会变成 true
+                await Task.Delay(500, token);
+
+                // 5. 检查是否被取消
+                if (token.IsCancellationRequested) return;
+
+                // 6. --- 真正执行远程调用 ---
+                await EditValFun?.Invoke((IDataItemBase)args[0], (ushort)args[1]);
+            }
+            catch (TaskCanceledException)
+            {
+                // 任务被取消是正常的，忽略异常
+            }
+            catch (Exception ex)
+            {
+                // 处理通讯异常
+                Console.WriteLine($"写入失败: {ex}");
+            }
+        });
+    }
     ObservableItemCollection<IDataItemBase> pumpsInfo;
     bool isUpdatingFromPlc;
     void get()
@@ -225,19 +267,21 @@ public partial class PumpViewModel : ObservableObject
         }
         else if (nameof(FlowMax) == prop)
         {
-            await EditValFun?.Invoke(PumpsInfo[num+3], (ushort)FlowMax);
-            //PumpsInfo[num + 6].Value = FlowMax;
+            TriggerDebounceWrite(prop, PumpsInfo[num + 3], (ushort)FlowMax);
+            //await EditValFun?.Invoke(PumpsInfo[num+3], (ushort)FlowMax);
+
         }
         else if (nameof(FreqSV) == prop)
         {
             double freqRaw = (FreqSV / 100d * (27648 - 5530) + 5530);
-            await EditValFun?.Invoke(PumpsInfo[num+4], (ushort)freqRaw);
-            //PumpsInfo[num + 7].Value = FreqSV;
+            TriggerDebounceWrite(prop,PumpsInfo[num + 4], (ushort)freqRaw);
+            //await EditValFun?.Invoke(PumpsInfo[num+4], (ushort)freqRaw);
         }
         else if (nameof(StrokeSV) == prop)
         {
             double strokeRaw = (StrokeSV / 100d * 27648);
-            await EditValFun?.Invoke(PumpsInfo[num+5], (ushort)strokeRaw);
+            TriggerDebounceWrite(prop,PumpsInfo[num + 5], (ushort)strokeRaw);
+            //await EditValFun?.Invoke(PumpsInfo[num+5], (ushort)strokeRaw);
         }
         else if (nameof(FlowSV) == prop)
         {
