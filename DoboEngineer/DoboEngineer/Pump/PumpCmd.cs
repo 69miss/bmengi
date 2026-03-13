@@ -101,7 +101,11 @@ internal class PumpCmd:IDisposable
     public async Task WriteValue(int address, short val)
     {
         if (client.IsConnected)
+        {
+            Console.WriteLine($"{DateTime.Now}-->>{address}_{val}");
             await client.WriteAsync(address + "", val);
+            Console.WriteLine($"{DateTime.Now}--<<{address}_{val}");
+        }
     }
     public async Task ReconnectionAsync(CancellationToken token, int msDelay, Func<Exception?, int, IDictionary<string, object>, Task<bool>> reconnectFunc)
     {
@@ -195,7 +199,7 @@ internal class PumpCmd:IDisposable
         }
         if (isChange == true)
         {
-            WriteLog(strMsg);
+            //WriteLog(strMsg);
             Items.OnItemsPropertyChangedEnd(beginTIme);
         }
         return reDic;

@@ -118,15 +118,15 @@ namespace DoboEngineer.Pump
 
         public async Task<bool> WriteAsync<T>(string address, T value)
         {
+            //todo 应处理线程安全
             var index = ToFIndex(address);
-            Console.WriteLine($"{DateTime.Now}-->{address}_{value}");
             if (value is short val)
                 await client.WriteSingleRegisterAsync(0, index, val);
             else if (value is ushort val1)
                 await client.WriteSingleRegisterAsync(0, index, val1);
             else
                 throw new ArgumentException("不支持的类型");
-            Console.WriteLine($"{DateTime.Now}--<{address}_{value}");
+            
             return true;
         }
 

@@ -142,9 +142,9 @@ public partial class PumpViewModel : ObservableObject
         if (name == nowDebounceName)
         {// 1. 如果之前有正在等待的任务，取消它！
             _debounceCts?.Cancel();
+            Console.WriteLine($"防抖取消执行：{name}{args[0]}");
         }
-        else
-            name = nowDebounceName;
+         nowDebounceName=name;
         // 2. 创建新的令牌
         _debounceCts = new CancellationTokenSource();
         var token = _debounceCts.Token;
@@ -267,8 +267,8 @@ public partial class PumpViewModel : ObservableObject
         }
         else if (nameof(FlowMax) == prop)
         {
-            TriggerDebounceWrite(prop, PumpsInfo[num + 3], (ushort)FlowMax);
-            //await EditValFun?.Invoke(PumpsInfo[num+3], (ushort)FlowMax);
+            
+            await EditValFun?.Invoke(PumpsInfo[num+3], (ushort)FlowMax);
 
         }
         else if (nameof(FreqSV) == prop)
@@ -286,7 +286,8 @@ public partial class PumpViewModel : ObservableObject
         else if (nameof(FlowSV) == prop)
         {
             var flowRaw = FlowSV; //(FlowSV / 100d * 27648);
-            await EditValFun?.Invoke(PumpsInfo[num+6], (ushort)flowRaw);
+            TriggerDebounceWrite(prop, PumpsInfo[num + 6], (ushort)flowRaw);
+            //await EditValFun?.Invoke(PumpsInfo[num+6], (ushort)flowRaw);
         }
         else if (nameof(StrokeMax) == prop)
         {

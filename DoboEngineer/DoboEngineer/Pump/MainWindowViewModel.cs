@@ -102,9 +102,9 @@ public partial class MainWindowViewModel : ObservableObject,IDisposable
     {
         //IsConnection = !IsConnection;
         //return; //todo 测试
-        var isConn = cmd?.IsConnection;
+        var isConn = cmd==null?false:cmd.IsConnection;
         if (isConn != IsConnection)
-            IsConnection = isConn == null ? false : isConn.Value;
+            IsConnection = isConn;
         else if (isConn == true)
         {
             cmd.Dispose();
