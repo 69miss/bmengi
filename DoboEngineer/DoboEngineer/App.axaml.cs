@@ -31,7 +31,7 @@ namespace DoboEngineer
                 {
                     // DataContext = new MainWindowViewModel(),
                 };
-                desktop.MainWindow = new StandardSet();
+                //desktop.MainWindow = new StandardSet();
             }
 #if DEBUG
             this.AttachDevTools();

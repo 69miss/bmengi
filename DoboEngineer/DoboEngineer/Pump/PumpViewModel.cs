@@ -267,7 +267,6 @@ public partial class PumpViewModel : ObservableObject
         }
         else if (nameof(FlowMax) == prop)
         {
-            
             await EditValFun?.Invoke(PumpsInfo[num+3], (ushort)FlowMax);
 
         }

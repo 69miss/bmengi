@@ -34,7 +34,8 @@ namespace Dobo.Appl
         public string SqliteConnStr { get;  } = @"Data Source=dobo.dat;Password=db@dobo";
 #endif
 #if !DEBUG
-        public string SqliteConnStr { get;  } = @"Data Source=dobo.dat;";
+        //public string SqliteConnStr { get;  } = @"Data Source=dobo.dat;";
+        public string SqliteConnStr { get;  } = @"Data Source=dobo.dat;Password=db@dobo";
 #endif
     }
 }
