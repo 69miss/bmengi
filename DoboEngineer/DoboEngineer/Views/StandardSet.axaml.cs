@@ -159,8 +159,9 @@ public partial class StandardSet : Window
             if (re)
             {
                 htCommand.RemotoMode(true);
-            }
-
+                
+            }else
+                throw new ArgumentException("连接失败");
             //spcTcpCommand.StateSetAction = StateHandleAsync;
             //spcTcpCommand.SpcStartPollingAsync();
             isBeginStandard = true;
@@ -172,7 +173,7 @@ public partial class StandardSet : Window
             2、完成步骤1后,请点击确认按钮
             注意：校准完成前请勿移动校准盒
             """;
-            await msgBox.ShowDialog<int>(this);
+            //await msgBox.ShowDialog<int>(this);
             var dlgRe = await MsgBox.Show(this, "提示", contentTxt);
             if (dlgRe == 1)
                 StateHandleAsync(new Dobo.Appl.SPC100.SpcStateInfo() { SubInAuxSwitch = true });
