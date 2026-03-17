@@ -8,7 +8,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace DoboEngineer.Pump;
+namespace PumpsSystem.Pump;
 
 public partial class PumpViewModel : ObservableObject
 {

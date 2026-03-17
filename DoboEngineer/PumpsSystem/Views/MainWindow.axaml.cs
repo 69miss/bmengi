@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using PumpsSystem.Pump;
 
 namespace PumpsSystem.Views
 {
@@ -7,6 +8,11 @@ namespace PumpsSystem.Views
         public MainWindow()
         {
             InitializeComponent();
+        }
+
+        private void Button_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+        {
+            new Window1().ShowDialog(this);
         }
     }
 }

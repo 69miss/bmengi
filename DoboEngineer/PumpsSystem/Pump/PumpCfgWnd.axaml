@@ -1,0 +1,243 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="using:PumpsSystem.Pump"
+        xmlns:sys="using:System"
+        mc:Ignorable="d" d:DesignWidth="960" d:DesignHeight="680"
+        x:Class="PumpsSystem.Pump.PumpCfgWnd"
+        x:DataType="vm:PumpCfgViewModel"
+        Title="泵组信息配置中心"
+        Width="960" Height="680"
+        WindowStartupLocation="CenterScreen"
+        FontFamily="Microsoft YaHei, Segoe UI, SimHei"
+        Background="#F5F7FA">
+
+    <Design.DataContext>
+        <vm:PumpCfgViewModel/>
+    </Design.DataContext>
+
+    <Window.Styles>
+        <!-- 标签样式 -->
+        <Style Selector="TextBlock.FormLabel">
+            <Setter Property="HorizontalAlignment" Value="Right"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,0,15,0"/>
+            <Setter Property="Foreground" Value="#606266"/>
+            <Setter Property="FontSize" Value="14"/>
+        </Style>
+
+        <!-- 必填红星样式 -->
+        <Style Selector="TextBlock.Required">
+            <Setter Property="Text" Value="*"/>
+            <Setter Property="Foreground" Value="#F56C6C"/>
+            <Setter Property="Margin" Value="5,0,0,0"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+        </Style>
+
+        <!-- 输入框基础样式 -->
+        <Style Selector="TextBox">
+            <Setter Property="Height" Value="38"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="BorderBrush" Value="#DCDFE6"/>
+            <Setter Property="Background" Value="White"/>
+        </Style>
+        <Style Selector="TextBox:focus">
+            <Setter Property="BorderBrush" Value="#409EFF"/>
+        </Style>
+
+        <!-- 只读输入框样式 -->
+        <Style Selector="TextBox[IsReadOnly=True]">
+            <Setter Property="Background" Value="#F5F7FA"/>
+            <Setter Property="Foreground" Value="#909399"/>
+            <Setter Property="BorderBrush" Value="#E4E7ED"/>
+        </Style>
+
+        <!-- ComboBox 样式 -->
+        <Style Selector="ComboBox">
+            <Setter Property="Height" Value="38"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="BorderBrush" Value="#DCDFE6"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+
+        <!-- 按钮样式 -->
+        <Style Selector="Button.Primary">
+            <Setter Property="Background" Value="#409EFF"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+        <Style Selector="Button.Primary:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#66B1FF"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        
+        <Style Selector="Button.Default">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="#606266"/>
+            <Setter Property="BorderBrush" Value="#DCDFE6"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="4"/>
+        </Style>
+
+        <!-- 列表项样式 -->
+        <Style Selector="ListBoxItem">
+            <Setter Property="Padding" Value="12,10"/>
+            <Setter Property="Margin" Value="8,4"/>
+            <Setter Property="CornerRadius" Value="6"/>
+        </Style>
+        <Style Selector="ListBoxItem:selected /template/ ContentPresenter">
+            <Setter Property="Background" Value="#ECF5FF"/>
+        </Style>
+    </Window.Styles>
+
+    <Grid ColumnDefinitions="280, *">
+
+        <!-- 左侧：导航栏 -->
+        <Grid Grid.Column="0" RowDefinitions="Auto, *" Background="White">
+            <Border Grid.Row="0" Padding="20">
+                <TextBlock>泵组列表</TextBlock>
+                <!--<Button Classes="Primary" Command="{Binding CreateNewCommand}" HorizontalAlignment="Stretch" Height="42" Content="+ 新建泵组"/>-->
+            </Border>
+            
+            <Border Grid.Row="1" BorderBrush="#EBEEF5" BorderThickness="0,1,0,0">
+                <ListBox ItemsSource="{Binding PumpList}" SelectedItem="{Binding SelectedPump}" Background="Transparent">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Grid ColumnDefinitions="Auto, *">
+                                <!-- 列表左侧指示条：绑定到 DisplayColor -->
+                                <Border Width="4" Height="36" 
+                                        Background="{Binding DisplayColor}" 
+                                        CornerRadius="2" Margin="0,0,12,0"/>
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="14" Foreground="#303133"/>
+                                    <TextBlock Text="{Binding Id,StringFormat='编号：{0}'}" FontSize="12" Foreground="#909399" Margin="0,2,0,0"/>
+                                </StackPanel>
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </Border>
+        </Grid>
+
+        <!-- 右侧：详情配置 -->
+        <Grid Grid.Column="1" RowDefinitions="Auto, *">
+            <Border Grid.Row="0" Padding="40,25">
+                <TextBlock Text="{Binding DetailTitle}" FontSize="22" FontWeight="Bold" Foreground="#303133"/>
+            </Border>
+
+            <!-- 卡片容器 -->
+            <Border Grid.Row="1" Margin="40,0,40,40" Background="White" CornerRadius="8" BoxShadow="0 4 12 0 #1A000000">
+                <Grid RowDefinitions="*, Auto">
+                    <ScrollViewer Grid.Row="0" Padding="50,40">
+                        <StackPanel Spacing="24" MaxWidth="650" HorizontalAlignment="Left">
+
+                            <!-- 1. 编号 (核心逻辑：绑定 IsIdEditable) -->
+                            <Grid ColumnDefinitions="100, 350, Auto">
+                                <TextBlock Grid.Column="0" Text="编号" Classes="FormLabel"/>
+                                <TextBox Grid.Column="1" 
+                                         Text="{Binding EditingPump.Id}" 
+                                         IsReadOnly="{Binding !IsIdEditable}"
+                                         Watermark="泵唯一顺序号，保存后不可修改"/>
+                                <TextBlock Grid.Column="2" Classes="Required" IsVisible="{Binding IsIdEditable}"/>
+                            </Grid>
+
+                            <!-- 2. 名称 -->
+                            <Grid ColumnDefinitions="100, 350, Auto">
+                                <TextBlock Grid.Column="0" Text="名称" Classes="FormLabel"/>
+                                 <TextBox Grid.Column="1" Text="{Binding EditingPump.Name}" Watermark="显示名称"/>
+                                <ComboBox Grid.Column="1" IsVisible="False"
+                                          SelectedItem="{Binding EditingPump.Name}" 
+                                          HorizontalAlignment="Stretch" 
+                                          PlaceholderText="请选择或输入名称">
+                                    <ComboBox.Items>
+                                        <sys:String>主供料泵</sys:String>
+                                        <sys:String>备用循环泵</sys:String>
+                                        <sys:String>加药计量泵</sys:String>
+                                        <sys:String>污水提升泵</sys:String>
+                                    </ComboBox.Items>
+                                </ComboBox>
+                                <TextBlock Grid.Column="2" Classes="Required"/>
+                            </Grid>
+
+                            <!-- 3. 颜色选择 (元组绑定) -->
+                            <Grid ColumnDefinitions="100, 350, Auto">
+                                <TextBlock Grid.Column="0" Text="展示颜色" Classes="FormLabel"/>
+                                
+                                <!-- 
+                                   SelectedValueBinding="{Binding Item2}": 
+                                   因为 ItemsSource 是元组 (Item1=Name, Item2=Hex)，
+                                   这里告诉 ComboBox 实际选中的值取 Item2 (Hex字符串) 
+                                -->
+                                <ComboBox Grid.Column="1" 
+                                          ItemsSource="{Binding AvailableColors}" 
+                                          SelectedValue="{Binding EditingPump.DisplayColor}"
+                                          SelectedValueBinding="{Binding Item2}"
+                                          HorizontalAlignment="Stretch">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                                                <!-- 颜色预览: 绑定到 Item2 (Hex) -->
+                                                <Border Width="16" Height="16" 
+                                                        CornerRadius="3" 
+                                                        Background="{Binding Item2}" 
+                                                        BorderBrush="#E0E0E0" BorderThickness="1"/>
+                                                <!-- 颜色名称: 绑定到 Item1 (Name) -->
+                                                <TextBlock Text="{Binding Item1}" VerticalAlignment="Center" FontSize="14"/>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                                <TextBlock Grid.Column="2" Classes="Required"/>
+                            </Grid>
+
+                            <!--<Border Height="1" Background="#F2F3F5" Margin="0,10"/>-->
+
+                            <!-- 4. 最大流量 -->
+                            <Grid ColumnDefinitions="100, 350, Auto">
+                                <TextBlock Grid.Column="0" Text="最大流量" Classes="FormLabel"/>
+                                <TextBox Grid.Column="1" Text="{Binding EditingPump.MaxFlow}" Watermark="单位: m³/h"/>
+                                <TextBlock Grid.Column="2" Classes="Required"/>
+                            </Grid>
+
+                            <!-- 5. 最大冲程 -->
+                            <Grid ColumnDefinitions="100, 350, Auto">
+                                <TextBlock Grid.Column="0" Text="最大冲程" Classes="FormLabel"/>
+                                <TextBox Grid.Column="1" Text="{Binding EditingPump.MaxStroke}" Watermark="单位: mm"/>
+                                <TextBlock Grid.Column="2" Classes="Required"/>
+                            </Grid>
+
+                            <!-- 6. 最小冲程 -->
+                            <Grid ColumnDefinitions="100, 350, Auto">
+                                <TextBlock Grid.Column="0" Text="最小冲程" Classes="FormLabel"/>
+                                <TextBox Grid.Column="1" Text="{Binding EditingPump.MinStroke}" Watermark="单位: mm"/>
+                                <TextBlock Grid.Column="2" Classes="Required"/>
+                            </Grid>
+
+                            <!-- 7. 保护阈值 -->
+                            <!--<Grid ColumnDefinitions="100, 350, Auto">
+                                <TextBlock Grid.Column="0" Text="保护阈值" Classes="FormLabel"/>
+                                <TextBox Grid.Column="1" Text="{Binding EditingPump.ProtectionThreshold}" Watermark="压力报警阈值"/>
+                                <TextBlock Grid.Column="2" Classes="Required"/>
+                            </Grid>-->
+
+                        </StackPanel>
+                    </ScrollViewer>
+
+                    <!-- 底部按钮 -->
+                    <Border Grid.Row="1" Background="#FAFAFA" BorderBrush="#EBEEF5" BorderThickness="0,1,0,0" CornerRadius="0,0,8,8" Padding="20">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="15">
+                            <Button Classes="Default" Content="取消" Command="{Binding CancelCommand}" HorizontalContentAlignment="Center" Width="100" Height="36"/>
+                            <Button Classes="Primary" Content="保存配置" Command="{Binding SaveCommand}" Width="120" Height="36" HorizontalContentAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</Window>

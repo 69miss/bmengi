@@ -1,5 +1,7 @@
 ﻿using Dobo.Appl.Dao;
 using Dobo.Appl.Entity;
+using Dobo.Appl.Module;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,18 +15,20 @@ namespace Dobo.Appl.Service
 {
     public class DataDictSvc:ServiceBase<DataDict>
     {
-        JsonSerializerOptions options = new()
-        {
-            TypeInfoResolver = new DefaultJsonTypeInfoResolver(),
-            PropertyNameCaseInsensitive = true,
-            //DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
-        };
+        JsonSerializerOptions options = ApplModule.Default.GetService< JsonSerializerOptions>();
+        //    new()
+        //{
+        //    TypeInfoResolver = SourceGenerationContext.Default,// new DefaultJsonTypeInfoResolver(),
+        //    PropertyNameCaseInsensitive = true,
+        //    //DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+        //};
         public DataDict GetByName(string name) {
             return DbUtility.LiteDb.Select<DataDict>().Where(p=>p.Name==name).First();
         }
-        public void SetJson(string name, object value)
+        public void SetJson<T>(string name, T value)
         {
-            var json = JsonSerializer.Serialize(value, options);
+            
+            var json = JsonSerializer.Serialize<T>(value, options);
             var old = GetByName(name);
             if (old != null)
             {

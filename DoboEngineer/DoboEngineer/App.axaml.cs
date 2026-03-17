@@ -32,6 +32,7 @@ namespace DoboEngineer
                     // DataContext = new MainWindowViewModel(),
                 };
                 //desktop.MainWindow = new StandardSet();
+                //desktop.MainWindow = new Pump.Window1();
             }
 #if DEBUG
             this.AttachDevTools();

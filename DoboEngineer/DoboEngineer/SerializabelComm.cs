@@ -12,7 +12,10 @@ using System.Threading.Tasks;
 namespace DoboEngineer
 {
     [JsonSourceGenerationOptions(WriteIndented = true)]
+    [JsonSerializable(typeof(PumpModel2))]
+    [JsonSerializable(typeof(PumpModel2[]))]
     [JsonSerializable(typeof(PumpModel))]
+    [JsonSerializable(typeof(PumpModel[]))]
     internal partial class SourceGenerationContext : JsonSerializerContext
     {
   

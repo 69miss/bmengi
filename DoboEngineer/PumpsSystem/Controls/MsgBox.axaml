@@ -1,0 +1,51 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="PumpsSystem.Controls.MsgBox"
+        Width="360" SizeToContent="Height"
+        CanResize="False"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False" 
+        Title="提示"
+         DataContext="{Binding RelativeSource={RelativeSource Self}}">
+
+    <Border Padding="20">
+        <StackPanel Spacing="20">
+            <!-- 消息内容区域 -->
+            <StackPanel Orientation="Horizontal" Spacing="15" VerticalAlignment="Center">
+                <!-- 一个简单的图标占位符 -->
+                <PathIcon Data="{StaticResource info_regular}" 
+                          Width="24" Height="24" 
+                          Foreground="#007ACC"/>
+                          
+                <!-- 消息文本，支持换行 -->
+                <TextBlock Name="MessageText" 
+                           Text="{Binding ContentTxt}" 
+                           TextWrapping="Wrap" 
+                           VerticalAlignment="Center"
+                           MaxWidth="260"/>
+            </StackPanel>
+
+            <!-- 按钮区域 -->
+            <StackPanel Orientation="Horizontal" 
+                        HorizontalAlignment="Right" 
+                        Spacing="10">
+                
+                <Button Content="取消" IsVisible="{Binding ShowCancel}"
+                        Width="80" 
+                        HorizontalContentAlignment="Center"
+                        Click="Cancel_Click"/>
+                
+                <Button Content="确认" 
+                        Width="80" 
+                        Classes="accent" 
+                        Background="#007ACC" 
+                        Foreground="White"
+                       HorizontalContentAlignment="Center"
+                        Click="Ok_Click"/>
+            </StackPanel>
+        </StackPanel>
+    </Border>
+</Window>

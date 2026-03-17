@@ -1,23 +1,19 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Input;
 using Dobo.Appl.Service;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
-namespace DoboEngineer.Pump;
+namespace PumpsSystem.Pump;
 public partial class PumpModel : ObservableObject
 {
-
     // 编号
     [ObservableProperty]
     public partial string Id { get; set; } = string.Empty;
-
-    // 名称
+       
+    // 名称 
     [ObservableProperty]
     public partial string Name { get; set; } = string.Empty;
 
@@ -36,11 +32,11 @@ public partial class PumpModel : ObservableObject
     public partial double? MinStroke { get; set; }
 
     [ObservableProperty]
-    public partial double? ProtectionThreshold { get; set; } 
+    public partial double? ProtectionThreshold { get; set; }   
 
     // 深拷贝
     public PumpModel Clone()
-    {
+    { 
         return (PumpModel)this.MemberwiseClone();
     }
 
@@ -57,15 +53,7 @@ public partial class PumpModel : ObservableObject
         return this;
     }
 }
-public partial class PumpModel2 : PumpModel
-{
-    [ObservableProperty]
-    public partial string Name2 { get; set; }
-    public static PumpModel2[] CopyFrom(IEnumerable<PumpModel> source) {
-         
-        return source.Select(p=> (PumpModel2)(new PumpModel2().CopyFrom(p))).ToArray();
-    }
-}
+
 
 public partial class PumpCfgViewModel : ObservableObject
 {
@@ -166,7 +154,7 @@ public partial class PumpCfgViewModel : ObservableObject
             if (_originalSelectedItem != null)
             {
                 _originalSelectedItem.CopyFrom(EditingPump);
-                dataDictSvc.SetJson("PumpListCfg",PumpModel2.CopyFrom(PumpList));
+                dataDictSvc.SetJson("PumpListCfg",PumpList.ToArray());
                 MsgBoxShowFun?.Invoke("修改成功!");
             }
         }

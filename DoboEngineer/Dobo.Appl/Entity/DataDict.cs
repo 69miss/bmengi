@@ -1,6 +1,7 @@
 ﻿using FreeSql.DataAnnotations;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,6 +10,7 @@ namespace Dobo.Appl.Entity
 {
 
     [Table(Name ="sys_dict")]
+    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.PublicProperties)]
     public class DataDict: EntityBase
     {
         public long? ParentId { get; set; }

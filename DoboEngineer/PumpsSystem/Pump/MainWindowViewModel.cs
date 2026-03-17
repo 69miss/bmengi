@@ -12,7 +12,7 @@ using System.Net;
 using System.Threading.Tasks;
 using static FreeSql.Internal.GlobalFilter;
 
-namespace DoboEngineer.Pump;
+namespace PumpsSystem.Pump;
 
 // 主窗口逻辑
 public partial class MainWindowViewModel : ObservableObject,IDisposable

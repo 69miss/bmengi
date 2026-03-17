@@ -1,28 +1,21 @@
-using Avalonia;
+﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
-using Avalonia.Data.Core;
 using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
-using PumpsSystem.AvaloniaUI;
-using PumpsSystem.Pump;
-using PumpsSystem.ViewModels;
-using PumpsSystem.Views;
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace PumpsSystem;
+namespace PumpsSystem.AvaloniaUI;
 
-public partial class App : Application
+public abstract class AppBase : Application
 {
-    public override void Initialize()
-    {
-       // MainWindow= new Window1();
-        AvaloniaXamlLoader.Load(this);
-    }
-
-    public virtual Window MainWindow { get; protected set; }
+  
+   public virtual Window MainWindow { get; protected set; }
     public override void OnFrameworkInitializationCompleted()
     {
         Dispatcher.UIThread.UnhandledException += UIThread_UnhandledException;
@@ -32,7 +25,7 @@ public partial class App : Application
             // Avoid duplicate validations from both Avalonia and the CommunityToolkit. 
             // More info: https://docs.avaloniaui.net/docs/guides/development-guides/data-validation#manage-validationplugins
             DisableAvaloniaDataAnnotationValidation();
-            desktop.MainWindow = new Window1();
+            desktop.MainWindow = MainWindow;
         }
 #if DEBUG
         this.AttachDevTools();
@@ -63,4 +56,5 @@ public partial class App : Application
             BindingPlugins.DataValidators.Remove(plugin);
         }
     }
+
 }

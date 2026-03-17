@@ -4,11 +4,14 @@ using Dobo.Appl.Module;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
 using System.Threading.Tasks;
 
 namespace DoboEngineer
 {
-    internal sealed class Program
+    internal sealed class Program:IModule
     {
         // Initialization code. Don't use any Avalonia, third-party APIs or any
         // SynchronizationContext-reliant code before AppMain is called: things aren't initialized
@@ -33,7 +36,7 @@ namespace DoboEngineer
         public static AppBuilder BuildAvaloniaApp()
         {
             var services = new ServiceCollection();
-            var list = new List<IModule>() { new ApplModule() };
+            var list = new List<IModule>() { new ApplModule(),new Program() };
             list.ForEach(p => p.ConfigureServices(services));
             var sp= services.BuildServiceProvider();
             Default=sp;
@@ -70,6 +73,24 @@ namespace DoboEngineer
 
             // 2. 尝试显示错误弹窗 (注意：如果 UI 线程已死，这里可能无法弹出，需要原生 MessageBox)
             // 在 Windows 上可以使用 MessageBox API，跨平台建议尽量保存日志
+        }
+
+        public void ConfigureServices(IServiceCollection services)
+        {
+            services.AddSingleton<IJsonTypeInfoResolver, SourceGenerationContext>(p => SourceGenerationContext.Default);
+            services.AddSingleton<JsonSerializerOptions>(p =>
+            {
+                var arr = p.GetServices<IJsonTypeInfoResolver>().ToArray();
+                return new JsonSerializerOptions()
+                {
+                    TypeInfoResolver = JsonTypeInfoResolver.Combine(arr)
+                };
+            });
+        }
+
+        public void OnStartup(IServiceProvider serviceProvider)
+        {
+           
         }
     }
 }

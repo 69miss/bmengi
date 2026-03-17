@@ -8,6 +8,7 @@ using System.Collections.Generic;
 
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization.Metadata;
 using System.Threading.Tasks;
  
 namespace Dobo.Appl.Module;
@@ -25,7 +26,7 @@ public class ApplModule: IModule
    public void ConfigureServices(IServiceCollection services) {
 
          services.AddKeyedTransient<IProtocolAdapter>("HTST", (p, key) => new HTClient());
-        
+        services.AddSingleton<IJsonTypeInfoResolver, SourceGenerationContext>(p => SourceGenerationContext.Default);
         //Program.Main2(null);
     }
 
