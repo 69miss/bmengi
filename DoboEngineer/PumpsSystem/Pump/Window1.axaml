@@ -1,7 +1,9 @@
 ﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:appl="using:Dobo.Appl"
 		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+		xmlns:sys="using:System"
 		xmlns:vm="using:PumpsSystem.Pump"
 		mc:Ignorable="d" d:DesignWidth="960" d:DesignHeight="660"
 		x:Class="PumpsSystem.Pump.Window1"
@@ -165,7 +167,7 @@
 
 			<StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="10" Margin="15,0,0,0" VerticalAlignment="Center">
 				<PathIcon Data="M12 2L2 7l10 5 10-5-10-5z" Foreground="#0ea5e9" Width="18" Height="18"/>
-				<TextBlock Text="泵站系统" FontWeight="Bold" FontSize="14" Foreground="#0f172a" VerticalAlignment="Center"/>
+				<TextBlock Text="{Binding L.AppTitle}" FontWeight="Bold" FontSize="14" Foreground="#0f172a" VerticalAlignment="Center"/>
 			</StackPanel>
 
 			<!-- 菜单按钮 (右对齐) -->
@@ -189,25 +191,25 @@
 		<Border Grid.Row="1" Margin="15,10" Background="White" CornerRadius="8" BoxShadow="0 1 2 0 #05000000">
 			<Grid ColumnDefinitions="Auto, *, Auto" Margin="20,0">
 				<StackPanel Orientation="Horizontal" Spacing="15" VerticalAlignment="Center" IsEnabled="{Binding IsConnection}">
-					<TextBlock Text="控制模式：" FontWeight="Bold" VerticalAlignment="Center" FontSize="15"/>
+					<TextBlock Text="{Fmt {Binding L.ControlModeLabel}}" FontWeight="Bold" VerticalAlignment="Center" FontSize="15"/>
 					<Border Background="#f1f5f9" CornerRadius="6" Padding="4">
 						<StackPanel Orientation="Horizontal">
 							<!--Theme="{DynamicResource ButtonRadioButton}"-->
-							<RadioButton GroupName="M" Content="手动参数" IsChecked="{Binding !IsAutoModeSet}"
+							<RadioButton GroupName="M" Content="{Binding L.ManualParamMode}" IsChecked="{Binding !IsAutoModeSet}"
 										  Padding="15,8" CornerRadius="4"/>
-							<RadioButton GroupName="M" Content="流量自动" IsChecked="{Binding IsAutoModeSet}"
-										  Padding="15,8" CornerRadius="4"/>
+							<RadioButton GroupName="M" Content="{Binding L.FlowAutoMode}" IsChecked="{Binding IsAutoModeSet}"
+										  Padding="15,8" CornerRadius="4"/> 
 						</StackPanel>
 					</Border>
-					<TextBlock IsVisible="{Binding IsAutoMode}" Text="* 自动模式下仅需设定流量，其他参数由系统分配" FontSize="12" Foreground="#94a3b8" VerticalAlignment="Center" Margin="10,0,0,0"/>
-					<TextBlock IsVisible="{Binding !IsAutoMode}" Text="* 手动模式下无需设定流量" FontSize="12" Foreground="#94a3b8" VerticalAlignment="Center" Margin="10,0,0,0"/>
+					<TextBlock IsVisible="{Binding IsAutoMode}" Text="{Binding L.AutoModeTip}" FontSize="12" Foreground="#94a3b8" VerticalAlignment="Center" Margin="10,0,0,0"/>
+					<TextBlock IsVisible="{Binding !IsAutoMode}" Text="{Binding L.ManualParamModeTip}" FontSize="12" Foreground="#94a3b8" VerticalAlignment="Center" Margin="10,0,0,0"/>
 				</StackPanel>
-				<Button IsVisible="{Binding !IsConnection}" Content="连接" Foreground="White" FontWeight="Bold"
+				<Button IsVisible="{Binding !IsConnection}" Content="{Binding L.ConnectBtnText}" Foreground="White" FontWeight="Bold"
 												FontSize="13"
 												CornerRadius="6"
 												Padding="15,6"
 												VerticalAlignment="Center" Background="#3b82f6"  Grid.Column="2" HorizontalAlignment="Right" Command="{Binding ConnectCmdCommand}"  ></Button>
-				<Button IsVisible="{Binding IsConnection}" Content="断开" Background="#ef4444" Grid.Column="2" Foreground="White"
+				<Button IsVisible="{Binding IsConnection}" Content="{Binding L.DisconnectBtnText}" Background="#ef4444" Grid.Column="2" Foreground="White"
 						FontWeight="Bold"
 												FontSize="13"
 												CornerRadius="6"
@@ -268,70 +270,24 @@
 									<!-- 左侧：流量控制区 -->
 									<Grid RowDefinitions="140, auto">
 										<!-- 球状液位 -->
-										<!-- 球状液位 (带波浪动画) -->
-										<Border IsVisible="False" Width="110" Height="110" CornerRadius="55" ClipToBounds="True"
-												BorderBrush="#e2e8f0" BorderThickness="1" VerticalAlignment="Top" Background="#f8fafc">
-											<Grid>
-												 <!--这里的 Grid 高度绑定液位，且靠底部对齐，实现水位升降--> 
-												<Grid Height="{Binding LiquidHeight}" VerticalAlignment="Bottom" MinHeight="15">
-
-													<!-- 后层波浪 (浅色，移动速度不同) 
-													 Data 解释: 绘制一个很宽的波浪，M起笔, C贝塞尔曲线, V垂直向下, H水平闭合 -->
-													<Path Classes="WaveBack"
-														  Fill="#bae6fd"
-														  Width="300" Height="120"
-														  HorizontalAlignment="Left" VerticalAlignment="Top"
-														  Stretch="Fill"
-														  Margin="0,-10,0,0"
-														  Data="M 0,20 C 30,20 30,0 60,0 C 90,0 90,20 120,20 C 150,20 150,0 180,0 C 210,0 210,20 240,20 V 150 H 0 Z"/>
-
-													 <!--前层波浪 (深色，主要视觉)--> 
-													<Path Classes="Wave"
-														  Fill="#0ea5e9"
-														  Width="300" Height="120"
-														  HorizontalAlignment="Left" VerticalAlignment="Top"
-														  Stretch="Fill"
-														  Margin="0,-5,0,0"
-														  Data="M 0,15 C 30,15 30,5 60,5 C 90,5 90,15 120,15 C 150,15 150,5 180,5 C 210,5 210,15 240,15 V 150 H 0 Z"/>
-												</Grid>
-
-												 <!--文字层 (放在最上层，避免被水淹没看不清)--> 
-												<StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-													<TextBlock Text="流量(0~100)" FontSize="14" Foreground="#64748b" HorizontalAlignment="Center"/>
-													<TextBlock Text="{Binding FlowPV, StringFormat='{}{0:F1}'}"
-															   FontSize="24" FontWeight="Bold" Foreground="#0f172a"
-															   HorizontalAlignment="Center">
-														 <!--给文字加白色描边阴影，保证在深色水位上也能看清--> 
-														<TextBlock.Effect>
-															<DropShadowEffect Color="White" BlurRadius="2" Opacity="1" OffsetX="0" OffsetY="0"/>
-														</TextBlock.Effect>
-													</TextBlock>
-												</StackPanel>
-											</Grid>
-										</Border>
-										<cc:WaveGauge Width="110" Height="110"
-													  Value="{Binding FlowPV}"
+										<cc:WaveGauge Width="120" Height="120"
+													  Value="{Binding LiquidHeight}"
 													  Text="{Binding FlowPV, StringFormat='{}{0:F1}'}"
-													  SubText="流量"
+													 SubText="{Fmt '       {0}&#10;(Max {1} L/h)',{Binding $parent[ItemsControl].DataContext.L.FlowLabel},{Binding FlowMax}}"
 													  WaveColor="{Binding WaveGaugeFg}"
-													  VerticalAlignment="Top"/>
-										<!-- 流量设定 SV (显示 + 控制) -->
-										<!--<Grid Grid.Row="1" RowDefinitions="Auto, Auto" Margin="0,10,0,0">
-										--><!-- 显示设定值 --><!--
-										<TextBlock Text="{Binding FlowSV, StringFormat='目标 SV: {0:F1}'}"
-										FontSize="12" Foreground="#64748b" HorizontalAlignment="Center" Margin="0,0,0,5"/>
-
-										--><!-- 控制按钮 --><!--
-										<Grid ColumnDefinitions="36,*,36" Width="120" IsVisible="{Binding CanEditFlow}">
-										<Button Classes="Step" Content="-" Command="{Binding AdjustValueCommand}" CommandParameter="Flow|-1"/>
-										--><!-- 这里放一个不可编辑的框展示数值，或者留白，这里直接通过上方Text展示，简化UI --><!--
-										<Panel/>
-										<Button Grid.Column="2" Classes="Step" Content="+" Command="{Binding AdjustValueCommand}" CommandParameter="Flow|1"/>
-										</Grid>
-										</Grid>-->
+													  VerticalAlignment="Top">
+											<!--SubText="{Binding FlowMax,StringFormat='       流量&#10;(Max {0} L/h)'}"  SubText="{Fmt {Binding $parent[ItemsControl].DataContext.L.FlowLabel},{Binding FlowMax}}"-->
+											<cc:WaveGauge.SubText>
+												<!--<Fmt>
+													<sys:String>       {1}&#10;(Max {0} L/h)</sys:String>
+													<Binding Path="FlowMax"></Binding>
+													<Binding Path="$parent[ItemsControl].DataContext.L.FlowLabel"></Binding>
+												</Fmt>-->
+											</cc:WaveGauge.SubText>
+											</cc:WaveGauge>
 										<Border Margin="0,5,0,0" Classes="CapsuleGroup" Grid.Row="2" HorizontalAlignment="Left" IsEnabled="{Binding CanEditFlow}">
 											<StackPanel Orientation="Horizontal">
-												<TextBlock Text="流量目标"
+												<TextBlock Text="{Binding L.SetTargetLabel}"
 														   FontWeight="Light"
 														   FontSize="14"
 														   VerticalAlignment="Center"
@@ -367,7 +323,7 @@
 										<!-- === 冲程 Stroke === -->
 										<!-- Row 0: 标签 + 数值 -->
 										<Grid Grid.Row="0" ColumnDefinitions="*, Auto">
-											<TextBlock Text="冲程 Stroke" FontSize="13" Foreground="#64748b" VerticalAlignment="Bottom"/>
+											<TextBlock Text="{Binding L.StrokeLabel}" FontSize="13" Foreground="#64748b" VerticalAlignment="Bottom"/>
 											<StackPanel Grid.Column="1" Orientation="Horizontal">
 												<TextBlock Text="{Binding StrokePV, StringFormat='{}{0:F1}'}" FontWeight="Bold" FontSize="16" Foreground="#334155"/>
 												<TextBlock Text="%" FontSize="11" VerticalAlignment="Bottom" Margin="2,0,0,2" Foreground="#94a3b8"/>
@@ -385,7 +341,7 @@
 										</Grid>--> <!--ColumnDefinitions="Auto, *, Auto"-->
 										<Border Margin="0,5,0,0" Classes="CapsuleGroup" Grid.Row="2" HorizontalAlignment="Left" >
 											<StackPanel Orientation="Horizontal">
-												<TextBlock Text=" 设置目标 "
+												<TextBlock Text="{Binding L.SetTargetLabel}"
 														   FontWeight="Light"
 														   FontSize="14"
 														   VerticalAlignment="Center"
@@ -417,7 +373,7 @@
 										<!-- === 频率 Freq === -->
 										<!-- Row 4: 标签 + 数值 -->
 										<Grid Grid.Row="4" ColumnDefinitions="*, Auto">
-											<TextBlock Text="频率 Freq" FontSize="13" Foreground="#64748b" VerticalAlignment="Bottom"/>
+											<TextBlock Text="{Binding L.FreqLabel}" FontSize="13" Foreground="#64748b" VerticalAlignment="Bottom"/>
 											<StackPanel Grid.Column="1" Orientation="Horizontal">
 												<TextBlock Text="{Binding FreqPV, StringFormat='{}{0:F1}'}" FontWeight="Bold" FontSize="16" Foreground="#334155"/>
 												<TextBlock Text="%" FontSize="11" VerticalAlignment="Bottom" Margin="2,0,0,2" Foreground="#94a3b8"/>
@@ -435,7 +391,7 @@
 										</Grid>-->
 										<Border Margin="0,5,0,0" Classes="CapsuleGroup" Grid.Row="6" HorizontalAlignment="Left" >
 											<StackPanel Orientation="Horizontal">
-												<TextBlock Text=" 设置目标 "
+												<TextBlock Text="{Binding L.SetTargetLabel}"
 														   FontWeight="Light"
 														   FontSize="14"
 														   VerticalAlignment="Center"

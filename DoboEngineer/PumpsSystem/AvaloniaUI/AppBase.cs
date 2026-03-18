@@ -14,25 +14,29 @@ namespace PumpsSystem.AvaloniaUI;
 
 public abstract class AppBase : Application
 {
-  
-   public virtual Window MainWindow { get; protected set; }
-    public override void OnFrameworkInitializationCompleted()
+    public AppBase()
     {
         Dispatcher.UIThread.UnhandledException += UIThread_UnhandledException;
         Dispatcher.UIThread.UnhandledExceptionFilter += UIThread_UnhandledExceptionFilter;
+    }
+    public virtual Func<Window> MainWindowCreateFun { get; }
+
+    public override void OnFrameworkInitializationCompleted()
+    {
+
+
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             // Avoid duplicate validations from both Avalonia and the CommunityToolkit. 
             // More info: https://docs.avaloniaui.net/docs/guides/development-guides/data-validation#manage-validationplugins
             DisableAvaloniaDataAnnotationValidation();
-            desktop.MainWindow = MainWindow;
+            desktop.MainWindow = MainWindowCreateFun?.Invoke();
         }
 #if DEBUG
         this.AttachDevTools();
 #endif
         base.OnFrameworkInitializationCompleted();
     }
-
     protected virtual void UIThread_UnhandledExceptionFilter(object sender, DispatcherUnhandledExceptionFilterEventArgs e)
     {
         e.RequestCatch = true;

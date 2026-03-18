@@ -2,6 +2,8 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Dobo.Appl.Utility;
+using PumpsSystem.Module;
+using PumpsSystem.ViewModels;
 using System;
 using System.ComponentModel;
 using System.Reflection;
@@ -10,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace PumpsSystem.Pump;
 
-public partial class PumpViewModel : ObservableObject
+public partial class PumpViewModel : ViewModelBase
 {
     [ObservableProperty] private int _id;
     [ObservableProperty] private string _name = string.Empty;
@@ -48,14 +50,14 @@ public partial class PumpViewModel : ObservableObject
     // --- 辅助属性 ---
     // 1. 液位球高度计算 (假设球体总高度 120px，最大流量 100 L/h)
     // 限制在 0-120 之间
-    public double LiquidHeight => Math.Clamp((FlowPV / 100.0) * 120.0, 0, 120);
+    public double LiquidHeight => Math.Clamp((FlowPV / FlowMax) * 100.0, 0, 100);
 
     // 2. 状态显示优化
-    public string RemoteText => IsRemote ? "远程 (Remote)" : "本地 (Local)";
+    public string RemoteText => IsRemote ? L.RemoteStatusLabel :L.LocalStatusLabel ;
     public IBrush RemoteColor => IsRemote ? SolidColorBrush.Parse("#3b82f6") : SolidColorBrush.Parse("#f97316"); // 蓝/橙
     public IBrush StatusColor => IsRunning ? SolidColorBrush.Parse("#22c55e") : SolidColorBrush.Parse("#cbd5e1"); // 绿/灰
 
-    public string RunBtnText => IsRunning ? "停止运行" : "启动运行";
+    public string RunBtnText => IsRunning ? L.StopRunningStatus:L.StartRunningStatus;
     public IBrush RunBtnColor => IsRunning ? SolidColorBrush.Parse("#fee2e2") : SolidColorBrush.Parse("#dcfce7"); // 浅红背景/浅绿背景
     public IBrush RunBtnFg => IsRunning ? SolidColorBrush.Parse("#ef4444") : SolidColorBrush.Parse("#16a34a");   // 深红字/深绿字
 

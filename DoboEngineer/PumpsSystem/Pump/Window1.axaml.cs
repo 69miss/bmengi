@@ -12,11 +12,12 @@ public partial class Window1 : Window
 {
     MainWindowViewModel mainWindowViewModel;
     public Window1()
-    {
-        InitializeComponent();
-        Closed += Window1_Closed;
+    { 
         mainWindowViewModel = new() { MsgBoxShowFun = MsgBoxShow };
         this.DataContext = mainWindowViewModel;
+        InitializeComponent();
+        Closed += Window1_Closed;
+       
     }
 
     private void Window1_Closed(object? sender, System.EventArgs e)

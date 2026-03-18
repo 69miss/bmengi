@@ -4,6 +4,7 @@ using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Dobo.Appl.Service;
+using PumpsSystem.Module;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -17,6 +18,7 @@ namespace PumpsSystem.Pump;
 // 主窗口逻辑
 public partial class MainWindowViewModel : ObservableObject,IDisposable
 {
+    public PumpEnLang L {  get; set; }  =new PumpEnLang();
     public ObservableCollection<PumpViewModel> Pumps { get; } = new();
    internal PumpCmd cmd;
     [ObservableProperty] private bool _isAutoMode;
@@ -88,7 +90,7 @@ public partial class MainWindowViewModel : ObservableObject,IDisposable
         catch (Exception ex)
         {
             Console.WriteLine(ex);
-            MsgBoxShowFun("连接异常：" + ex.Message);
+            MsgBoxShowFun(L.ConnectionException+" ：" + ex.Message);
             cmd?.Dispose();
             cmd = null;
             throw;
@@ -218,6 +220,9 @@ public partial class MainWindowViewModel : ObservableObject,IDisposable
             var p = new PumpViewModel(i);
             if (i == 2) p.IsRunning = true;
             if (i == 4) p.IsRemote = false;
+
+            p.FlowMax = 50;
+            p.FlowSV = i*10;
             Pumps.Add(p);
         }
 
@@ -255,7 +260,7 @@ public partial class MainWindowViewModel : ObservableObject,IDisposable
 
             if (p.IsRunning)
             {
-                double targetFlow = IsAutoMode ? p.FlowSV : (p.StrokeSV * p.FreqSV / 100.0);
+                double targetFlow = p.FlowSV;// IsAutoMode ? p.FlowSV : (p.StrokeSV * p.FreqSV / 100.0);
                 // 模拟液位缓慢升降
                 if (p.FlowPV < targetFlow) p.FlowPV += 1.5;
                 else if (p.FlowPV > targetFlow) p.FlowPV -= 1.5;
