@@ -8,7 +8,7 @@
         CanResize="False"
         WindowStartupLocation="CenterOwner"
         ShowInTaskbar="False" 
-        Title="提示"
+        Title="Message"
          DataContext="{Binding RelativeSource={RelativeSource Self}}">
 
     <Border Padding="20">
@@ -33,12 +33,12 @@
                         HorizontalAlignment="Right" 
                         Spacing="10">
                 
-                <Button Content="取消" IsVisible="{Binding ShowCancel}"
+                <Button Content="Cancel" IsVisible="{Binding ShowCancel}"
                         Width="80" 
                         HorizontalContentAlignment="Center"
                         Click="Cancel_Click"/>
                 
-                <Button Content="确认" 
+                <Button Content="OK" 
                         Width="80" 
                         Classes="accent" 
                         Background="#007ACC" 

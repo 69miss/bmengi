@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Dobo.Appl.Service;
 using PumpsSystem.Module;
+using PumpsSystem.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -16,9 +17,9 @@ using static FreeSql.Internal.GlobalFilter;
 namespace PumpsSystem.Pump;
 
 // 主窗口逻辑
-public partial class MainWindowViewModel : ObservableObject,IDisposable
+public partial class MainWindowViewModel : ViewModelBase,IDisposable
 {
-    public PumpEnLang L {  get; set; }  =new PumpEnLang();
+   
     public ObservableCollection<PumpViewModel> Pumps { get; } = new();
    internal PumpCmd cmd;
     [ObservableProperty] private bool _isAutoMode;
@@ -215,14 +216,25 @@ public partial class MainWindowViewModel : ObservableObject,IDisposable
     }
     private void Mock()
     {
+        IsConnection = true;
+        IsAutoMode = true;
         for (int i = 1; i <= 4; i++)
         {
             var p = new PumpViewModel(i);
             if (i == 2) p.IsRunning = true;
-            if (i == 4) p.IsRemote = false;
-
+            if (i == 4)
+            {
+                p.IsRunning = true;
+                p.IsRemote = false;
+                p.IsFault = true;
+            }
+            p.CanEditFlow = true;
+            p.CanEditParam = true;
+            p.IsRemote = true;
             p.FlowMax = 50;
-            p.FlowSV = i*10;
+            p.FlowSV = i * 10;
+            p.CanEditFlow = true;
+
             Pumps.Add(p);
         }
 

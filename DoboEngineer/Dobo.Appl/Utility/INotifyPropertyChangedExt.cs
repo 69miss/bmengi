@@ -69,9 +69,9 @@ public interface INotifyPropertyChangedExt : INotifyPropertyChanged
     }
 
 
-    public class PropertyChangedEventArgsExt : PropertyChangedEventArgs
+    public class PropertyChangedEventArgsExt : PropertyChangedEventArgsMark
     {
-        public PropertyChangedEventArgsExt(string? propertyName, object oldVal, object newVal) : base(propertyName)
+        public PropertyChangedEventArgsExt(string? propertyName, object oldVal, object newVal,int mark=0) : base(propertyName,mark)
         {
             //PropertyName = propertyName;
             OldVal = oldVal;
@@ -82,27 +82,41 @@ public interface INotifyPropertyChangedExt : INotifyPropertyChanged
         public object OldVal { get; }
         public object NewVal { get; }
     }
+    public class PropertyChangedEventArgsMark : PropertyChangedEventArgs
+    {
+        public PropertyChangedEventArgsMark(string? propertyName, int mark = 0) : base(propertyName)
+        {
+            Mark = mark;
+        }
+        /// <summary>
+        /// 预定义值：0未设置，5内部触发
+        /// </summary>
+        public int Mark { get; }
+    }
 }
 public interface INotifyPropertyChangedExt2 : INotifyPropertyChanged
 {
+   protected virtual void OnPropertyChanged(PropertyChangedEventArgs e) {
+        PropertyChangedEventHandlerGet().Invoke(this, e);
+    }
    public virtual void OnPropertyChanged([CallerMemberName] string propertyName = "")
     {
-        PropertyChangedEventHandlerGet()?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        OnPropertyChanged(new PropertyChangedEventArgs(propertyName));
     }
-    public virtual void OnPropertyChanged<T>(T oldVal, T newVal, [CallerMemberName] string propertyName = "")
+    public virtual void OnPropertyChanged<T>(T oldVal, T newVal, [CallerMemberName] string propertyName = "",int mark=0)
     {
-        PropertyChangedEventHandlerGet()?.Invoke(this, new PropertyChangedEventArgsExt(propertyName, oldVal, newVal));
+        OnPropertyChanged(new PropertyChangedEventArgsExt(propertyName, oldVal, newVal,mark));
     }
 
     //public INotifyPropertyChangedExt2 NotifyThis { get => this; }
-    public bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = "", params string[] props)
+    public bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = "",int mark=0, params string[] props)
     {
         //OnPropertyChanged(new DependencyPropertyChangedEventArgs( DependencyProperty.Register(propertyName,typeof(T),this.GetType()), field, value));
         if (EqualityComparer<T>.Default.Equals(field, value))
             return false;
         var oldVal = field;
         field = value;
-        OnPropertyChanged(oldVal, value, propertyName);
+        OnPropertyChanged(oldVal, value, propertyName,mark);
         if (props != null && props.Length > 0)
             foreach (var item in props)
             {
@@ -110,6 +124,7 @@ public interface INotifyPropertyChangedExt2 : INotifyPropertyChanged
             }
         return true;
     }
+     
     protected PropertyChangedEventHandler PropertyChangedEventHandlerGet();
 
 }

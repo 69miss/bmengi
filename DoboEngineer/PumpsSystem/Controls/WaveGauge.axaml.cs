@@ -15,7 +15,16 @@ public partial class WaveGauge : UserControl
     {
         InitializeComponent();
     }
+    // 定义报警状态的 StyledProperty
+    public static readonly StyledProperty<bool> IsAlarmProperty =
+        AvaloniaProperty.Register<WaveGauge, bool>(nameof(IsAlarm), defaultValue: false);
 
+    // 报警属性包装器
+    public bool IsAlarm
+    {
+        get => GetValue(IsAlarmProperty);
+        set => SetValue(IsAlarmProperty, value);
+    }
     // 1. 数值属性
     public static readonly StyledProperty<double> ValueProperty =
         AvaloniaProperty.Register<WaveGauge, double>(nameof(Value), 0);

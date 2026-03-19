@@ -7,7 +7,7 @@
              x:Name="Root">
 
     <UserControl.Styles>
-        <!-- 保持之前的动画样式不变 -->
+        <!-- 原有的波浪动画 -->
         <Style Selector="Path.WaveAnim">
             <Style.Animations>
                 <Animation Duration="0:0:2" IterationCount="Infinite">
@@ -24,16 +24,44 @@
                 </Animation>
             </Style.Animations>
         </Style>
+        
+        <!-- 新增：报警状态的“呼吸闪烁”动画 (透明度 + 缩放联动) -->
+        <Style Selector="Border.AlarmBlink">
+            <Setter Property="RenderTransformOrigin" Value="50%,50%"/>
+            <Style.Animations>
+                <!-- 使用 SineEaseInOut 让呼吸感更平滑自然 -->
+                <Animation Duration="0:0:2" IterationCount="Infinite" PlaybackDirection="Alternate" Easing="SineEaseInOut">
+                    <KeyFrame Cue="0%">
+                        <Setter Property="Opacity" Value="0.0"/>
+                        <Setter Property="ScaleTransform.ScaleX" Value="1"/>
+                        <Setter Property="ScaleTransform.ScaleY" Value="1"/>
+                    </KeyFrame>
+                    <KeyFrame Cue="40%">
+                        <Setter Property="Opacity" Value="0.1"/>
+                        <Setter Property="ScaleTransform.ScaleX" Value="1"/>
+                        <Setter Property="ScaleTransform.ScaleY" Value="1"/>
+                    </KeyFrame>
+                    <KeyFrame Cue="51%">
+                        <Setter Property="Opacity" Value="0.3"/>
+                        <Setter Property="ScaleTransform.ScaleX" Value="1"/>
+                        <Setter Property="ScaleTransform.ScaleY" Value="1"/>
+                    </KeyFrame>
+                    <KeyFrame Cue="100%">
+                        <Setter Property="Opacity" Value="1.0"/>
+                        <Setter Property="ScaleTransform.ScaleX" Value="1.1"/>
+                        <Setter Property="ScaleTransform.ScaleY" Value="1.1"/>
+                    </KeyFrame>
+                </Animation>
+            </Style.Animations>
+        </Style>
     </UserControl.Styles>
 
     <Border CornerRadius="500" ClipToBounds="True" 
             BorderBrush="#e2e8f0" BorderThickness="1" 
             Background="#f8fafc">
         <Grid>
-            <!-- 给这个 Grid 命名，高度由 C# 代码控制 -->
+            <!-- 1. 波浪层 -->
             <Grid x:Name="PART_WaveContainer" VerticalAlignment="Bottom" MinHeight="10">
-                
-                <!-- 波浪路径保持不变，颜色绑定到 Root 的属性 -->
                 <Path Classes="WaveBackAnim" x:Name="path1"
                       Width="400" Height="200"
                       Stretch="Fill" HorizontalAlignment="Left" VerticalAlignment="Top"
@@ -50,7 +78,7 @@
                       Data="M 0,15 C 30,15 30,5 60,5 C 90,5 90,15 120,15 C 150,15 150,5 180,5 C 210,5 210,15 240,15 V 150 H 0 Z"/>
             </Grid>
 
-            <!-- 文字层 -->
+            <!-- 2. 文字层 -->
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <TextBlock Text="{Binding SubText, ElementName=Root}" FontSize="14" Foreground="#64748b" HorizontalAlignment="Center"/>
                 <TextBlock Text="{Binding Text, ElementName=Root}" 
@@ -61,6 +89,47 @@
                     </TextBlock.Effect>
                 </TextBlock>
             </StackPanel>
+
+            <!-- 3. 新增：报警层 (放大居中、呼吸闪烁、内外发光) -->
+            <!-- 放在Grid最后，层级最高，会直接覆盖住文字 -->
+            <Border Classes="AlarmBlink" 
+                    IsVisible="{Binding IsAlarm, ElementName=Root}"
+                    HorizontalAlignment="Center" 
+                    VerticalAlignment="Center" 
+                    Width="80" Height="80"> <!-- 放大尺寸覆盖中间区域 -->
+                
+                <!-- 必须显式声明 ScaleTransform 才能在动画中绑定它 -->
+                <Border.RenderTransform>
+                    <ScaleTransform ScaleX="1" ScaleY="1"/>
+                </Border.RenderTransform>
+
+                <!-- 外部红光特效 -->
+                <Border.Effect>
+                    <DropShadowEffect Color="#FF0000" BlurRadius="30" Opacity="1.0" OffsetX="0" OffsetY="0"/>
+                </Border.Effect>
+
+                <Viewbox Stretch="Uniform">
+                    <Grid Width="100" Height="100">
+                        <!-- 圆角警告三角形 -->
+                        <Path Data="M 46 15 Q 50 8 54 15 L 92 83 Q 96 90 88 90 L 12 90 Q 4 90 8 83 Z" 
+                              Stroke="#E65100" StrokeThickness="1">
+                            <Path.Fill>
+                                <!-- 内部黄光：使用径向渐变，让中心极亮发白，边缘呈橙黄色，营造出发光灯泡的质感 -->
+                                <RadialGradientBrush GradientOrigin="50%,60%" Center="50%,60%" Radius="0.8">
+                                    <GradientStop Color="#FFFFEE" Offset="0" />   <!-- 核心极亮黄白 -->
+                                    <GradientStop Color="#FFEA00" Offset="0.5" /> <!-- 中间明黄光 -->
+                                    <GradientStop Color="#FF9800" Offset="1" />   <!-- 边缘橙色 -->
+                                </RadialGradientBrush>
+                            </Path.Fill>
+                        </Path>
+                        
+                        <!-- 内部感叹号 (使用深红色以在高亮黄底上产生强烈对比) -->
+                        <Path Data="M 45 32 h 10 v 30 h -10 z" Fill="#B71C1C" />
+                        <Ellipse Width="10" Height="10" Fill="#B71C1C" Margin="0,68,0,0" VerticalAlignment="Top" HorizontalAlignment="Center"/>
+                    </Grid>
+                </Viewbox>
+            </Border>
+            
         </Grid>
     </Border>
 </UserControl>

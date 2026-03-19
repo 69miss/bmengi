@@ -5,6 +5,6 @@ namespace PumpsSystem.ViewModels
 {
     public abstract class ViewModelBase : ObservableObject
     {
-        public PumpLang L { get; set; } = new PumpEnLang();
+        public PumpLang L { get; set; } = PumpEnLang.Instance;
     }
 }

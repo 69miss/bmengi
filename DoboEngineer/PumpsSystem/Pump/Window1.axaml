@@ -122,8 +122,8 @@
 			<Setter Property="Opacity" Value="0.5"/>
 		</Style>
 
-		<!-- 3. 内部输入框：彻底去除默认样式 -->
-		<Style Selector="TextBox.CapsuleInput">
+		<!-- 3. 内部输入框：彻底去除默认样式 NumericUpDown-->
+		<Style Selector=":is(NumericUpDown).CapsuleInput">
 			<Setter Property="Background" Value="Transparent"/>
 			<Setter Property="BorderThickness" Value="0"/>
 			<Setter Property="VerticalContentAlignment" Value="Center"/>
@@ -134,27 +134,29 @@
 			<Setter Property="Padding" Value="0"/>
 			<Setter Property="Margin" Value="0"/>
 			<Setter Property="MinHeight" Value="0"/>
+			<Setter Property="MinWidth" Value="0"/>
+
 		</Style>
 
 		<!-- 去除聚焦时的边框 -->
-		<Style Selector="TextBox.CapsuleInput:focus /template/ Border#PART_BorderElement">
+		<Style Selector=":is(TemplatedControl).CapsuleInput:focus /template/ Border#PART_BorderElement">
 			<Setter Property="Background" Value="Transparent"/>
 			<Setter Property="BorderThickness" Value="0"/>
 		</Style>
 
 		<!-- 鼠标悬停去除边框 -->
-		<Style Selector="TextBox.CapsuleInput:pointerover /template/ Border#PART_BorderElement">
+		<Style Selector=":is(TemplatedControl).CapsuleInput:pointerover /template/ Border#PART_BorderElement">
 			<Setter Property="Background" Value="Transparent"/>
 			<Setter Property="BorderThickness" Value="0"/>
 		</Style>
 
 		<!-- ★★★ 核心修复：输入框禁用时，背景强制透明，去除边框 -->
-		<Style Selector="TextBox.CapsuleInput:disabled /template/ Border#PART_BorderElement">
+		<Style Selector=":is(TemplatedControl).CapsuleInput:disabled /template/ Border#PART_BorderElement">
 			<Setter Property="Background" Value="Transparent"/> <!-- 关键！ -->
 			<Setter Property="BorderThickness" Value="0"/>
 		</Style>
 		<!-- 禁用时文字颜色 -->
-		<Style Selector="TextBox.CapsuleInput:disabled">
+		<Style Selector=":is(TemplatedControl).CapsuleInput:disabled">
 			<Setter Property="Foreground" Value="#94A3B8"/>
 		</Style>
 	</Window.Styles>
@@ -270,22 +272,15 @@
 									<!-- 左侧：流量控制区 -->
 									<Grid RowDefinitions="140, auto">
 										<!-- 球状液位 -->
-										<cc:WaveGauge Width="120" Height="120"
+										<cc:WaveGauge Width="120" Height="120" IsAlarm="{Binding IsFault}"
 													  Value="{Binding LiquidHeight}"
 													  Text="{Binding FlowPV, StringFormat='{}{0:F1}'}"
 													 SubText="{Fmt '       {0}&#10;(Max {1} L/h)',{Binding $parent[ItemsControl].DataContext.L.FlowLabel},{Binding FlowMax}}"
 													  WaveColor="{Binding WaveGaugeFg}"
 													  VerticalAlignment="Top">
 											<!--SubText="{Binding FlowMax,StringFormat='       流量&#10;(Max {0} L/h)'}"  SubText="{Fmt {Binding $parent[ItemsControl].DataContext.L.FlowLabel},{Binding FlowMax}}"-->
-											<cc:WaveGauge.SubText>
-												<!--<Fmt>
-													<sys:String>       {1}&#10;(Max {0} L/h)</sys:String>
-													<Binding Path="FlowMax"></Binding>
-													<Binding Path="$parent[ItemsControl].DataContext.L.FlowLabel"></Binding>
-												</Fmt>-->
-											</cc:WaveGauge.SubText>
 											</cc:WaveGauge>
-										<Border Margin="0,5,0,0" Classes="CapsuleGroup" Grid.Row="2" HorizontalAlignment="Left" IsEnabled="{Binding CanEditFlow}">
+										<Border Margin="0,5,0,0" Classes="CapsuleGroup" Grid.Row="1" HorizontalAlignment="Left" IsEnabled="{Binding CanEditFlow}">
 											<StackPanel Orientation="Horizontal">
 												<TextBlock Text="{Binding L.SetTargetLabel}"
 														   FontWeight="Light"
@@ -302,9 +297,10 @@
 															   FontSize="20"
 															   VerticalAlignment="Center"
 															   HorizontalAlignment="Center"
-															   Margin="0,-2,0,0"/> <!-- 微调 Margin 让减号视觉居中 -->
+															   Margin="0,-2,0,0"/>   <!--微调 Margin 让减号视觉居中--> 
 												</Button>
-												<TextBox Grid.Column="1" Classes="CapsuleInput" Width="40" MinWidth="10" Text="{Binding FlowSV, StringFormat='{}{0:F1}'}"/>
+												<!--<TextBox Grid.Column="1" Classes="CapsuleInput" Width="40" MinWidth="10" Text="{Binding FlowSV, StringFormat='{}{0:F0}'}"/>-->
+												<NumericUpDown  Classes="CapsuleInput" Grid.Column="1" Value="{Binding FlowSV}" MinWidth="0" Width="35" MinHeight="10"  ShowButtonSpinner="False"  FormatString="0" Increment="1" />
 												<Button Grid.Column="2" Classes="CapsuleBtn"
 														Command="{Binding AdjustValueCommand}" CommandParameter="Flow|1"
 														>
@@ -358,9 +354,10 @@
 															   HorizontalAlignment="Center"
 															   Margin="0,-2,0,0"/> <!-- 微调 Margin 让减号视觉居中 -->
 												</Button>
-												<TextBox Grid.Column="1" Classes="CapsuleInput" Width="120"
+												<NumericUpDown Classes="CapsuleInput" Grid.Column="1" Value="{Binding StrokeSV}" Width="120" Minimum="10" Maximum="100"  ShowButtonSpinner="False" FormatString="0" Increment="1" />
+												<!--<TextBox Grid.Column="1" Classes="CapsuleInput" Width="120"
 														 Text="{Binding StrokeSV}"
-														 IsEnabled="{Binding CanEditParam}"/>
+														 IsEnabled="{Binding CanEditParam}"/>-->
 												<Button Grid.Column="2" Classes="CapsuleBtn"
 														Command="{Binding AdjustValueCommand}" CommandParameter="Stroke|1"
 														IsEnabled="{Binding CanEditParam}">
@@ -408,9 +405,10 @@
 															   HorizontalAlignment="Center"
 															   Margin="0,-2,0,0"/> <!-- 微调 Margin 让减号视觉居中 -->
 												</Button>
-												<TextBox Grid.Column="1" Classes="CapsuleInput" Width="120"
+												<NumericUpDown Classes="CapsuleInput" Grid.Column="1" Value="{Binding FreqSV}" Width="120"  ShowButtonSpinner="False" FormatString="0" Increment="1" />
+												<!--<TextBox Grid.Column="1" Classes="CapsuleInput" Width="120"
 														 Text="{Binding FreqSV}"
-														 IsEnabled="{Binding CanEditParam}"/>
+														 IsEnabled="{Binding CanEditParam}"/>-->
 												<Button Grid.Column="2" Classes="CapsuleBtn"
 														Command="{Binding AdjustValueCommand}" CommandParameter="Freq|1"
 														IsEnabled="{Binding CanEditParam}">

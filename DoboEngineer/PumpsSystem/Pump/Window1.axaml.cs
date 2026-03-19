@@ -35,7 +35,7 @@ public partial class Window1 : Window
     async Task<int> MsgBoxShow(string msg)
     {
         var box = new MsgBox();
-        return await MsgBox.Show(this, "提示消息", msg, false);
+        return await MsgBox.Show(this, "Message", msg, false);
     }
 
     private void MenuItem_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)

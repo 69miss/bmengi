@@ -5,22 +5,25 @@ using Dobo.Appl.Utility;
 using PumpsSystem.Module;
 using PumpsSystem.ViewModels;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using static Dobo.Appl.Utility.INotifyPropertyChangedExt;
 
 namespace PumpsSystem.Pump;
 
-public partial class PumpViewModel : ViewModelBase
+public partial class PumpViewModel : ViewModelBase,INotifyPropertyChangedExt2
 {
     [ObservableProperty] private int _id;
     [ObservableProperty] private string _name = string.Empty;
 
     // --- 设定值 (SV) ---
-    [ObservableProperty] private double _flowSV;
-    [ObservableProperty] private double _strokeSV;
-    [ObservableProperty] private double _freqSV;
+     private double _flowSV;
+     private double _strokeSV;
+     private double _freqSV;
     /// <summary>
     /// 最大流量
     /// </summary>
@@ -88,11 +91,40 @@ public partial class PumpViewModel : ViewModelBase
 
     
     public PumpModel Cfg { get;set; }
+    public INotifyPropertyChangedExt2 NotifyThis { get => this; }
+    public double FlowSV { get => _flowSV; set => NotifyThis.SetField(ref _flowSV, value); }
+    public double StrokeSV
+    {
+        get => _strokeSV;
+        set
+        {
+            SetFieldAndMend(ref _strokeSV,value,p=> Math.Clamp(p, 0, 100));
+        }
+    }
+
+    private void SetFieldAndMend<T>(ref T field,T value,Func<T,T> checkFun, [CallerMemberName] string? propertyName = null)
+    {
+        var nval =  checkFun(value) ;//Math.Clamp(value, 0, 100);
+        if (!EqualityComparer<T>.Default.Equals(nval, value)&& EqualityComparer<T>.Default.Equals(field, nval))
+            OnPropertyChanged(new PropertyChangedEventArgsMark(propertyName, 5));
+        else
+            SetProperty(ref field, nval,propertyName);
+
+        //if (nval != value && field == nval)
+        //{
+        //    OnPropertyChanged(new PropertyChangedEventArgsMark(nameof(StrokeSV), 5));
+        //}
+        //else
+        //    SetProperty(ref _strokeSV, nval);
+    }
+
+    public double FreqSV { get => _freqSV; set => SetFieldAndMend(ref _freqSV,value, p => Math.Clamp(p, 0, 100)); }
+
     public PumpViewModel(int id, Func<IDataItemBase, ushort,Task> fun=null)
     {
        EditValFun = fun;
         Id = id;
-        Name = $"{id}# 泵";
+        Name = $"{id}#";
         FlowSV = 0; StrokeSV = 0; FreqSV = 0;
         //IsRemote = true;
     }
@@ -130,10 +162,10 @@ public partial class PumpViewModel : ViewModelBase
             FlowSV = FlowSV + amount;// Math.Clamp(FlowSV + amount, 0, 100);
         }
         else if (target == "Stroke" && CanEditParam) {
-            StrokeSV = StrokeSV + amount;//Math.Clamp(StrokeSV + amount, 0, 100);
+            StrokeSV = Math.Clamp(StrokeSV + amount, 0, 100);
         }
         else if (target == "Freq" && CanEditParam) {
-            FreqSV = FreqSV + amount; // Math.Clamp(FreqSV + amount, 0, 100); 
+            FreqSV = Math.Clamp(FreqSV + amount, 0, 100); 
         }
     }
     // 1. 定义一个取消令牌源，用于管理延时任务
@@ -256,11 +288,23 @@ public partial class PumpViewModel : ViewModelBase
     }
     protected override async void OnPropertyChanged(PropertyChangedEventArgs e)
     {
+         
         base.OnPropertyChanged(e);
+        if (e is PropertyChangedEventArgsMark arg)
+        {
+            if (arg.Mark == 5)
+                return;
+        }
         if (!isUpdatingFromPlc)
             await set(e.PropertyName);
     }
-    Func<IDataItemBase, ushort,Task> EditValFun;
+
+     void INotifyPropertyChangedExt2.OnPropertyChanged(PropertyChangedEventArgs e)
+    {
+        OnPropertyChanged(e);
+    }
+
+     Func<IDataItemBase, ushort,Task> EditValFun;
     async Task set(string prop) {
         Console.WriteLine($"{DateTime.Now}==>set {prop}");
         var indexArr = GetPumpsInfoIndex(Id);
@@ -309,4 +353,10 @@ public partial class PumpViewModel : ViewModelBase
             await EditValFun?.Invoke(PumpsInfo[indexArr[1]+1], (ushort)StrokeMin);
         }
     }
+
+    public PropertyChangedEventHandler PropertyChangedEventHandlerGet()
+    {
+        return null;
+    }
+
 }

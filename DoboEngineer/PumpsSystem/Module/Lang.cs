@@ -16,7 +16,7 @@ namespace PumpsSystem.Module;
 
 public class PumpLang : LangBase
 {
-    public static PumpLang Instance { get; } = new PumpLang();
+    public static PumpLang Instance { get; } = new ();
 
     public virtual string AppTitle => GetString("泵站控制系统");
     /// <summary>
@@ -128,6 +128,7 @@ public class PumpLang : LangBase
 }
 public class PumpEnLang : PumpLang
 {
+    public static new PumpEnLang Instance { get; } = new ();
     public override string AppTitle => GetString("Pumps System");
     public override string ConnectionException => GetString("Connection Exception");
 
@@ -146,7 +147,7 @@ public class PumpEnLang : PumpLang
 
     public override string DisconnectBtnText => GetString("Disconnect");
 
-    public virtual string ConnectBtnText => GetString("Connect");
+    public override string ConnectBtnText => GetString("Connect");
     #endregion
 
     public override string LocalStatusLabel => GetString("Local");
