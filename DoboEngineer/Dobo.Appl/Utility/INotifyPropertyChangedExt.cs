@@ -97,7 +97,7 @@ public interface INotifyPropertyChangedExt : INotifyPropertyChanged
 public interface INotifyPropertyChangedExt2 : INotifyPropertyChanged
 {
    protected virtual void OnPropertyChanged(PropertyChangedEventArgs e) {
-        PropertyChangedEventHandlerGet().Invoke(this, e);
+        PropertyChangedEventHandlerGet()?.Invoke(this, e);
     }
    public virtual void OnPropertyChanged([CallerMemberName] string propertyName = "")
     {

@@ -301,7 +301,7 @@
 															   Margin="0,-2,0,0"/>   <!--微调 Margin 让减号视觉居中--> 
 												</Button>
 												<!--<TextBox Grid.Column="1" Classes="CapsuleInput" Width="40" MinWidth="10" Text="{Binding FlowSV, StringFormat='{}{0:F0}'}"/>-->
-												<NumericUpDown  Classes="CapsuleInput" Grid.Column="1" Value="{Binding FlowSV}" MinWidth="0" Width="35" MinHeight="10"  ShowButtonSpinner="False"  FormatString="0" Increment="1" />
+												<NumericUpDown  Classes="CapsuleInput" Grid.Column="1" Value="{Binding FlowSV}" Minimum="0" Maximum="50" MinWidth="0" Width="35" MinHeight="10"  ShowButtonSpinner="False"  FormatString="0" Increment="1" />
 												<Button Grid.Column="2" Classes="CapsuleBtn"
 														Command="{Binding AdjustValueCommand}" CommandParameter="Flow|1"
 														>
@@ -336,7 +336,7 @@
 										<TextBox Grid.Column="1" Classes="ValInput" Text="{Binding StrokeSV}" IsEnabled="{Binding CanEditParam}" Margin="8,0"/>
 										<Button Grid.Column="2" Classes="Step" Content="+" Command="{Binding AdjustValueCommand}" CommandParameter="Stroke|1" IsEnabled="{Binding CanEditParam}"/>
 										</Grid>--> <!--ColumnDefinitions="Auto, *, Auto"-->
-										<Border Margin="0,5,0,0" Classes="CapsuleGroup" Grid.Row="2" HorizontalAlignment="Left" >
+										<Border Margin="0,5,0,0" Classes="CapsuleGroup" Grid.Row="2" HorizontalAlignment="Left" IsEnabled="{Binding CanEditParam}">
 											<StackPanel Orientation="Horizontal">
 												<TextBlock Text="{Binding L.SetTargetLabel}"
 														   FontWeight="Light"
@@ -387,7 +387,7 @@
 										<TextBox Grid.Column="1" Classes="ValInput" Text="{Binding FreqSV}" IsEnabled="{Binding CanEditParam}" Margin="8,0"/>
 										<Button Grid.Column="2" Classes="Step" Content="+" Command="{Binding AdjustValueCommand}" CommandParameter="Freq|1" IsEnabled="{Binding CanEditParam}"/>
 										</Grid>-->
-										<Border Margin="0,5,0,0" Classes="CapsuleGroup" Grid.Row="6" HorizontalAlignment="Left" >
+										<Border Margin="0,5,0,0" Classes="CapsuleGroup" Grid.Row="6" HorizontalAlignment="Left" IsEnabled="{Binding CanEditParam}">
 											<StackPanel Orientation="Horizontal">
 												<TextBlock Text="{Binding L.SetTargetLabel}"
 														   FontWeight="Light"
@@ -406,7 +406,7 @@
 															   HorizontalAlignment="Center"
 															   Margin="0,-2,0,0"/> <!-- 微调 Margin 让减号视觉居中 -->
 												</Button>
-												<NumericUpDown Classes="CapsuleInput" Grid.Column="1" Value="{Binding FreqSV}" Width="120"  ShowButtonSpinner="False" FormatString="0" Increment="1" />
+												<NumericUpDown Classes="CapsuleInput" Grid.Column="1" Value="{Binding FreqSV}" Width="120" Minimum="0" Maximum="100" ShowButtonSpinner="False" FormatString="0" Increment="1" />
 												<!--<TextBox Grid.Column="1" Classes="CapsuleInput" Width="120"
 														 Text="{Binding FreqSV}"
 														 IsEnabled="{Binding CanEditParam}"/>-->

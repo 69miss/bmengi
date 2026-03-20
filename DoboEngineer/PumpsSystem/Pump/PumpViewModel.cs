@@ -70,6 +70,7 @@ public partial class PumpViewModel : ViewModelBase,INotifyPropertyChangedExt2
 
      bool isInited=false;
 
+
     public ObservableItemCollection<IDataItemBase> PumpsInfo
     {
         get => pumpsInfo;
@@ -127,6 +128,7 @@ public partial class PumpViewModel : ViewModelBase,INotifyPropertyChangedExt2
         Name = $"{id}#";
         FlowSV = 0; StrokeSV = 0; FreqSV = 0;
         //IsRemote = true;
+       
     }
 
     [RelayCommand]
@@ -277,6 +279,7 @@ public partial class PumpViewModel : ViewModelBase,INotifyPropertyChangedExt2
         if (pumpVM.FreqPV < 0)
             pumpVM.FreqPV = 0;
         pumpVM.StrokePV = Math.Round(tmpMinStroke / tmpMaxStroke * 100d);
+        pumpVM.StrokePV = pumpVM.StrokePV < 0 ? 0 : pumpVM.StrokePV;
         pumpVM.FlowPV = ToShort(flowRaw);// Math.Round(ToShort(flowRaw) / 27648d * 100d);
     }
     short ToShort(IDataItemBase dataItem) {
@@ -288,15 +291,21 @@ public partial class PumpViewModel : ViewModelBase,INotifyPropertyChangedExt2
     }
     protected override async void OnPropertyChanged(PropertyChangedEventArgs e)
     {
-         
+
         base.OnPropertyChanged(e);
+        if (e.PropertyName == "L")
+        {
+            OnPropertyChanged(nameof(RunBtnText));
+        }
         if (e is PropertyChangedEventArgsMark arg)
         {
             if (arg.Mark == 5)
                 return;
         }
-        if (!isUpdatingFromPlc)
-            await set(e.PropertyName);
+        if (isUpdatingFromPlc)
+            return;
+        await set(e.PropertyName);
+        
     }
 
      void INotifyPropertyChangedExt2.OnPropertyChanged(PropertyChangedEventArgs e)
