@@ -2,8 +2,11 @@
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Markup.Xaml;
+using Microsoft.Extensions.DependencyInjection;
 using PumpsSystem.Controls;
+using PumpsSystem.Module;
 using System;
+using System.Globalization;
 using System.Threading.Tasks;
 
 namespace PumpsSystem.Pump;
@@ -12,12 +15,12 @@ public partial class Window1 : Window
 {
     MainWindowViewModel mainWindowViewModel;
     public Window1()
-    { 
+    {
         mainWindowViewModel = new() { MsgBoxShowFun = MsgBoxShow };
         this.DataContext = mainWindowViewModel;
         InitializeComponent();
         Closed += Window1_Closed;
-       
+
     }
 
     private void Window1_Closed(object? sender, System.EventArgs e)
@@ -54,5 +57,17 @@ public partial class Window1 : Window
     private void MenuItem_Click_1(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
         new PumpCfgWnd().ShowDialog(this);
+    }
+
+    private void MenuItem_Click_2(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        //var lang =PumpModule.Default.GetService<PumpLang>();
+        //if(lang==null)
+        //    return;
+        //if (CultureInfo.CurrentCulture.Name != "en")
+        //    lang.ChangeLanguage(CultureInfo.GetCultureInfo("zh-cn"));
+        //else
+        //    lang.ChangeLanguage(CultureInfo.GetCultureInfo("en"));
+
     }
 }

@@ -3,12 +3,15 @@ using Avalonia.Media;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using Dobo.Appl.Service;
+using Microsoft.Extensions.DependencyInjection;
 using PumpsSystem.Module;
 using PumpsSystem.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -201,6 +204,27 @@ public partial class MainWindowViewModel : ViewModelBase,IDisposable
         
     }
 
+    [RelayCommand]
+    public void LangChange()
+    {
+        var lang = L;
+        if (lang == null)
+            return;
+
+        if (CultureInfo.CurrentCulture.Name == "en")
+        {
+            //L = PumpLang.Instance;
+            WeakReferenceMessenger.Default.Send(PumpLang.Instance);
+            CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo("zh-Cn");
+             
+        }
+        else
+        {
+           // L = PumpEnLang.Instance;
+            WeakReferenceMessenger.Default.Send<PumpLang>(PumpEnLang.Instance);
+            CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo("en");
+        }
+    }
     partial void OnIsAutoModeSetChanged(bool val)
     {
 

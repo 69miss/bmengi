@@ -16,9 +16,9 @@ namespace PumpsSystem.Module;
 
 public class PumpLang : LangBase
 {
-    public static PumpLang Instance { get; } = new ();
-
-    public virtual string AppTitle => GetString("泵站控制系统");
+    public static PumpLang Instance { get; private set; } = new ();
+    
+    public virtual string AppTitle => GetString("泵站控制系统 - DoboColor");
     /// <summary>
     /// 连接异常
     /// </summary>
@@ -129,7 +129,8 @@ public class PumpLang : LangBase
 public class PumpEnLang : PumpLang
 {
     public static new PumpEnLang Instance { get; } = new ();
-    public override string AppTitle => GetString("Pumps System");
+
+    public override string AppTitle => GetString("Pumps System - DoboColor");
     public override string ConnectionException => GetString("Connection Exception");
 
     public PumpLang Test => new PumpLang();
@@ -197,7 +198,7 @@ public abstract class LangBase: INotifyPropertyChanged
         _localizer = localizer;
     }
 
-    public void ChangeLanguage(CultureInfo culture)
+    public virtual void ChangeLanguage(CultureInfo culture)
     {
         CultureInfo.CurrentUICulture = culture;
         CultureInfo.CurrentCulture = culture;
@@ -207,7 +208,7 @@ public abstract class LangBase: INotifyPropertyChanged
     /// <summary>
     /// 核心获取逻辑：带有后备默认值
     /// </summary>
-    protected string GetString(string defaultValue, [CallerMemberName] string key = "")
+    protected virtual string GetString(string defaultValue, [CallerMemberName] string key = "")
     {
         // 如果处于导出模式，直接收集字典并返回
         if (_isExporting)
@@ -217,6 +218,12 @@ public abstract class LangBase: INotifyPropertyChanged
         }
 
         // 正常运行模式：尝试从外部多语言文件获取
+
+        return GetLangVal(key) ?? defaultValue;
+    }
+
+    protected virtual string? GetLangVal(string key)
+    {
         if (_localizer != null)
         {
             var localizedStr = _localizer[key];
@@ -226,9 +233,7 @@ public abstract class LangBase: INotifyPropertyChanged
                 return localizedStr.Value;
             }
         }
-
-        // 如果没有初始化 Localizer，或者文件里找不到该 key，直接返回代码里的默认值！
-        return defaultValue;
+        return null;
     }
 
 

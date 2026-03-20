@@ -182,6 +182,7 @@
 					<MenuFlyout>
 						<MenuItem Header="参数监控" Click="MenuItem_Click" InputGesture="Ctrl+P"/>
 						<MenuItem Header="泵站配置" Click="MenuItem_Click_1" />
+						<MenuItem Header="中英语言切换" Command="{Binding LangChangeCommand}" Click="MenuItem_Click_2" />
 						<Separator/>
 						<MenuItem Header="退出系统"/>
 					</MenuFlyout>

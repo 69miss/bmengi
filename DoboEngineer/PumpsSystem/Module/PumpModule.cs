@@ -15,7 +15,7 @@ namespace PumpsSystem.Module
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddSingleton<IJsonTypeInfoResolver, SourceGenerationContext>(p => SourceGenerationContext.Default);
-            services.AddSingleton<JsonSerializerOptions>(p =>
+            services.AddSingleton(p =>
             {
                 var arr = p.GetServices<IJsonTypeInfoResolver>().ToArray();
                 return new JsonSerializerOptions()
@@ -23,11 +23,14 @@ namespace PumpsSystem.Module
                     TypeInfoResolver = JsonTypeInfoResolver.Combine(arr)
                 };
             });
+            services.AddSingleton<LangBase,PumpLang>();
         }
 
         public void OnStartup(IServiceProvider serviceProvider)
         {
-
+            Default = serviceProvider;
         }
+
+        public static IServiceProvider Default { get; private set; }
     }
 }
