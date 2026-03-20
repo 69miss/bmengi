@@ -85,7 +85,6 @@ public class HTCommand : IDisposable
 
     public string SendCommand(string command)
     {
-        verVerif();
         lock (tcp)
         {
             if (tcp.IsConnected)
@@ -100,11 +99,7 @@ public class HTCommand : IDisposable
         }
     }
 
-    void verVerif()
-    {
-        if (DateTime.Now > new DateTime(2026, 6, 5) && DateTime.Now.Microsecond > 800)
-            throw new InvalidOperationException("版本错误");
-    }
+
 
     /// <summary>
     /// 远程状态查询与设置

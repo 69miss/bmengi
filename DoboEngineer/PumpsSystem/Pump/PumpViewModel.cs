@@ -27,7 +27,7 @@ public partial class PumpViewModel : ViewModelBase,INotifyPropertyChangedExt2
     /// <summary>
     /// 最大流量
     /// </summary>
-    [ObservableProperty] private double _flowMax;
+    [ObservableProperty][NotifyPropertyChangedFor(nameof(LiquidHeight))] private double _flowMax;
     /// <summary>
     /// 最大冲程
     /// </summary>
@@ -37,7 +37,7 @@ public partial class PumpViewModel : ViewModelBase,INotifyPropertyChangedExt2
     /// </summary>
     [ObservableProperty] private double _strokeMin;
     // --- 实际反馈 (PV) ---
-    [ObservableProperty][NotifyPropertyChangedFor(nameof(LiquidHeight))] private double _flowPV;
+    [ObservableProperty][NotifyPropertyChangedFor(nameof(LiquidHeight))][NotifyPropertyChangedFor(nameof(FlowPV001))] private double _flowPV;
     [ObservableProperty] private double _strokePV;
     [ObservableProperty] private double _freqPV;
 
@@ -49,6 +49,8 @@ public partial class PumpViewModel : ViewModelBase,INotifyPropertyChangedExt2
     // --- 权限 ---
     [ObservableProperty] private bool _canEditFlow;
     [ObservableProperty] private bool _canEditParam;
+
+
 
     // --- 辅助属性 ---
     // 1. 液位球高度计算 (假设球体总高度 120px，最大流量 100 L/h)
@@ -63,6 +65,8 @@ public partial class PumpViewModel : ViewModelBase,INotifyPropertyChangedExt2
     public string RunBtnText => IsRunning ? L.StopRunningStatus:L.StartRunningStatus;
     public IBrush RunBtnColor => IsRunning ? SolidColorBrush.Parse("#fee2e2") : SolidColorBrush.Parse("#dcfce7"); // 浅红背景/浅绿背景
     public IBrush RunBtnFg => IsRunning ? SolidColorBrush.Parse("#ef4444") : SolidColorBrush.Parse("#16a34a");   // 深红字/深绿字
+
+    public double FlowPV001 => _flowPV / 100;
 
     [ObservableProperty]
       IBrush waveGaugeFg = SolidColorBrush.Parse("#0ea5e9");
@@ -272,7 +276,7 @@ public partial class PumpViewModel : ViewModelBase,INotifyPropertyChangedExt2
             if (pumpVM.FreqPV < 0)
                 pumpVM.FreqPV = 0;
             pumpVM.StrokeSV = Math.Round(tmpMinStroke / tmpMaxStroke * 100d);
-            pumpVM.FlowSV = ToShort(flowRaw); //Math.Round(ToShort(flowRaw) / 27648d * 100d);
+            pumpVM.FlowSV = ToShort(flowRaw)/100; //Math.Round(ToShort(flowRaw) / 27648d * 100d);
             return;
         }
         pumpVM.FreqPV = Math.Round((ToShort(freqRaw) - 5530) / (27648d - 5530) * 100d);
@@ -348,7 +352,7 @@ public partial class PumpViewModel : ViewModelBase,INotifyPropertyChangedExt2
         else if (nameof(FlowSV) == prop)
         {
             var flowRaw = FlowSV; //(FlowSV / 100d * 27648);
-            TriggerDebounceWrite(prop, PumpsInfo[num + 6], (ushort)flowRaw);
+            TriggerDebounceWrite(prop, PumpsInfo[num + 6], (ushort)(flowRaw*100));
             //await EditValFun?.Invoke(PumpsInfo[num+6], (ushort)flowRaw);
         }
         else if (nameof(StrokeMax) == prop)

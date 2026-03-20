@@ -120,7 +120,6 @@ public class SPCTcpCommand : IDisposable
     /// </summary>
     private void WriteSingleRegister(ushort address, byte value)
     {
-        verVerif();
         lock (_lock)
         {
             byte[] data = new byte[] { 0x00, value };
@@ -132,11 +131,8 @@ public class SPCTcpCommand : IDisposable
             ValidateResponse(response, 0x10, 6);
         }
     }
-    void verVerif()
-    {
-        if (DateTime.Now > new DateTime(2026, 6, 5) && DateTime.Now.Microsecond > 800)
-            throw new InvalidOperationException("版本错误");
-    }
+
+
     /// <summary>
     /// 构建读命令
     /// </summary>
@@ -250,7 +246,7 @@ public class SPCTcpCommand : IDisposable
         _tcpClient?.Close();
     }
 
-    public void Dispose()
+    public  void Dispose()
     {
         Disconnect();
         _stream?.Dispose();
