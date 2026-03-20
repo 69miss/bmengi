@@ -406,7 +406,7 @@
 															   HorizontalAlignment="Center"
 															   Margin="0,-2,0,0"/> <!-- 微调 Margin 让减号视觉居中 -->
 												</Button>
-												<NumericUpDown Classes="CapsuleInput" Grid.Column="1" Value="{Binding FreqSV}" Width="120" Minimum="0" Maximum="100" ShowButtonSpinner="False" FormatString="0" Increment="1" />
+												<NumericUpDown Classes="CapsuleInput" Grid.Column="1" Value="{Binding FreqSV}" Width="120" Minimum="10" Maximum="100" ShowButtonSpinner="False" FormatString="0" Increment="1" />
 												<!--<TextBox Grid.Column="1" Classes="CapsuleInput" Width="120"
 														 Text="{Binding FreqSV}"
 														 IsEnabled="{Binding CanEditParam}"/>-->

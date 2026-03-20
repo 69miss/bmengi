@@ -18,7 +18,7 @@ public class PumpLang : LangBase
 {
     public static PumpLang Instance { get; private set; } = new ();
     
-    public virtual string AppTitle => GetString("泵站控制系统 - DoboColor");
+    public virtual string AppTitle => GetString("泵站控制系统 v0.1.320- DoboColor");
     /// <summary>
     /// 连接异常
     /// </summary>
