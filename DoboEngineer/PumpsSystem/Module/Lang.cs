@@ -18,7 +18,7 @@ public class PumpLang : LangBase
 {
     public static PumpLang Instance { get; private set; } = new ();
     
-    public virtual string AppTitle => GetString("泵站控制系统 v0.1.320- DoboColor");
+    public virtual string AppTitle => GetString($"泵站控制系统 - DoboColor v{Assembly.GetExecutingAssembly().GetName().Version?.ToString(3)}.{Program.TimeVer}") ;
     /// <summary>
     /// 连接异常
     /// </summary>
@@ -216,7 +216,7 @@ public abstract class LangBase: INotifyPropertyChanged
             _exportDict[key] = defaultValue;
             return defaultValue;
         }
-
+      
         // 正常运行模式：尝试从外部多语言文件获取
 
         return GetLangVal(key) ?? defaultValue;

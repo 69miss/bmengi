@@ -5,6 +5,8 @@ using Microsoft.Extensions.DependencyInjection;
 using PumpsSystem.Module;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 using System.Threading.Tasks;
@@ -13,6 +15,7 @@ namespace PumpsSystem;
 
 internal sealed class Program 
 {
+   public static string TimeVer { get; private set; }
     // Initialization code. Don't use any Avalonia, third-party APIs or any
     // SynchronizationContext-reliant code before AppMain is called: things aren't initialized
     // yet and stuff might break.
@@ -21,6 +24,8 @@ internal sealed class Program
     {
         try
         {
+            VerGet();
+
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
             TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
             BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
@@ -30,6 +35,17 @@ internal sealed class Program
             HandleException("主线程致命错误", ex);
         }
 
+    }
+
+    private static void VerGet()
+    {
+        try
+        {
+            var dt = File.GetLastWriteTime(Assembly.GetEntryAssembly()?.Location);//dt.DayOfYear, dt.Hour, dt.Minute
+            TimeVer = Math.Round(TimeSpan.FromDays(dt.DayOfYear, dt.Hour, dt.Minute).TotalMinutes/5.3).ToString();
+        }
+        catch (Exception) { }
+        
     }
 
     // Avalonia configuration, don't remove; also used by visual designer.
