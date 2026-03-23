@@ -275,7 +275,7 @@
 										<!-- 球状液位 -->
 										<cc:WaveGauge Width="120" Height="120" IsAlarm="{Binding IsFault}"
 													  Value="{Binding LiquidHeight}"
-													  Text="{Binding FlowPV001, StringFormat='{}{0:F1}'}"
+													  Text="{Binding FlowPV, StringFormat='{}{0:F1}'}"
 													 SubText="{Fmt '       {0}&#10;(Max {1} L/h)',{Binding $parent[ItemsControl].DataContext.L.FlowLabel},{Binding FlowMax}}"
 													  WaveColor="{Binding WaveGaugeFg}"
 													  VerticalAlignment="Top">

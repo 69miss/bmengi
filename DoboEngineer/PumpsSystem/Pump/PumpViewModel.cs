@@ -36,7 +36,7 @@ public partial class PumpViewModel : ViewModelBase,INotifyPropertyChangedExt2
     /// </summary>
     [ObservableProperty] private double _strokeMin;
     // --- 实际反馈 (PV) ---
-    [ObservableProperty][NotifyPropertyChangedFor(nameof(LiquidHeight))][NotifyPropertyChangedFor(nameof(FlowPV001))] private double _flowPV;
+    [ObservableProperty][NotifyPropertyChangedFor(nameof(LiquidHeight))] private double _flowPV;
     [ObservableProperty] private double _strokePV;
     [ObservableProperty] private double _freqPV;
 
@@ -66,7 +66,6 @@ public partial class PumpViewModel : ViewModelBase,INotifyPropertyChangedExt2
     public IBrush RunBtnColor => IsRunning ? SolidColorBrush.Parse("#fee2e2") : SolidColorBrush.Parse("#dcfce7"); // 浅红背景/浅绿背景
     public IBrush RunBtnFg => IsRunning ? SolidColorBrush.Parse("#ef4444") : SolidColorBrush.Parse("#16a34a");   // 深红字/深绿字
 
-    public double FlowPV001 => _flowPV / 100;
 
     [ObservableProperty]
       IBrush waveGaugeFg = SolidColorBrush.Parse("#0ea5e9");
@@ -125,6 +124,7 @@ public partial class PumpViewModel : ViewModelBase,INotifyPropertyChangedExt2
 
     public double FreqSV { get => _freqSV; set => SetFieldAndMend(ref _freqSV,value, p => Math.Clamp(p, 0, 100)); }
 
+
     public PumpViewModel(int id, Func<IDataItemBase, ushort,Task> fun=null)
     {
        EditValFun = fun;
@@ -165,13 +165,13 @@ public partial class PumpViewModel : ViewModelBase,INotifyPropertyChangedExt2
 
         if (target == "Flow" && CanEditFlow) {
            
-            FlowSV = FlowSV + amount;// Math.Clamp(FlowSV + amount, 0, 100);
+            FlowSV =Math.Clamp( FlowSV + amount,0,FlowMax);// Math.Clamp(FlowSV + amount, 0, 100);
         }
         else if (target == "Stroke" && CanEditParam) {
-            StrokeSV = Math.Clamp(StrokeSV + amount, 0, 100);
+            StrokeSV = Math.Clamp(StrokeSV + amount, 10, 100);
         }
         else if (target == "Freq" && CanEditParam) {
-            FreqSV = Math.Clamp(FreqSV + amount, 0, 100); 
+            FreqSV = Math.Clamp(FreqSV + amount, 10, 100); 
         }
     }
     // 1. 定义一个取消令牌源，用于管理延时任务
@@ -202,7 +202,10 @@ public partial class PumpViewModel : ViewModelBase,INotifyPropertyChangedExt2
                 if (token.IsCancellationRequested) return;
 
                 // 6. --- 真正执行远程调用 ---
-                await EditValFun?.Invoke((IDataItemBase)args[0], (ushort)args[1]);
+                if (args[1] is IConvertible val)
+                    await EditValFun?.Invoke((IDataItemBase)args[0], val.ToUInt16(null));
+                else
+                    throw new ArgumentException("无法处理的数据类型");
             }
             catch (TaskCanceledException)
             {
@@ -244,7 +247,7 @@ public partial class PumpViewModel : ViewModelBase,INotifyPropertyChangedExt2
             //
             if (isInited)
                 return;
-            pumpVM.FlowMax = PumpsInfo[index++].Value.ToInt16(null)/100d;
+            pumpVM.FlowMax = GetShowValByRaw(nameof(FlowMax), PumpsInfo[index++]);// PumpsInfo[index++].Value.ToInt16(null)/100d;
             //pumpVM.FreqSV = PumpsInfo[index++].Value.ToInt16(null);
             //pumpVM.StrokeSV = PumpsInfo[index++].Value.ToInt16(null);
             //pumpVM.FlowSV = PumpsInfo[index++].Value.ToInt16(null);
@@ -267,11 +270,14 @@ public partial class PumpViewModel : ViewModelBase,INotifyPropertyChangedExt2
         pumpVM.FlowPV = Math.Round(flowRaw / 27648 * 100d);
     }
 
+    public double GetShowValByRaw(string name, IDataItemBase raw) {
+        return GetShowValByRaw(name,  ToShort(raw));
+    }
     public double GetShowValByRaw(string name, short raw)
     {
         if (name.StartsWith("freq", StringComparison.OrdinalIgnoreCase))
         {
-            return Math.Clamp(Math.Round((raw - FreqMin) / (FreqMax - FreqMin) * 100d), 0, 100);
+            return Math.Clamp(Math.Round((float)(raw - FreqMin) / (FreqMax - FreqMin) * 100d), 0, 100);
         }
         else if (name.StartsWith("stroke", StringComparison.OrdinalIgnoreCase))
         {
@@ -281,7 +287,7 @@ public partial class PumpViewModel : ViewModelBase,INotifyPropertyChangedExt2
         }
         else if (name.StartsWith("flow", StringComparison.OrdinalIgnoreCase))
         {
-            return raw / 100;
+            return raw / 100d;
         }
         throw new ArgumentException();
     }
@@ -305,20 +311,20 @@ public partial class PumpViewModel : ViewModelBase,INotifyPropertyChangedExt2
         var tmpStroke =sRaw-Cfg.MinStroke ?? 0d;
         var tmpMaxStroke =Cfg.MaxStroke - Cfg.MinStroke??1d;
         if (isSV) {
-            pumpVM.FreqSV = Math.Round((ToShort(freqRaw) -FreqMin) / (FreqMax - FreqMin) * 100d);
+            pumpVM.FreqSV = GetShowValByRaw("freq", freqRaw);//  Math.Round((float)(ToShort(freqRaw) -FreqMin) / (FreqMax - FreqMin) * 100d);
             if (pumpVM.FreqPV < 0)
                 pumpVM.FreqPV = 0;
             pumpVM.StrokeSV = Math.Round(tmpStroke / tmpMaxStroke * 100d);
             pumpVM.StrokeSV = Math.Clamp(pumpVM.StrokeSV, 0, 100);
-            pumpVM.FlowSV = ToShort(flowRaw)/100; //Math.Round(ToShort(flowRaw) / 27648d * 100d);
+            pumpVM.FlowSV = GetShowValByRaw(nameof(FlowSV), flowRaw); //Math.Round(ToShort(flowRaw) / 27648d * 100d);
             return;
         }
-        pumpVM.FreqPV = Math.Round((ToShort(freqRaw) - FreqMin) / (FreqMax - FreqMin) * 100d);
+        pumpVM.FreqPV = GetShowValByRaw("freq", freqRaw);// Math.Round((float)(ToShort(freqRaw) - FreqMin) / (FreqMax - FreqMin) * 100d);
         if (pumpVM.FreqPV < 0)
             pumpVM.FreqPV = 0;
         pumpVM.StrokePV = Math.Round(tmpStroke / tmpMaxStroke * 100d);
         pumpVM.StrokePV = Math.Clamp(pumpVM.StrokePV, 0, 100);
-        pumpVM.FlowPV = ToShort(flowRaw)/100;// Math.Round(ToShort(flowRaw) / 27648d * 100d);
+        pumpVM.FlowPV = GetShowValByRaw(nameof(FlowPV),flowRaw); // ToShort(flowRaw)/100;// Math.Round(ToShort(flowRaw) / 27648d * 100d);
     }
     short ToShort(IDataItemBase dataItem) {
 
