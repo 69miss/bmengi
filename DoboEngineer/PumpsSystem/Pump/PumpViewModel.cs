@@ -2,7 +2,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Dobo.Appl.Utility;
-using PumpsSystem.Module;
 using PumpsSystem.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -50,7 +49,8 @@ public partial class PumpViewModel : ViewModelBase,INotifyPropertyChangedExt2
     [ObservableProperty] private bool _canEditFlow;
     [ObservableProperty] private bool _canEditParam;
 
-
+    public short FreqMax { get; } = 27648;
+    public short FreqMin { get; } = 5530;
 
     // --- 辅助属性 ---
     // 1. 液位球高度计算 (假设球体总高度 120px，最大流量 100 L/h)
@@ -244,7 +244,7 @@ public partial class PumpViewModel : ViewModelBase,INotifyPropertyChangedExt2
             //
             if (isInited)
                 return;
-            pumpVM.FlowMax = PumpsInfo[index++].Value.ToInt16(null);
+            pumpVM.FlowMax = PumpsInfo[index++].Value.ToInt16(null)/100d;
             //pumpVM.FreqSV = PumpsInfo[index++].Value.ToInt16(null);
             //pumpVM.StrokeSV = PumpsInfo[index++].Value.ToInt16(null);
             //pumpVM.FlowSV = PumpsInfo[index++].Value.ToInt16(null);
@@ -266,25 +266,59 @@ public partial class PumpViewModel : ViewModelBase,INotifyPropertyChangedExt2
         pumpVM.StrokePV = Math.Round(strokeRaw / 27648 * 100d);
         pumpVM.FlowPV = Math.Round(flowRaw / 27648 * 100d);
     }
+
+    public double GetShowValByRaw(string name, short raw)
+    {
+        if (name.StartsWith("freq", StringComparison.OrdinalIgnoreCase))
+        {
+            return Math.Clamp(Math.Round((raw - FreqMin) / (FreqMax - FreqMin) * 100d), 0, 100);
+        }
+        else if (name.StartsWith("stroke", StringComparison.OrdinalIgnoreCase))
+        {
+            var tmpStroke = raw - Cfg.MinStroke ?? 0d;
+            var tmpMaxStroke = Cfg.MaxStroke - Cfg.MinStroke ?? 1d;
+            return Math.Clamp(Math.Round(tmpStroke / tmpMaxStroke * 100d), 0, 100);
+        }
+        else if (name.StartsWith("flow", StringComparison.OrdinalIgnoreCase))
+        {
+            return raw / 100;
+        }
+        throw new ArgumentException();
+    }
+    public short ShowValToRaw(string name, double showVal)
+    {
+        if (name.StartsWith("freq", StringComparison.OrdinalIgnoreCase))
+            return (short)(showVal / 100d * (FreqMax - FreqMin) + FreqMin); 
+        else if (name.StartsWith("stroke", StringComparison.OrdinalIgnoreCase))
+        {
+           return (short)(showVal / 100d * (Cfg.MaxStroke.Value - Cfg.MinStroke.Value) + Cfg.MinStroke.Value);
+        }
+        else if (name.StartsWith("flow", StringComparison.OrdinalIgnoreCase))
+        {
+            return (short)(showVal * 100);
+        }
+        throw new ArgumentException();
+    }
     void GetToInfo(PumpViewModel pumpVM,bool isSV ,IDataItemBase freqRaw, IDataItemBase strokeRaw, IDataItemBase flowRaw) {
 
         var sRaw = ToShort(strokeRaw);
-        var tmpMinStroke =sRaw-Cfg.MinStroke ?? 0d;
-        var tmpMaxStroke = Cfg.MaxStroke ?? 27648d - Cfg.MinStroke??0d;
+        var tmpStroke =sRaw-Cfg.MinStroke ?? 0d;
+        var tmpMaxStroke =Cfg.MaxStroke - Cfg.MinStroke??1d;
         if (isSV) {
-            pumpVM.FreqSV = Math.Round((ToShort(freqRaw) - 5530) / (27648d - 5530) * 100d);
+            pumpVM.FreqSV = Math.Round((ToShort(freqRaw) -FreqMin) / (FreqMax - FreqMin) * 100d);
             if (pumpVM.FreqPV < 0)
                 pumpVM.FreqPV = 0;
-            pumpVM.StrokeSV = Math.Round(tmpMinStroke / tmpMaxStroke * 100d);
+            pumpVM.StrokeSV = Math.Round(tmpStroke / tmpMaxStroke * 100d);
+            pumpVM.StrokeSV = Math.Clamp(pumpVM.StrokeSV, 0, 100);
             pumpVM.FlowSV = ToShort(flowRaw)/100; //Math.Round(ToShort(flowRaw) / 27648d * 100d);
             return;
         }
-        pumpVM.FreqPV = Math.Round((ToShort(freqRaw) - 5530) / (27648d - 5530) * 100d);
+        pumpVM.FreqPV = Math.Round((ToShort(freqRaw) - FreqMin) / (FreqMax - FreqMin) * 100d);
         if (pumpVM.FreqPV < 0)
             pumpVM.FreqPV = 0;
-        pumpVM.StrokePV = Math.Round(tmpMinStroke / tmpMaxStroke * 100d);
-        pumpVM.StrokePV = pumpVM.StrokePV < 0 ? 0 : pumpVM.StrokePV;
-        pumpVM.FlowPV = ToShort(flowRaw);// Math.Round(ToShort(flowRaw) / 27648d * 100d);
+        pumpVM.StrokePV = Math.Round(tmpStroke / tmpMaxStroke * 100d);
+        pumpVM.StrokePV = Math.Clamp(pumpVM.StrokePV, 0, 100);
+        pumpVM.FlowPV = ToShort(flowRaw)/100;// Math.Round(ToShort(flowRaw) / 27648d * 100d);
     }
     short ToShort(IDataItemBase dataItem) {
 
@@ -332,39 +366,39 @@ public partial class PumpViewModel : ViewModelBase,INotifyPropertyChangedExt2
             //await EditValFun?.Invoke(PumpsInfo[2], val);
             //PumpsInfo[2].Value = val;
         }
-        else if (nameof(FlowMax) == prop)
-        {
-            await EditValFun?.Invoke(PumpsInfo[num+3], (ushort)FlowMax);
+        //else if (nameof(FlowMax) == prop)
+        //{
+        //    await EditValFun?.Invoke(PumpsInfo[num+3], (ushort)FlowMax);
 
-        }
+        //}
         else if (nameof(FreqSV) == prop)
         {
-            double freqRaw = (FreqSV / 100d * (27648 - 5530) + 5530);
-            TriggerDebounceWrite(prop,PumpsInfo[num + 4], (ushort)freqRaw);
+           // double freqRaw = (FreqSV / 100d * (27648 - 5530) + 5530);
+            TriggerDebounceWrite(prop,PumpsInfo[num + 4], ShowValToRaw(nameof(FreqSV), FreqSV));
             //await EditValFun?.Invoke(PumpsInfo[num+4], (ushort)freqRaw);
         }
         else if (nameof(StrokeSV) == prop)
         {
-            double strokeRaw = (StrokeSV / 100d * 27648);
-            TriggerDebounceWrite(prop,PumpsInfo[num + 5], (ushort)strokeRaw);
+            //double strokeRaw = (StrokeSV / 100d * (Cfg.MaxStroke.Value - Cfg.MinStroke.Value)+ Cfg.MinStroke.Value);
+            TriggerDebounceWrite(prop,PumpsInfo[num + 5], ShowValToRaw(nameof(StrokeSV), StrokeSV));
             //await EditValFun?.Invoke(PumpsInfo[num+5], (ushort)strokeRaw);
         }
         else if (nameof(FlowSV) == prop)
         {
-            var flowRaw = FlowSV; //(FlowSV / 100d * 27648);
-            TriggerDebounceWrite(prop, PumpsInfo[num + 6], (ushort)(flowRaw*100));
+            //var flowRaw = FlowSV; //(FlowSV / 100d * 27648);
+            TriggerDebounceWrite(prop, PumpsInfo[num + 6], ShowValToRaw(nameof(FlowSV), FlowSV));
             //await EditValFun?.Invoke(PumpsInfo[num+6], (ushort)flowRaw);
         }
-        else if (nameof(StrokeMax) == prop)
-        {
-            //PumpsInfo[num + 31].Value = StrokeMax;
-            await EditValFun?.Invoke(PumpsInfo[indexArr[1]], (ushort)StrokeMax);
-        }
-        else if (nameof(StrokeMin) == prop)
-        {
-            //PumpsInfo[num + 32].Value = StrokeMin;
-            await EditValFun?.Invoke(PumpsInfo[indexArr[1]+1], (ushort)StrokeMin);
-        }
+        //else if (nameof(StrokeMax) == prop)
+        //{
+        //    //PumpsInfo[num + 31].Value = StrokeMax;
+        //    await EditValFun?.Invoke(PumpsInfo[indexArr[1]], (ushort)StrokeMax);
+        //}
+        //else if (nameof(StrokeMin) == prop)
+        //{
+        //    //PumpsInfo[num + 32].Value = StrokeMin;
+        //    await EditValFun?.Invoke(PumpsInfo[indexArr[1]+1], (ushort)StrokeMin);
+        //}
     }
 
     public PropertyChangedEventHandler PropertyChangedEventHandlerGet()
