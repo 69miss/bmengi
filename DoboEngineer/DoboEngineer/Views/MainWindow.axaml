@@ -7,9 +7,9 @@
         x:Class="DoboEngineer.Views.MainWindow"
         
         Icon="/Assets/avalonia-logo.ico"
-         DataContext="{Binding RelativeSource={RelativeSource Self}}"
+        x:DataType="vm:MainWindowViewModel"
         Title="DoboEngineer">
-
+     <!--DataContext="{Binding RelativeSource={RelativeSource Self}}"-->
     <!--<Design.DataContext> x:DataType="vm:MainWindowViewModel"
         --><!-- This only sets the DataContext for the previewer in an IDE,
              to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) --><!--
@@ -19,12 +19,13 @@
         <StackPanel HorizontalAlignment="Left"  Orientation="Horizontal">
 			
         
-    <TextBlock Text="测试工具" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    <TextBlock Text="{Binding Greeting}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         <Button Click="Button_Click">外部校准盒校准</Button>
          <Button Click="Button_Click_1" IsVisible="False">校准2</Button>
             <Button Click="Button_Click_2">泵站测试</Button>
             <Button Click="Button_Click_3">泵站控制</Button>
             <Button Click="Button_Click_4">端盖开关测试</Button>
+            <Button Click="Button_Click_5">命令工具</Button>
             
             </StackPanel>
     </Grid>

@@ -1,5 +1,7 @@
-﻿using Avalonia.Threading;
+﻿using Avalonia.Media;
+using Avalonia.Threading;
 using Dobo.Appl.Device;
+using Dobo.Appl.HunterCmd;
 using FluentModbus;
 using System;
 using System.Collections;
@@ -15,7 +17,7 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace PumpsSystem.Pump
 {
-    public class PumpProtocolAdapter : IProtocolAdapter
+    public class PumpProtocolAdapter : IProtocolAdapter, IProtocolAdapter0
     {
         public string ConnectionString {  get;private set; }
 
@@ -118,13 +120,15 @@ namespace PumpsSystem.Pump
 
         public async Task<bool> WriteAsync<T>(string address, T value)
         {
+            if (value is IConvertible val)
+              return await WriteAsync(address, val);
             //todo 应处理线程安全
-            var index = ToFIndex(address);
-            if (value is short val)
-                await client.WriteSingleRegisterAsync(0, index, val);
-            else if (value is ushort val1)
-                await client.WriteSingleRegisterAsync(0, index, val1);
-            else
+            //var index = ToFIndex(address);
+            //if (value is short val)
+            //    await client.WriteSingleRegisterAsync(0, index, val);
+            //else if (value is ushort val1)
+            //    await client.WriteSingleRegisterAsync(0, index, val1);
+            //else
                 throw new ArgumentException("不支持的类型");
             
             return true;
@@ -146,6 +150,108 @@ namespace PumpsSystem.Pump
         public void Dispose()
         {
             client?.Dispose();
+        }
+
+        public async Task<object> ReadAsync(string address, TypeCode typeCode)
+        {
+            var arr = await ReadBatchAsync(address, 1, typeCode);
+            return arr.GetValue(0);
+        }
+
+        public async Task<bool> WriteAsync(string address, IConvertible value)
+        {
+            //todo 应处理线程安全
+            var index = ToFIndex(address);
+            if (value is short val)
+                await client.WriteSingleRegisterAsync(0, index, val);
+            else if (value is ushort val1)
+                await client.WriteSingleRegisterAsync(0, index, val1);
+            else
+                throw new ArgumentException("不支持的类型");
+
+            return true;
+        }
+
+        public async Task<T[]> ReadBatchAsync<T>(string addresse, int len)
+        {
+            var arr = await ReadBatchAsync(addresse, len, Type.GetTypeCode(typeof(T)));
+            return arr.Cast<T>().ToArray();
+            //var tType = typeof(T);
+            //var begin = ushort.Parse(addresse);
+            //Array datas = null;
+            //if (tType == typeof(byte))
+            //{
+            //    datas = (await client.ReadHoldingRegistersAsync<byte>(0, begin, len)).ToArray();
+            //}
+            //else if (tType == typeof(short))
+            //{
+            //    datas = (await client.ReadHoldingRegistersAsync<short>(0, begin, len)).ToArray();
+            //}
+            //else if (tType == typeof(ushort))
+            //{
+            //    datas = (await client.ReadHoldingRegistersAsync<ushort>(0, begin, len)).ToArray();
+            //}
+            //else if (tType == typeof(float))
+            //{
+            //    datas = (await client.ReadHoldingRegistersAsync<float>(0, begin, len)).ToArray();
+            //}
+            //else
+            //    throw new ArgumentException("不支持的类型");
+            //var tArray = new T[datas.Length];
+            //for (int i = 0; i < datas.Length; i++)
+            //{
+            //    tArray[i] = (T)datas.GetValue(i);
+            //}
+            //return tArray;
+        }
+        public async Task<Array> ReadBatchAsync(string addresse, int len, TypeCode typeCode) {
+
+            var begin = ushort.Parse(addresse);
+            Array datas = typeCode switch
+            {
+                TypeCode.Byte => (await client.ReadHoldingRegistersAsync<byte>(0, begin, len)).ToArray(),
+                TypeCode.Int16 => (await client.ReadHoldingRegistersAsync<short>(0, begin, len)).ToArray(),
+                TypeCode.UInt16 => (await client.ReadHoldingRegistersAsync<ushort>(0, begin, len)).ToArray(),
+                TypeCode.Single => (await client.ReadHoldingRegistersAsync<float>(0, begin, len)).ToArray(),
+                // 不支持类型直接抛出异常
+                _ => throw new ArgumentException($"不支持的类型：{typeCode}", nameof(typeCode))
+            };
+            return datas;
+
+        }
+        public async Task<IDictionary<string, object>> ReadBatchAsync(IDictionary<string, TypeCode> dict)
+        {
+            var first=dict.First();
+            var len = dict.Count;
+            var tType = first.Value;
+            var begin = ushort.Parse(first.Key);
+           var arr=await ReadBatchAsync(first.Key, len, first.Value);
+            var reDict = new Dictionary<string, object>(arr.Length);
+            for (int i = 0; i < arr.Length; i++)
+            {
+                reDict.Add((begin + i).ToString(), arr.GetValue(i));
+            }
+            return reDict;
+            //Array datas = tType switch
+            //{
+            //    TypeCode.Byte => (await client.ReadHoldingRegistersAsync<byte>(0, begin, len)).ToArray(),
+            //    TypeCode.Int16 => (await client.ReadHoldingRegistersAsync<short>(0, begin, len)).ToArray(),
+            //    TypeCode.UInt16 => (await client.ReadHoldingRegistersAsync<ushort>(0, begin, len)).ToArray(),
+            //    TypeCode.Single => (await client.ReadHoldingRegistersAsync<float>(0, begin, len)).ToArray(),
+            //    // 不支持类型直接抛出异常
+            //    _ => throw new ArgumentException($"不支持的类型：{tType}", nameof(dict))
+            //};
+            //var reDict = new Dictionary<string,object>(datas.Length);
+            //for (int i = 0; i < datas.Length; i++)
+            //{
+            //    reDict.Add((begin + i).ToString(), datas.GetValue(i));
+            //}
+            //return reDict;
+        }
+
+        public Task<bool> WriteBatchAsync(IDictionary<string, object> addresses, int batchNumber)
+        {
+            throw new NotImplementedException();
         }
     }
 }

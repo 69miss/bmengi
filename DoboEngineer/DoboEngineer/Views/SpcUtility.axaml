@@ -1,0 +1,47 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="DoboEngineer.SpcUtility"
+        xmlns:vm="using:DoboEngineer.ViewModels"
+        x:DataType ="vm:SpcUtilityVm"
+        Title="SpcUtility">
+    <Design.DataContext>
+		<vm:SpcUtilityVm></vm:SpcUtilityVm>
+    </Design.DataContext>
+    <Window.Styles>
+        <Style Selector="Button">
+            <Setter Property="Background" Value="#1677FF"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="#388E3C"/>
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="Margin" Value="5,0,5,0"/>
+        </Style>
+         <Style Selector="StackPanel TextBox">
+            <Setter Property="Height" Value="30"/>
+             <Setter Property="Width" Value="100"/>
+        </Style>
+        <Style Selector="ComboBox">
+            <Setter Property="VerticalAlignment" Value="Center" ></Setter>
+        </Style>
+    </Window.Styles>
+  <Grid RowDefinitions="40,40,*">
+	  <StackPanel Grid.Row="0" Orientation="Horizontal">
+      <ComboBox IsEditable="True" ItemsSource="{Binding HTCmdList}" DisplayMemberBinding="{Binding Key}" SelectedItem="{Binding NowHTCmd}" Width="200" Margin="10,2,10,2" SelectedIndex="0"></ComboBox>
+          <TextBox HorizontalContentAlignment="Left" Text="{Binding HTCmdParam}" Margin="10,2,10,2" Height="30"></TextBox>
+          <Button Command="{Binding HTCmdSendCommand}" IsEnabled="{Binding HTSendBtnEnable}">光机执行</Button> 
+          <Button Content="{Binding RepeatBtnTxt}" Command="{Binding RepeatHTCmdSendCommand}"></Button>
+      </StackPanel>
+      <StackPanel Grid.Row="1" Orientation="Horizontal">
+      <ComboBox  IsEditable="True" ItemsSource="{Binding SpcCmdList}" DisplayMemberBinding="{Binding Key}" SelectedItem="{Binding NowSpcCmd}" Width="200" Margin="10,2,10,2" SelectedIndex="0"></ComboBox>
+          <TextBox Text="{Binding SpcCmdParam}" Margin="10,2,10,2"></TextBox>
+          <Button Command="{Binding SpcCmdSendCommand}">SPC执行</Button>
+      </StackPanel>
+      <TextBox Grid.Row="2" x:Name="tbTxt" Text="{Binding ShowTxt}" 
+               
+                AcceptsReturn="True"
+					 TextWrapping="Wrap"
+               ></TextBox>
+  </Grid>
+</Window>

@@ -10,7 +10,7 @@ public class CsvTool
     public static void ToCsv(IEnumerable<IConvertible[]> lineData, string[] headRow = null, string filePath = null)
     {
         filePath = filePath ?? Path.Combine(Environment.CurrentDirectory, $"export_{DateTime.Now.ToLongDateString()}.csv");
-        using (var streamWriter = new StreamWriter(filePath, false, Encoding.UTF8))
+        using (var streamWriter = new StreamWriter(filePath,Path.Exists(filePath), Encoding.UTF8))
         {
             if (headRow != null && headRow.Length > 1)
             {
@@ -36,7 +36,7 @@ public class CsvTool
     public static void ToCsv<T>(Func<T, IConvertible[]>func, IEnumerable<T> objs, string[] headRow = null, string filePath = null)
     {
         filePath = filePath ?? Path.Combine(Environment.CurrentDirectory, $"export_{DateTime.Now.ToLongDateString()}.csv");
-        using (var streamWriter = new StreamWriter(filePath, false, Encoding.UTF8))
+        using (var streamWriter = new StreamWriter(filePath, Path.Exists(filePath), Encoding.UTF8))
         {
             if (headRow != null && headRow.Length > 1)
             {

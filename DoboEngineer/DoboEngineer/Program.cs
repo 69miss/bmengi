@@ -1,6 +1,7 @@
 ﻿using Avalonia;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using Dobo.Appl.Module;
+using Dobo.Appl.Utility;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -21,6 +22,7 @@ namespace DoboEngineer
         {
             try
             {
+                //Console.WriteLine(Type.GetTypeCode.GetTypeCode(typeof(int)));
                 AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
                 TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
                 BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
@@ -77,6 +79,8 @@ namespace DoboEngineer
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddSingleton<SnowflakeIdWorker>(new SnowflakeIdWorker(1, 0))
+                 .AddSingleton<XYZCalc>(new XYZCalc(XYZCalc.CmfType.R400_700_10));
             services.AddSingleton<IJsonTypeInfoResolver, SourceGenerationContext>(p => SourceGenerationContext.Default);
             services.AddSingleton<JsonSerializerOptions>(p =>
             {

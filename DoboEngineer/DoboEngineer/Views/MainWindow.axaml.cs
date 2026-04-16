@@ -1,6 +1,7 @@
 ﻿using Avalonia.Controls;
 using DoboEngineer.code;
 using DoboEngineer.Pump;
+using DoboEngineer.ViewModels;
 using System;
 
 namespace DoboEngineer.Views
@@ -10,6 +11,7 @@ namespace DoboEngineer.Views
         public Lang L { get; set; } = Lang.d;
         public MainWindow()
         {
+            DataContext = new ViewModels.MainWindowViewModel();
             InitializeComponent();
         }
 
@@ -42,6 +44,7 @@ namespace DoboEngineer.Views
 
         private void Button_Click_5(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
         {
+            new SpcUtility().ShowDialog(this);
         }
     }
 }

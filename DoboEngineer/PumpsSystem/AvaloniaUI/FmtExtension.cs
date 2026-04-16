@@ -4,6 +4,7 @@ using Avalonia.Data;
 using Avalonia.Data.Converters;
 using Avalonia.Markup.Xaml;
 using Avalonia.Metadata;
+using Jint;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -75,6 +76,14 @@ public class FmtExtension: IMultiValueConverter
     public object? Convert(IList<object?> values, Type targetType, object? parameter, CultureInfo culture)
     {
         return convertFun(values);
+    }
+
+    public object? StrExec(string txt) {
+        var engine = new Engine(cfg =>
+        {
+        });
+        var re=engine.Evaluate(txt);
+        return re.AsString();
     }
 }
 

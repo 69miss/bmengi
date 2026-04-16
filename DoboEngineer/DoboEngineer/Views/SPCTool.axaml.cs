@@ -4,6 +4,7 @@ using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
 using Dobo.Appl.SPC100;
 using DoboEngineer.SPC;
+using DoboEngineer.ViewModels;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,6 +16,7 @@ public partial class SPCTool : Window
 {
     public SPCTool()
     {
+        DataContext = new SpcUtilityVm();
         InitializeComponent();
         Closed += SPCTool_Closed;
         btnBegin2.IsVisible = true;
