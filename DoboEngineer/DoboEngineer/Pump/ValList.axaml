@@ -78,7 +78,7 @@
                                          VerticalContentAlignment="Center"/>
                                 
                                 <Button Content="发送" 
-                                        Command="" 
+                                     
                                         MinHeight="24"
                                         Height="24"
                                         Padding="10,2"

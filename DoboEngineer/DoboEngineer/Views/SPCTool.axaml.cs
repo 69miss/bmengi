@@ -26,7 +26,7 @@ public partial class SPCTool : Window
 
     private void SPCTool_Closed(object? sender, System.EventArgs e)
     {
-        ctsSpc.Cancel();
+        ctsSpc?.Cancel();
         command?.Dispose();
     }
 

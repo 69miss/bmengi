@@ -17,7 +17,7 @@ public class FmtExtension
     }
     private void AppendArg(object arg0)
     {
-        if (arg0 is IBinding arg)
+        if (arg0 is BindingBase arg)
             Args.Add(arg);
         else
             Args.Add(new Binding() { Source = arg0 });
@@ -37,7 +37,7 @@ public class FmtExtension
     {
         AppendArg(arg3);
     }
-    public List<IBinding> Args { get; } = new();
+    public List<BindingBase> Args { get; } = new();
 
 
     public object ProvideValue(IServiceProvider provider)

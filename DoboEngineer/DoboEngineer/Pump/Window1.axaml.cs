@@ -16,7 +16,7 @@ public partial class Window1 : Window
         InitializeComponent();
         Closed += Window1_Closed;
         mainWindowViewModel = new() { MsgBoxShowFun = MsgBoxShow };
-        this.DataContext = mainWindowViewModel;
+        this.DataContext = mainWindowViewModel; 
     }
 
     private void Window1_Closed(object? sender, System.EventArgs e)

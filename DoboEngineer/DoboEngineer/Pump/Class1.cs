@@ -12,11 +12,25 @@ namespace DoboEngineer
         private bool _isValveOpen;
         private string _topLiquidColor = "#4A90E2";
         private string _bottomLiquidColor = "#48BB78";
+        private string _topTankText = "罐体1\n0 L";
+        private string _bottomTankText = "罐体2";
+        private string _valveText = "阀门 关";
 
+        // ================= 外部可绑定的自由属性 =================
         public string TopLiquidColor { get => _topLiquidColor; set => SetField(ref _topLiquidColor, value); }
         public string BottomLiquidColor { get => _bottomLiquidColor; set => SetField(ref _bottomLiquidColor, value); }
 
-        // --- 上方罐体 ---
+        // 自定义罐体文字
+        public string TopTankText { get => _topTankText; set => SetField(ref _topTankText, value); }
+        public string BottomTankText { get => _bottomTankText; set => SetField(ref _bottomTankText, value); }
+
+        // 自定义阀门文字
+        public string ValveText { get => _valveText; set => SetField(ref _valveText, value); }
+
+        // 阀门开闭状态 (控制管道水流动画)
+        public bool IsValveOpen { get => _isValveOpen; set => SetField(ref _isValveOpen, value); }
+
+        // 上方液位高度 (0-100)
         public double TopLevel
         {
             get => _topLevel;
@@ -24,21 +38,13 @@ namespace DoboEngineer
             {
                 if (SetField(ref _topLevel, value))
                 {
-                    OnPropertyChanged(nameof(TopLevelPercentage));
                     OnPropertyChanged(nameof(TopLiquidPixelHeight));
-                    OnPropertyChanged(nameof(IsTopLiquidVisible)); // 触发可见性更新
-                    OnPropertyChanged(nameof(TopTankText));
+                    OnPropertyChanged(nameof(IsTopLiquidVisible));
                 }
             }
         }
-        public double TopLevelPercentage => Math.Clamp(TopLevel / 100.0, 0.0, 1.0);
-        // ⭐ 修改：基于罐体中间长方形的高度 (93.36像素) 进行换算
-        public double TopLiquidPixelHeight => TopLevelPercentage * 93.36;
-        public bool IsTopLiquidVisible => TopLevel > 0; // 大于0时才显示液体和波浪
-        public string TopTankText => $"罐体1\n{TopLevel:F0} L";
 
-
-        // --- 下方罐体 ---
+        // 下方液位高度 (0-100)
         public double BottomLevel
         {
             get => _bottomLevel;
@@ -46,29 +52,21 @@ namespace DoboEngineer
             {
                 if (SetField(ref _bottomLevel, value))
                 {
-                    OnPropertyChanged(nameof(BottomLevelPercentage));
                     OnPropertyChanged(nameof(BottomLiquidPixelHeight));
                     OnPropertyChanged(nameof(IsBottomLiquidVisible));
                 }
             }
         }
-        public double BottomLevelPercentage => Math.Clamp(BottomLevel / 100.0, 0.0, 1.0);
-        // ⭐ 修改：同理
-        public double BottomLiquidPixelHeight => BottomLevelPercentage * 93.36;
+
+        // ================= 内部计算属性 (供 UI 自动换算使用) =================
+        // 93.36 是罐体直筒段的精确像素高度
+        public double TopLiquidPixelHeight => Math.Clamp(TopLevel / 100.0, 0.0, 1.0) * 93.36;
+        public bool IsTopLiquidVisible => TopLevel > 0;
+
+        public double BottomLiquidPixelHeight => Math.Clamp(BottomLevel / 100.0, 0.0, 1.0) * 93.36;
         public bool IsBottomLiquidVisible => BottomLevel > 0;
-        public string BottomTankText => "罐体2";
 
-
-        // --- 阀门 ---
-        public bool IsValveOpen
-        {
-            get => _isValveOpen;
-            set { if (SetField(ref _isValveOpen, value)) OnPropertyChanged(nameof(ValveText)); }
-        }
-        public string ValveText => $"阀门 {(IsValveOpen ? "开" : "关")}";
-
-
-        // --- 基础代码 ---
+        // INotifyPropertyChanged 基础实现
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
