@@ -41,7 +41,8 @@ public partial class PumpViewModel : ViewModelBase,INotifyPropertyChangedExt2
     [ObservableProperty] private double _freqPV;
 
     // --- 状态 ---
-    [ObservableProperty][NotifyPropertyChangedFor(nameof(StatusColor))][NotifyPropertyChangedFor(nameof(RunBtnText))][NotifyPropertyChangedFor(nameof(RunBtnColor))] private bool _isRunning;
+    [ObservableProperty][NotifyPropertyChangedFor(nameof(StatusColor))][NotifyPropertyChangedFor(nameof(RunBtnText))][NotifyPropertyChangedFor(nameof(RunBtnColor))] 
+    private bool _isRunning;
     [ObservableProperty][NotifyPropertyChangedFor(nameof(RemoteText))][NotifyPropertyChangedFor(nameof(RemoteColor))] private bool _isRemote;
     [ObservableProperty][NotifyPropertyChangedFor(nameof(IsFaulty))] private bool _isFault;
 
@@ -149,6 +150,7 @@ public partial class PumpViewModel : ViewModelBase,INotifyPropertyChangedExt2
         try
         {
             await EditValFun?.Invoke(PumpsInfo[2], val);
+            await Task.Delay(1000);
         }
         catch (Exception ex)
         {
@@ -348,8 +350,9 @@ public partial class PumpViewModel : ViewModelBase,INotifyPropertyChangedExt2
         }
         if (isUpdatingFromPlc)
             return;
-        await set(e.PropertyName);
-        
+        if (!Module.PumpModule.IsMock)
+            await set(e.PropertyName);
+
     }
 
      void INotifyPropertyChangedExt2.OnPropertyChanged(PropertyChangedEventArgs e)

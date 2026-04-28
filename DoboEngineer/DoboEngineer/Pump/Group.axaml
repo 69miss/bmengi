@@ -1,0 +1,177 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:DoboEngineer"
+             x:Class="DoboEngineer.Group"
+             x:DataType="local:TankPairViewModel"
+             Width="300" Margin="10">
+
+    <UserControl.Resources>
+        <SolidColorBrush x:Key="TankBodyColor">#E5E5E5</SolidColorBrush>
+        <SolidColorBrush x:Key="TankCapColor">#CCCCCC</SolidColorBrush>
+        <SolidColorBrush x:Key="TankBorderColor">#1A1A1A</SolidColorBrush>
+        <SolidColorBrush x:Key="PipeBgColor">#bbb</SolidColorBrush>
+        <SolidColorBrush x:Key="ValveColor">#4D4D4D</SolidColorBrush>
+        <SolidColorBrush x:Key="TextColor">#000000</SolidColorBrush>
+    </UserControl.Resources>
+
+    <Viewbox Stretch="Uniform">
+        <Grid RowDefinitions="150, 80, 40, 80, 150" Width="150">
+            
+            <!-- ==================== 1. 上方罐体 ==================== -->
+            <Grid Grid.Row="0" Width="84" Height="150" HorizontalAlignment="Center" ZIndex="2">
+                <Canvas Width="84" Height="150">
+                    <Canvas.RenderTransform>
+                        <TranslateTransform X="1" Y="0"/>
+                    </Canvas.RenderTransform>
+                    
+                    <Rectangle Canvas.Left="4.07" Canvas.Top="111.17" Width="8.38" Height="38.83" Fill="{StaticResource TankBodyColor}" Stroke="{StaticResource TankBorderColor}" StrokeThickness="1"/>
+                    <Rectangle Canvas.Left="0" Canvas.Top="144.46" Width="16.53" Height="5.54" Fill="{StaticResource TankBodyColor}" Stroke="{StaticResource TankBorderColor}" StrokeThickness="1"/>
+                    <Rectangle Canvas.Left="69.61" Canvas.Top="111.16" Width="8.38" Height="38.83" Fill="{StaticResource TankBodyColor}" Stroke="{StaticResource TankBorderColor}" StrokeThickness="1"/>
+                    <Rectangle Canvas.Left="65.54" Canvas.Top="144.46" Width="16.53" Height="5.54" Fill="{StaticResource TankBodyColor}" Stroke="{StaticResource TankBorderColor}" StrokeThickness="1"/>
+
+                    <!-- 罐体底色 -->
+                    <Path Data="M81.93,14H.53S5.76,0,41.23,0,81.93,14,81.93,14Z" Fill="{StaticResource TankCapColor}" />
+                    <Rectangle Canvas.Left="0.53" Canvas.Top="14.02" Width="81.4" Height="93.36" Fill="{StaticResource TankBodyColor}" />
+                    <Path Data="M81.93,107.38H.53s5.23,14,40.7,14S81.93,107.38,81.93,107.38Z" Fill="{StaticResource TankCapColor}" />
+
+                    <!-- ✨ 动态波浪液体层 (高度限制在107.38以内，即从长方形底部开始) ✨ -->
+                    <Grid Canvas.Left="0" Canvas.Top="0" Width="82" Height="107.38" IsVisible="{Binding IsTopLiquidVisible, FallbackValue=True}">
+                        <!-- 遮罩，当达到100%时受顶部弧线裁剪，防止波浪溢出上封头 -->
+                        <Grid.OpacityMask>
+                            <VisualBrush Stretch="None" AlignmentX="Left" AlignmentY="Top">
+                                <VisualBrush.Visual>
+                                    <Canvas Width="82" Height="107.38">
+                                        <Path Data="M81.93,14H.53S5.76,0,41.23,0,81.93,14,81.93,14Z" Fill="Black" />
+                                        <Rectangle Canvas.Left="0.53" Canvas.Top="14.02" Width="81.4" Height="93.36" Fill="Black" />
+                                    </Canvas>
+                                </VisualBrush.Visual>
+                            </VisualBrush>
+                        </Grid.OpacityMask>
+
+                        <Grid VerticalAlignment="Bottom" Height="{Binding TopLiquidPixelHeight, FallbackValue=10}">
+                            <Rectangle Fill="{Binding TopLiquidColor, FallbackValue='#4A90E2'}" />
+                            <Path Classes="wave" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="0,-5,0,0"
+                                  Data="M 0,5 Q 10,0 20,5 T 40,5 T 60,5 T 80,5 T 100,5 T 120,5 T 140,5 T 160,5 T 180,5 T 200,5 L 200,20 L 0,20 Z"
+                                  Fill="{Binding TopLiquidColor, FallbackValue='#4A90E2'}">
+                                <Path.RenderTransform>
+                                    <TranslateTransform X="0" Y="0" />
+                                </Path.RenderTransform>
+                                <Path.Styles>
+                                    <Style Selector="Path.wave">
+                                        <Style.Animations>
+                                            <Animation Duration="0:0:1.5" IterationCount="Infinite">
+                                                <KeyFrame Cue="0%"><Setter Property="TranslateTransform.X" Value="0"/></KeyFrame>
+                                                <KeyFrame Cue="100%"><Setter Property="TranslateTransform.X" Value="-40"/></KeyFrame>
+                                            </Animation>
+                                        </Style.Animations>
+                                    </Style>
+                                </Path.Styles>
+                            </Path>
+                        </Grid>
+                    </Grid>
+
+                    <Path Data="M81.93,14H.53S5.76,0,41.23,0,81.93,14,81.93,14Z" Stroke="{StaticResource TankBorderColor}" StrokeThickness="1" Fill="Transparent"/>
+                    <Rectangle Canvas.Left="0.53" Canvas.Top="14.02" Width="81.4" Height="93.36" Stroke="{StaticResource TankBorderColor}" StrokeThickness="1" Fill="Transparent"/>
+                    <Path Data="M81.93,107.38H.53s5.23,14,40.7,14S81.93,107.38,81.93,107.38Z" Stroke="{StaticResource TankBorderColor}" StrokeThickness="1" Fill="Transparent"/>
+                    <Rectangle Canvas.Left="0.53" Canvas.Top="15.56" Width="81.4" Height="0.5" Fill="{StaticResource TankBorderColor}" />
+                </Canvas>
+                
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,-20,0,0">
+                    <TextBlock Text="{Binding TopTankText, FallbackValue='罐体1'}" Foreground="{StaticResource TextColor}" FontSize="11" TextAlignment="Center"/>
+                    <TextBlock Text="⇄" Foreground="{StaticResource TextColor}" FontSize="20" HorizontalAlignment="Center" Margin="0,5,0,0" FontFamily="Arial"/>
+                </StackPanel>
+            </Grid>
+
+            <!-- ==================== 2. 连续主管道 ==================== -->
+            <Grid Grid.Row="1" Grid.RowSpan="3" Width="14" HorizontalAlignment="Center" Margin="0,-43,0,-15" ZIndex="1" ClipToBounds="True">
+                <Rectangle Fill="{StaticResource PipeBgColor}" Stroke="{StaticResource TankBorderColor}" StrokeThickness="1" />
+                <Line StartPoint="7,0" EndPoint="7,260" Stroke="{Binding TopLiquidColor, FallbackValue='#4A90E2'}" StrokeThickness="10" StrokeDashArray="6,4" IsVisible="{Binding IsValveOpen, FallbackValue=True}" Classes="flowing">
+                    <Line.Styles>
+                        <Style Selector="Line.flowing">
+                            <Style.Animations>
+                                <Animation Duration="0:0:0.6" IterationCount="Infinite">
+                                    <KeyFrame Cue="0%"><Setter Property="StrokeDashOffset" Value="10"/></KeyFrame>
+                                    <KeyFrame Cue="100%"><Setter Property="StrokeDashOffset" Value="0"/></KeyFrame>
+                                </Animation>
+                            </Style.Animations>
+                        </Style>
+                    </Line.Styles>
+                </Line>
+            </Grid>
+
+            <!-- ==================== 3. 极简悬浮阀门 ==================== -->
+            <ToggleButton Grid.Row="2" IsChecked="{Binding IsValveOpen, FallbackValue=True}" HorizontalAlignment="Center" Background="Transparent" BorderThickness="0" Cursor="Hand" ZIndex="3">
+                <ToggleButton.Template>
+                    <ControlTemplate>
+                        <Canvas Width="180" Height="40">
+                            <Border Canvas.Left="77" Canvas.Top="7" Width="26" Height="26" Background="{StaticResource TankBodyColor}" BorderBrush="{StaticResource TankBorderColor}" BorderThickness="1.5" />
+                            <Border Canvas.Left="102" Canvas.Top="13" Width="18" Height="14" Background="{StaticResource ValveColor}" BorderBrush="{StaticResource TankBorderColor}" BorderThickness="1.5" />
+                            <TextBlock Canvas.Left="125" Canvas.Top="13" Text="{Binding ValveText, FallbackValue='阀门 开'}" Foreground="{StaticResource TextColor}" FontWeight="Bold" FontSize="11" />
+                        </Canvas>
+                    </ControlTemplate>
+                </ToggleButton.Template>
+            </ToggleButton>
+
+            <!-- ==================== 4. 下方罐体 ==================== -->
+            <Grid Grid.Row="4" Width="84" Height="150" HorizontalAlignment="Center" ZIndex="2">
+                <Canvas Width="84" Height="150">
+                    <Canvas.RenderTransform>
+                        <TranslateTransform X="1" Y="0"/>
+                    </Canvas.RenderTransform>
+                    
+                    <Rectangle Canvas.Left="4.07" Canvas.Top="111.17" Width="8.38" Height="38.83" Fill="{StaticResource TankBodyColor}" Stroke="{StaticResource TankBorderColor}" StrokeThickness="1"/>
+                    <Rectangle Canvas.Left="0" Canvas.Top="144.46" Width="16.53" Height="5.54" Fill="{StaticResource TankBodyColor}" Stroke="{StaticResource TankBorderColor}" StrokeThickness="1"/>
+                    <Rectangle Canvas.Left="69.61" Canvas.Top="111.16" Width="8.38" Height="38.83" Fill="{StaticResource TankBodyColor}" Stroke="{StaticResource TankBorderColor}" StrokeThickness="1"/>
+                    <Rectangle Canvas.Left="65.54" Canvas.Top="144.46" Width="16.53" Height="5.54" Fill="{StaticResource TankBodyColor}" Stroke="{StaticResource TankBorderColor}" StrokeThickness="1"/>
+
+                    <Path Data="M81.93,14H.53S5.76,0,41.23,0,81.93,14,81.93,14Z" Fill="{StaticResource TankCapColor}" />
+                    <Rectangle Canvas.Left="0.53" Canvas.Top="14.02" Width="81.4" Height="93.36" Fill="{StaticResource TankBodyColor}" />
+                    <Path Data="M81.93,107.38H.53s5.23,14,40.7,14S81.93,107.38,81.93,107.38Z" Fill="{StaticResource TankCapColor}" />
+
+                    <!-- ✨ 动态波浪液体层 (下方染料罐) ✨ -->
+                    <Grid Canvas.Left="0" Canvas.Top="0" Width="82" Height="107.38" IsVisible="{Binding IsBottomLiquidVisible, FallbackValue=True}">
+                        <Grid.OpacityMask>
+                            <VisualBrush Stretch="None" AlignmentX="Left" AlignmentY="Top">
+                                <VisualBrush.Visual>
+                                    <Canvas Width="82" Height="107.38">
+                                        <Path Data="M81.93,14H.53S5.76,0,41.23,0,81.93,14,81.93,14Z" Fill="Black" />
+                                        <Rectangle Canvas.Left="0.53" Canvas.Top="14.02" Width="81.4" Height="93.36" Fill="Black" />
+                                    </Canvas>
+                                </VisualBrush.Visual>
+                            </VisualBrush>
+                        </Grid.OpacityMask>
+
+                        <Grid VerticalAlignment="Bottom" Height="{Binding BottomLiquidPixelHeight, FallbackValue=60}">
+                            <Rectangle Fill="{Binding BottomLiquidColor, FallbackValue='#48BB78'}" />
+                            <Path Classes="wave" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="0,-5,0,0"
+                                  Data="M 0,5 Q 10,0 20,5 T 40,5 T 60,5 T 80,5 T 100,5 T 120,5 T 140,5 T 160,5 T 180,5 T 200,5 L 200,20 L 0,20 Z"
+                                  Fill="{Binding BottomLiquidColor, FallbackValue='#48BB78'}">
+                                <Path.RenderTransform>
+                                    <TranslateTransform X="0" Y="0" />
+                                </Path.RenderTransform>
+                                <Path.Styles>
+                                    <Style Selector="Path.wave">
+                                        <Style.Animations>
+                                            <Animation Duration="0:0:1.5" IterationCount="Infinite">
+                                                <KeyFrame Cue="0%"><Setter Property="TranslateTransform.X" Value="0"/></KeyFrame>
+                                                <KeyFrame Cue="100%"><Setter Property="TranslateTransform.X" Value="-40"/></KeyFrame>
+                                            </Animation>
+                                        </Style.Animations>
+                                    </Style>
+                                </Path.Styles>
+                            </Path>
+                        </Grid>
+                    </Grid>
+
+                    <Path Data="M81.93,14H.53S5.76,0,41.23,0,81.93,14,81.93,14Z" Stroke="{StaticResource TankBorderColor}" StrokeThickness="1" Fill="Transparent"/>
+                    <Rectangle Canvas.Left="0.53" Canvas.Top="14.02" Width="81.4" Height="93.36" Stroke="{StaticResource TankBorderColor}" StrokeThickness="1" Fill="Transparent"/>
+                    <Path Data="M81.93,107.38H.53s5.23,14,40.7,14S81.93,107.38,81.93,107.38Z" Stroke="{StaticResource TankBorderColor}" StrokeThickness="1" Fill="Transparent"/>
+                    <Rectangle Canvas.Left="0.53" Canvas.Top="15.56" Width="81.4" Height="0.5" Fill="{StaticResource TankBorderColor}" />
+                </Canvas>
+                
+                <TextBlock Text="{Binding BottomTankText, FallbackValue='罐体2'}" Foreground="{StaticResource TextColor}" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center" ZIndex="2"/>
+            </Grid>
+
+        </Grid>
+    </Viewbox>
+</UserControl>

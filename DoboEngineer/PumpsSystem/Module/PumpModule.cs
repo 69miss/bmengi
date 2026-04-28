@@ -1,4 +1,5 @@
-﻿using Dobo.Appl.Module;
+﻿using Avalonia.Controls;
+using Dobo.Appl.Module;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -12,6 +13,7 @@ namespace PumpsSystem.Module
 {
     internal class PumpModule:IModule
     {
+        public static bool IsMock { get; private set; } = Design.IsDesignMode;
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddSingleton<IJsonTypeInfoResolver, SourceGenerationContext>(p => SourceGenerationContext.Default);

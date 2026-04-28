@@ -173,7 +173,7 @@
 			</StackPanel>
 
 			<!-- 菜单按钮 (右对齐) -->
-			<Button Grid.Column="2" Classes="SysMenuBtn" Margin="0,0,140,0" ToolTip.Tip="系统菜单">
+			<Button x:Name="btnSys" IsDefault="False" Grid.Column="2" Classes="SysMenuBtn" Margin="0,0,140,0" ToolTip.Tip="系统菜单" Click="Button_Click">
 				<StackPanel Orientation="Horizontal" Spacing="6">
 					<PathIcon Data="M3 6h18v2H3V6zm0 5h18v2H3v-2zm0 5h18v2H3v-2z" Width="14" Height="14" Foreground="#64748b"/>
 					<!--<TextBlock Text="系统菜单" FontSize="13" Foreground="#475569" VerticalAlignment="Center"/>-->
@@ -182,9 +182,9 @@
 					<MenuFlyout>
 						<MenuItem Header="参数监控" Click="MenuItem_Click" InputGesture="Ctrl+P"/>
 						<MenuItem Header="泵站配置" Click="MenuItem_Click_1" />
-						<MenuItem Header="中英语言切换" Command="{Binding LangChangeCommand}" Click="MenuItem_Click_2" />
+						<MenuItem Header="中英语言切换" Command="{Binding LangChangeCommand}"  />
 						<Separator/>
-						<MenuItem Header="退出系统"/>
+						<MenuItem Header="退出系统设置" Click="MenuItem_Click_2"/>
 					</MenuFlyout>
 				</Button.Flyout>
 			</Button>
@@ -297,11 +297,11 @@
 															   FontWeight="ExtraBold"
 															   FontSize="20"
 															   VerticalAlignment="Center"
-															   HorizontalAlignment="Center"
+															   HorizontalAlignment="Center" 
 															   Margin="0,-2,0,0"/>   <!--微调 Margin 让减号视觉居中--> 
 												</Button>
 												<!--<TextBox Grid.Column="1" Classes="CapsuleInput" Width="40" MinWidth="10" Text="{Binding FlowSV, StringFormat='{}{0:F0}'}"/>-->
-												<NumericUpDown  Classes="CapsuleInput" Grid.Column="1" Value="{Binding FlowSV}" Minimum="0" Maximum="50" MinWidth="0" Width="35" MinHeight="10"  ShowButtonSpinner="False"  FormatString="0" Increment="1" />
+												<NumericUpDown  Classes="CapsuleInput" Grid.Column="1" Value="{Binding FlowSV}" Minimum="0" Maximum="{Binding FlowMax}" MinWidth="0" Width="35" MinHeight="10"  ShowButtonSpinner="False"  FormatString="0.0"  Increment="0.1" />
 												<Button Grid.Column="2" Classes="CapsuleBtn"
 														Command="{Binding AdjustValueCommand}" CommandParameter="Flow|1"
 														>

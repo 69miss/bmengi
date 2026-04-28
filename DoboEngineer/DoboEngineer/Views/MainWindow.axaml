@@ -2,6 +2,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:DoboEngineer.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:local="using:DoboEngineer"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="DoboEngineer.Views.MainWindow"
@@ -26,7 +27,11 @@
             <Button Click="Button_Click_3">泵站控制</Button>
             <Button Click="Button_Click_4">端盖开关测试</Button>
             <Button Click="Button_Click_5">命令工具</Button>
-            
+            <Button Click="Button_Click_6">泵站组</Button>
+
+             <local:Group Height="600" Width="300"  />
+            <local:Group Height="600" Width="300"  />
+            <local:Group Height="600" Width="300"  />
             </StackPanel>
     </Grid>
 </Window>

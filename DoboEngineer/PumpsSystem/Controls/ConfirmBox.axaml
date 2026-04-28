@@ -1,0 +1,51 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:PumpsSystem"
+        x:Class="PumpsSystem.ConfirmBox"
+        Title="确认" 
+        Width="450" 
+        SizeToContent="Height"
+        WindowStartupLocation="CenterOwner" 
+        
+        CanMinimize="False"
+        CanResize="False">
+     
+    <Grid RowDefinitions="Auto, *, Auto" Margin="20">
+        
+        <!-- 提示文本 -->
+        <TextBlock x:Name="PromptTextBlock" 
+                   Grid.Row="0" 
+                   TextWrapping="Wrap" 
+                   Margin="0,0,0,20" 
+                   FontSize="14"/>
+
+        <!-- 动态生成的输入框区域 -->
+        <ItemsControl x:Name="InputsItemsControl" Grid.Row="1">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate DataType="local:LabelValueVM">
+                    <Grid ColumnDefinitions="120, *" Margin="0,0,0,10">
+                        <TextBlock Grid.Column="0" 
+                                   Text="{Binding Label}" 
+                                   VerticalAlignment="Center"
+                                   TextWrapping="Wrap"
+                                   Margin="0,0,10,0"/>
+                        <TextBox Grid.Column="1"   PasswordChar="{Binding Label2}"
+                                 Text="{Binding Value, Mode=TwoWay}" 
+                                 VerticalAlignment="Center"/>
+                    </Grid>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <!-- 底部按钮 -->
+        <StackPanel Grid.Row="2" 
+                    Orientation="Horizontal" 
+                    HorizontalAlignment="Right" 
+                    Spacing="15" 
+                    Margin="0,20,0,0"> 
+            <Button Content="Cancel" Click="OnCancelClick" Width="80" IsCancel="True" HorizontalContentAlignment="Center"/>
+            <Button Content="OK" Click="OnConfirmClick" IsDefault="True" Width="80"  HorizontalContentAlignment="Center" Background="#0078D7" Foreground="White"/>
+        </StackPanel>
+        
+    </Grid>
+</Window>

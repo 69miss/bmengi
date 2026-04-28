@@ -46,5 +46,10 @@ namespace DoboEngineer.Views
         {
             new SpcUtility().ShowDialog(this);
         }
+
+        private void Button_Click_6(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+        {
+            //new Group().Show();
+        }
     }
 }

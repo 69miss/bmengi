@@ -33,7 +33,8 @@ public partial class MainWindowViewModel : ViewModelBase,IDisposable
     PumpModel[] pumpCfgs;
     public MainWindowViewModel()
     {
-        if (Design.IsDesignMode)
+        // if (Design.IsDesignMode)
+        if (Module.PumpModule.IsMock)
             Mock();
         dataDictSvc = new DataDictSvc();
         pumpCfgs = dataDictSvc.GetByJson<PumpModel[]>("PumpListCfg");
@@ -86,7 +87,8 @@ public partial class MainWindowViewModel : ViewModelBase,IDisposable
             {
                 item.PumpsInfo = cmd.Items;
             }
-            await cmd.Connect();
+            if (!Module.PumpModule.IsMock)
+                await cmd.Connect();
             isInited = false;
             await CfgChenk();
             cmd.Items.ItemPropertyChanged += Items_ItemPropertyChanged;
@@ -255,7 +257,7 @@ public partial class MainWindowViewModel : ViewModelBase,IDisposable
             p.CanEditFlow = true;
             p.CanEditParam = true;
             p.IsRemote = true;
-            p.FlowMax = 50;
+            p.FlowMax = i*11;
             p.FlowSV = i * 10;
             p.CanEditFlow = true;
 

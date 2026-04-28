@@ -9,6 +9,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using Tmds.DBus.Protocol;
 
@@ -33,12 +34,12 @@ public class PumpLang : LangBase
     /// <summary>
     /// 手动参数
     /// </summary>
-    public virtual string ManualParamMode => GetString("手动参数");
+    public virtual string ManualParamMode => GetString("参数模式");
 
     /// <summary>
     /// 流量自动
     /// </summary>
-    public virtual string FlowAutoMode => GetString("流量自动");
+    public virtual string FlowAutoMode => GetString("流量模式");
 
     /// <summary>
     /// 自动模式提示文本
@@ -138,9 +139,9 @@ public class PumpEnLang : PumpLang
     #region 控制模式与顶部区域
     public override string ControlModeLabel => GetString("Control Mode:");
 
-    public override string ManualParamMode => GetString("Manual Parameters");
+    public override string ManualParamMode => GetString("Parameter Mode");
 
-    public override string FlowAutoMode => GetString("Auto Flow Control");
+    public override string FlowAutoMode => GetString("Flow Control");
 
     public override string AutoModeTip => GetString("*In auto mode, only set the flow rate");//other parameters are allocated by the system
 
@@ -198,13 +199,42 @@ public abstract class LangBase: INotifyPropertyChanged
         _localizer = localizer;
     }
 
-    public virtual void ChangeLanguage(CultureInfo culture)
+    public virtual void ChangeLanguage2(CultureInfo culture)
     {
         CultureInfo.CurrentUICulture = culture;
         CultureInfo.CurrentCulture = culture;
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(string.Empty));
     }
-
+    public virtual void ChangeLanguage(CultureInfo culture)
+    {
+        culture = new CultureInfo(culture.Name);
+        if (culture.Name.StartsWith("zh")) // 中文（简体/繁体）
+        {
+            culture.DateTimeFormat.ShortDatePattern = "yyyy-MM-dd";    // 日期部分
+            culture.DateTimeFormat.LongTimePattern = "HH:mm:ss";       // 时间部分
+            culture.DateTimeFormat.FullDateTimePattern = "yyyy-MM-dd HH:mm:ss";
+#if WPF
+            FrameworkElement.LanguageProperty.OverrideMetadata(
+                typeof(FrameworkElement),
+                new FrameworkPropertyMetadata(XmlLanguage.GetLanguage(culture.IetfLanguageTag)));
+            if (Application.Current.MainWindow != null)
+            {
+                Application.Current.MainWindow.Language = XmlLanguage.GetLanguage(culture.IetfLanguageTag);
+            }
+#endif
+        }
+        CultureInfo.CurrentUICulture = culture;
+        CultureInfo.CurrentCulture = culture;
+        CultureInfo.DefaultThreadCurrentCulture = culture;
+        CultureInfo.DefaultThreadCurrentUICulture = culture;
+        Thread.CurrentThread.CurrentCulture = culture;
+        Thread.CurrentThread.CurrentUICulture = culture;
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(string.Empty));
+    }
+    public virtual void ChangeLanguage(string name)
+    {
+        ChangeLanguage(CultureInfo.GetCultureInfo(name));
+    }
     /// <summary>
     /// 核心获取逻辑：带有后备默认值
     /// </summary>
@@ -237,7 +267,6 @@ public abstract class LangBase: INotifyPropertyChanged
     }
 
 
-    // 内部状态，用于在导出JSON时拦截请求
     private bool _isExporting = false;
     private Dictionary<string, string> _exportDict = new();
     /// <summary>
@@ -267,7 +296,7 @@ public abstract class LangBase: INotifyPropertyChanged
             WriteIndented = true,
             Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
         };
-
+        
         return JsonSerializer.Serialize(_exportDict, options);
     }
 

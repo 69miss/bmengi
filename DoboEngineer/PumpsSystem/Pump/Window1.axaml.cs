@@ -61,13 +61,21 @@ public partial class Window1 : Window
 
     private void MenuItem_Click_2(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
-        //var lang =PumpModule.Default.GetService<PumpLang>();
-        //if(lang==null)
-        //    return;
-        //if (CultureInfo.CurrentCulture.Name != "en")
-        //    lang.ChangeLanguage(CultureInfo.GetCultureInfo("zh-cn"));
-        //else
-        //    lang.ChangeLanguage(CultureInfo.GetCultureInfo("en"));
+        isLogin = false;
+
+    }
+    bool isLogin=false;
+    private async void Button_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        if (isLogin)
+            return;
+        btnSys.Flyout.Hide();
+        var re = await ConfirmBox.ShowAsync(this, "Operations Management", "Please enter the administrative password", "*Password");
+        if (re!=null&&re.TryGetValue("*Password", out var  pwd)&&pwd== "dobo123456")
+        {
+            isLogin = true;
+            btnSys.Flyout.ShowAt(btnSys);
+        }
 
     }
 }
