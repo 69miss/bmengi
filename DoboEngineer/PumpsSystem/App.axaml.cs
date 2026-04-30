@@ -21,6 +21,6 @@ public partial class App : AppBase
         AvaloniaXamlLoader.Load(this);
     }
 
-    public override Func<Window> MainWindowCreateFun => () => new Window1();
+    public override Func<Window> MainWindowCreateFun => () => new Pump2.Window1();
 
 }

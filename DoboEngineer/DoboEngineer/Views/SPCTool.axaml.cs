@@ -37,36 +37,42 @@ public partial class SPCTool : Window
 
     private void btnBegin2_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
+
+        if (!Connect())
+            return;
         btnBegin2.IsVisible = false;
         btnBegin1.IsVisible = !btnBegin2.IsVisible;
-        Connect();
         RunAsync();
 
     }
     private void btnBegin1_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
         ctsSpc?.Cancel();
-        command.Dispose();
+        command?.Dispose();
         command = null;
         btnBegin2.IsVisible = true;
         btnBegin1.IsVisible = !btnBegin2.IsVisible;
 
     }
-    void Connect()
+    bool Connect()
     {
         try
         {
             command?.Dispose();
-            command = new SPCCommand();
+            var arr=tbIP.Text?.Split(':');
+            var ip = arr[0];
+            var port=arr[1];
+            command = new SPCCommand(ip,int.Parse(port));
             command.Connect();
             var re = command.ReadStatus();
             WriteLineText($"单片机状态：{re}");
+            return true;
         }
         catch (Exception ex)
         {
             WriteLineText("连接异常：" + ex);
         }
-
+        return false;
     }
     
     
@@ -76,9 +82,16 @@ public partial class SPCTool : Window
         var token = ctsSpc.Token;
         try
         {
-            WriteLineText($"开始执行{ctsSpc.GetHashCode()}：");
-            
+            WriteLineText($"开始执行{ctsSpc.GetHashCode()}：首先进行5次开关预热");
             int runNum = 1;
+            while (runNum++ < 6) {
+                await Task.Delay(2000, token);
+                command.ExecuteIOCommand(IOFunctionCode.OpenLensCover);
+                await Task.Delay(2100, token);
+                command.ExecuteIOCommand(IOFunctionCode.CloseLensCover);
+            }
+            WriteLineText($"开关预热结束，开始循环{ctsSpc.GetHashCode()}");
+            runNum = 1;
             var startStr = $"[{DateTime.Now}--{ctsSpc.GetHashCode()}]";
             while (!token.IsCancellationRequested)
             {

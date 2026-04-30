@@ -32,7 +32,9 @@ public partial class PumpModel : ObservableObject
     public partial double? MinStroke { get; set; }
 
     [ObservableProperty]
-    public partial double? ProtectionThreshold { get; set; }   
+    public partial double? ProtectionThreshold { get; set; }
+    
+
 
     // 深拷贝
     public PumpModel Clone()
@@ -105,6 +107,7 @@ public partial class PumpCfgViewModel : ObservableObject
         }
         else
         {
+            //todo 需将PumpItem信息也初始化
             PumpList.Add(new PumpModel { Id = "1", Name = "1#泵", DisplayColor = "#0078D4", MaxFlow = 120, MaxStroke = 100, MinStroke = 10, ProtectionThreshold = 150 });
             PumpList.Add(new PumpModel { Id = "2", Name = "2#泵", DisplayColor = "#107C10", MaxFlow = 80.5, MaxStroke = 80, MinStroke = 5, ProtectionThreshold = 90 });
             PumpList.Add(new PumpModel { Id = "3", Name = "3#泵", DisplayColor = "#D13438", MaxFlow = 15, MaxStroke = 40, MinStroke = 0, ProtectionThreshold = 25 });

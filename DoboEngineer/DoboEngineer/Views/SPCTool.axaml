@@ -7,8 +7,9 @@
         Title="SPCTool">
   <Grid Margin="20" ColumnDefinitions="*, Auto" RowDefinitions="Auto, *">
 			<StackPanel Orientation="Horizontal" >
-			<Button Click="btnBegin2_Click"  x:Name="btnBegin2" Content="开关盖循环测试"> </Button>
-			<Button Click="btnBegin1_Click"  x:Name="btnBegin1" Content="停止开关盖循环测试"> </Button>
+			<TextBox x:Name="tbIP" PlaceholderText="IP地址" Width="150" Text="192.168.0.7:50023" IsEnabled="{Binding IsVisible,ElementName=btnBegin2}"></TextBox>
+			<Button Click="btnBegin2_Click"  x:Name="btnBegin2" Content="开关盖循环测试" Background="DodgerBlue"> </Button>
+			<Button Click="btnBegin1_Click"  x:Name="btnBegin1" Content="停止开关盖循环测试" Background="DodgerBlue"> </Button>
 			</StackPanel>
 			
 			<TextBox Grid.Column="0" Grid.Row="1" x:Name="tbTxt"

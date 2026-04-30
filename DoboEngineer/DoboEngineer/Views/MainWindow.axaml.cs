@@ -39,7 +39,7 @@ namespace DoboEngineer.Views
 
         private void Button_Click_4(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
         {
-            new SPCTool().ShowDialog(this);
+            new SPCTool().Show(this);
         }
 
         private void Button_Click_5(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
@@ -50,6 +50,11 @@ namespace DoboEngineer.Views
         private void Button_Click_6(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
         {
             //new Group().Show();
+        }
+
+        private void Button_Click_7(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+        {
+            new ContainerGroup().Show();
         }
     }
 }
