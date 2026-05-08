@@ -42,7 +42,7 @@ internal class PumpCmd:IDisposable
     private async Task ReConnect()
     {
         if (client != null) { client.Dispose(); }
-        client = new SiemensS7Adapter(SiemensVersion.S7_1200,"192.168.0.8",50023) { };
+        client = new SiemensS7Adapter(SiemensVersion.S7_1200,"192.168.0.8", 102) { };
         var re = await client.ConnectAsync();
         if (!re)
             throw new System.Net.Sockets.SocketException(-1, "连接失败");

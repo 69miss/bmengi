@@ -207,6 +207,7 @@ internal class PumpsDbSet
         GetOrCreateRegister("DBX0.0", "心跳", false);
         GetOrCreateRegister("DBX0.1", "报警复位", false, true);
         var globalModeReg = GetOrCreateRegister("DBW2", "控制模式", 1, true);
+        var dbPrefix = "DB12.DB";
         ushort baseAddrPV = 2;
         // 2. 遍历每个泵，为其构造专属的 PumpModbusContext
         foreach (var pm in pumps)
@@ -217,26 +218,26 @@ internal class PumpsDbSet
             ctx.IsRemote = new DataItemToBitMap(globalModeReg, null, 4);
             ctx.ModeFlow = new DataItemToBitMap(globalModeReg, 1);
             ctx.ModeManual = new DataItemToBitMap(globalModeReg, 2);
-            ctx.MaxFlowSV = GetOrCreateRegister($"DBW{baseAddrPV += 2}", $"泵{pNum}-标定流量", 2, true);
-            ctx.FreqPV = GetOrCreateRegister($"DBW{baseAddrPV += 2}", $"泵{pNum}-频率反馈", 0);
-            ctx.StrokePV = GetOrCreateRegister($"DBW{baseAddrPV += 2}", $"泵{pNum}-冲程反馈", 0);
-            ctx.FlowPV = GetOrCreateRegister($"DBW{baseAddrPV += 2}", $"泵{pNum}-流量反馈", 0);
-            ctx.FreqSV = GetOrCreateRegister($"DBW{baseAddrPV += 2}", $"泵{pNum}-目标频率", 0, true);
-            ctx.StrokeSV = GetOrCreateRegister($"DBW{baseAddrPV += 2}", $"泵{pNum}-目标冲程", 0, true);
-            ctx.FlowSV = GetOrCreateRegister($"DBW{baseAddrPV += 2}", $"泵{pNum}-目标流量", 0, true);
-            ctx.MaxStroke = GetOrCreateRegister($"DBW{baseAddrPV += 2}", $"泵{pNum}-冲程最大限值", 25000, true);
-            ctx.MinStroke = GetOrCreateRegister($"DBW{baseAddrPV += 2}", $"泵{pNum}-冲程最小限值", 2200, true);
-            GetOrCreateRegister($"DBW{baseAddrPV += 2}", $"泵{pNum}-电流反馈", 0);
-            GetOrCreateRegister($"DBW{baseAddrPV += 2}", $"泵{pNum}-电压反馈", 0);
+            ctx.MaxFlowSV = GetOrCreateRegister($"{dbPrefix}W{baseAddrPV += 2}", $"泵{pNum}-标定流量", 2, true);
+            ctx.FreqPV = GetOrCreateRegister($"{dbPrefix}W{baseAddrPV += 2}", $"泵{pNum}-频率反馈", 0);
+            ctx.StrokePV = GetOrCreateRegister($"{dbPrefix}W{baseAddrPV += 2}", $"泵{pNum}-冲程反馈", 0);
+            ctx.FlowPV = GetOrCreateRegister($"{dbPrefix}W{baseAddrPV += 2}", $"泵{pNum}-流量反馈", 0);
+            ctx.FreqSV = GetOrCreateRegister($"{dbPrefix}W{baseAddrPV += 2}", $"泵{pNum}-目标频率", 0, true);
+            ctx.StrokeSV = GetOrCreateRegister($"{dbPrefix}W{baseAddrPV += 2}", $"泵{pNum}-目标冲程", 0, true);
+            ctx.FlowSV = GetOrCreateRegister($"{dbPrefix}W{baseAddrPV += 2}", $"泵{pNum}-目标流量", 0, true);
+            ctx.MaxStroke = GetOrCreateRegister($"{dbPrefix}W{baseAddrPV += 2}", $"泵{pNum}-冲程最大限值", 25000, true);
+            ctx.MinStroke = GetOrCreateRegister($"{dbPrefix}W{baseAddrPV += 2}", $"泵{pNum}-冲程最小限值", 2200, true);
+            GetOrCreateRegister($"{dbPrefix}W{baseAddrPV += 2}", $"泵{pNum}-电流反馈", 0);
+            GetOrCreateRegister($"{dbPrefix}W{baseAddrPV += 2}", $"泵{pNum}-电压反馈", 0);
             baseAddrPV += 2;
-            ctx.IsRunning = GetOrCreateRegister($"DBW{baseAddrPV}.0", $"泵{pNum}-运行反馈", false);
-            ctx.IsFault = GetOrCreateRegister($"DBW{baseAddrPV}.1", $"泵{pNum}-故障反馈", false);
-            ctx.CtlRunning = GetOrCreateRegister($"DBW{baseAddrPV}.2", $"泵{pNum}-泵启动控制", false, true);
-            GetOrCreateRegister($"DBW{baseAddrPV}.3", $"泵{pNum}-冲程正转控制", false);
-            GetOrCreateRegister($"DBW{baseAddrPV}.4", $"泵{pNum}-冲程反转控制", false);
-            GetOrCreateRegister($"DBW{baseAddrPV}.5", $"泵{pNum}-泵停止控制", false);
-            GetOrCreateRegister($"DBW{baseAddrPV}.6", $"泵{pNum}-冲程超时报警", false);
-            GetOrCreateRegister($"DBW{baseAddrPV}.7", $"泵{pNum}-次数超限报警", false);
+            ctx.IsRunning = GetOrCreateRegister($"{dbPrefix}X{baseAddrPV}.0", $"泵{pNum}-运行反馈", false);
+            ctx.IsFault = GetOrCreateRegister($"{dbPrefix}X{baseAddrPV}.1", $"泵{pNum}-故障反馈", false);
+            ctx.CtlRunning = GetOrCreateRegister($"{dbPrefix}X{baseAddrPV}.2", $"泵{pNum}-泵启动控制", false, true);
+            GetOrCreateRegister($"{dbPrefix}X{baseAddrPV}.3", $"泵{pNum}-冲程正转控制", false);
+            GetOrCreateRegister($"{dbPrefix}X{baseAddrPV}.4", $"泵{pNum}-冲程反转控制", false);
+            GetOrCreateRegister($"{dbPrefix}X{baseAddrPV}.5", $"泵{pNum}-泵停止控制", false);
+            GetOrCreateRegister($"{dbPrefix}X{baseAddrPV}.6", $"泵{pNum}-冲程超时报警", false);
+            GetOrCreateRegister($"{dbPrefix}X{baseAddrPV}.7", $"泵{pNum}-次数超限报警", false);
             pm.AddressInfo = ctx;
         }
 

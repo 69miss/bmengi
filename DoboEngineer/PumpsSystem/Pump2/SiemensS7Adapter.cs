@@ -20,7 +20,7 @@ namespace PumpsSystem.Pump2
     {
         private SiemensClient client;
 
-        public   SiemensS7Adapter(SiemensVersion type, string ip, int port, byte slot = 0, byte rack = 0, int timeout = 1500) {
+        public   SiemensS7Adapter(SiemensVersion type, string ip, int port= 102, byte slot = 1, byte rack = 0, int timeout = 1500) {
             client = new SiemensClient(type, ip, port,rack, slot);
         }
         public string ConnectionString => throw new NotImplementedException();
