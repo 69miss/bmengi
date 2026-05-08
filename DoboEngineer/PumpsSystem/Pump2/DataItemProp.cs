@@ -24,7 +24,7 @@ public class DataItemProp<T> : DataItemProp where T : IConvertible
     public override TypeCode TypeCode => typeCode;
     public DataItemProp()
     {
-        typeCode=Convert.GetTypeCode(typeof(T));
+        typeCode=Type.GetTypeCode(typeof(T));
     }
     
     public virtual T Value { get { return (T)base.Value; } set { base.Value = value; } }
@@ -71,7 +71,7 @@ public class DataItemProp : IDataItemProp, INotifyPropertyChangedExt2
 
     public virtual TypeCode TypeCode => typeCode;
 
-    ushort IDataItemBase.Address { get =>ushort.Parse(Address); set => Address=value.ToString(); }
+    ushort IDataItemBase.Address { get =>(ushort)GetHashCode(); set => Address=value.ToString(); }
 
     public event PropertyChangedEventHandler? PropertyChanged;
     public virtual PropertyChangedEventHandler PropertyChangedEventHandlerGet()

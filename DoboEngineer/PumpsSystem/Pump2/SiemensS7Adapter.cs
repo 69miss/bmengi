@@ -21,7 +21,7 @@ namespace PumpsSystem.Pump2
         private SiemensClient client;
 
         public   SiemensS7Adapter(SiemensVersion type, string ip, int port= 102, byte slot = 1, byte rack = 0, int timeout = 1500) {
-            client = new SiemensClient(type, ip, port,rack, slot);
+            client = new SiemensClient(type, ip, port, slot, rack);
         }
         public string ConnectionString => throw new NotImplementedException();
 
@@ -34,8 +34,11 @@ namespace PumpsSystem.Pump2
 
         public Task<bool> ConnectAsync()
         {
-           
-            return Task.FromResult(client.Open().IsSucceed);
+            var re = client.Open();
+            if(re.IsSucceed)
+            return Task.FromResult(true);
+            Console.WriteLine(re.Err);
+            return Task.FromResult(false);
         }
 
         public Task DisconnectAsync()
@@ -108,8 +111,19 @@ namespace PumpsSystem.Pump2
         {
             var dict2 = dict.Select(p => KeyValuePair.Create(p.Key, ToDataTypeEnum(p.Value))).ToDictionary();
             var re = client.BatchRead(dict2.ToDictionary());
+
             if (re.IsSucceed)
+            {
+                foreach (var kv in dict) {
+                    if (kv.Value != TypeCode.Boolean)
+                        continue;
+                    var bitRe = re.Value[kv.Key];
+                    if (bitRe is bool)
+                        continue;
+                    re.Value[kv.Key]="1".Equals(bitRe+"");
+                }
                 return Task.FromResult((IDictionary<string, object>)re.Value);
+            }
             throw re.Exception ?? new SystemException(re.Err);
         }
 

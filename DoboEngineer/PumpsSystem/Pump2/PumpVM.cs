@@ -61,7 +61,7 @@ public partial class PumpVM : ViewModelBase, INotifyPropertyChangedExt2
     Func<IDataItemProp, IConvertible, Task> EditValFun;
 
     // 【核心新增】：注入的结构化 Modbus 上下文
-    public PumpItem ModbusCtx { get; private set; }
+    public PumpItem ModbusCtx { get;  set; }
 
     public PumpModel Cfg { get; set; }
     public INotifyPropertyChangedExt2 NotifyThis { get => this; }
@@ -75,6 +75,7 @@ public partial class PumpVM : ViewModelBase, INotifyPropertyChangedExt2
         Id = id;
         Name = $"{id}#";
         FlowSV = 0; StrokeSV = 0; FreqSV = 0;
+
     }
 
     public void InjectModbusContext(PumpItem ctx)
@@ -160,7 +161,7 @@ public partial class PumpVM : ViewModelBase, INotifyPropertyChangedExt2
             // 通过位映射读取 bool 状态，告别所有硬编码偏移量
             IsRemote = ModbusCtx.IsRemote.Value;
             IsFault = ModbusCtx.IsFault.Value;
-            IsRunning = ModbusCtx.IsRunning.Value;
+            IsRunning = true;//todo ModbusCtx.IsRunning.Value;
 
             CanEditFlow = ModbusCtx.ModeFlow.Value && IsRemote;
             CanEditParam = ModbusCtx.ModeManual.Value && IsRemote;

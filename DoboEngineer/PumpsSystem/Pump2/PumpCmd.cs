@@ -22,6 +22,7 @@ internal class PumpCmd:IDisposable
     private CancellationTokenSource cts;
     public  ObservableItemCollection<IDataItemProp> Items { get; } = new();
     Dictionary<string,TypeCode> readBatchAddrs;
+
     public PumpCmd(IDataItemProp[] items )
     {
         foreach (IDataItemProp item in items)
@@ -42,7 +43,7 @@ internal class PumpCmd:IDisposable
     private async Task ReConnect()
     {
         if (client != null) { client.Dispose(); }
-        client = new SiemensS7Adapter(SiemensVersion.S7_1200,"192.168.0.8", 102) { };
+        client = new SiemensS7Adapter(SiemensVersion.S7_1200,"192.168.0.8", 102,timeout:3000) { };
         var re = await client.ConnectAsync();
         if (!re)
             throw new System.Net.Sockets.SocketException(-1, "连接失败");
@@ -87,15 +88,15 @@ internal class PumpCmd:IDisposable
     private async Task PollingLoop(CancellationToken token)
     {
         using var timer = new PeriodicTimer(TimeSpan.FromMilliseconds(1000));
-        int num = 0;
+        bool num = false;
         while (await timer.WaitForNextTickAsync(token))
         {
             if (!client.IsConnected || Items.Count == 0) continue;
             try
             {
                 await StatueInfoGet(token);
-                var msg = (short)(num++ % 8);
-                await client.WriteAsync("40001", msg);
+                
+                await client.WriteAsync("DB12.DBX0.0", num=!num);
             }
             catch (Exception ex)
             {

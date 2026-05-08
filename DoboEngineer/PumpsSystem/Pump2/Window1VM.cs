@@ -52,6 +52,7 @@ public partial class Window1VM : ViewModelBase, IDisposable
             {
                 Name = cfg.Name,
                 Cfg = cfg,
+                ModbusCtx = cfg.AddressInfo,
                 WaveGaugeFg = SolidColorBrush.Parse(cfg.DisplayColor)
             });
         }
@@ -151,10 +152,11 @@ public partial class Window1VM : ViewModelBase, IDisposable
     {
         if (sender is not IDataItemProp item) return;
 
-        if (item.Address == "40004")
+        if (item.Address == globalModeReg.Address)
         {
             int val = item.Value.ToInt32(null);
-            IsAutoMode = (val & (1 << 0)) != 0; // 第0位为自动模式Flow位
+            IsAutoMode =1.Equals(globalModeReg.Value);// (val & (1 << 0)) != 0; // 第0位为自动模式Flow位
+
             if (!isInited)
             {
                 IsAutoModeSet = IsAutoMode;

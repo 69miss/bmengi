@@ -45,7 +45,7 @@ public partial class Window1 : Window
     {
         if (mainWindowViewModel.cmd == null)
             return;
-        var vWin = new Pump.ValList();
+        var vWin = new ValList();
         foreach (var item in mainWindowViewModel.cmd.Items)
         {
             vWin.VM.DataItems.Add(item);

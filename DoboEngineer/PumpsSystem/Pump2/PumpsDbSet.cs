@@ -204,10 +204,11 @@ internal class PumpsDbSet
             return reg as DataItemProp<T>;
         }
         // 1. 全局独立点位
-        GetOrCreateRegister("DBX0.0", "心跳", false);
-        GetOrCreateRegister("DBX0.1", "报警复位", false, true);
-        var globalModeReg = GetOrCreateRegister("DBW2", "控制模式", 1, true);
         var dbPrefix = "DB12.DB";
+        GetOrCreateRegister("DB12.DBX0.0", "心跳", false);
+        GetOrCreateRegister("DB12.DBX0.1", "报警复位", false, true);
+        var globalModeReg = GetOrCreateRegister<short>("DB12.DBW2", "控制模式", 1, true);
+        
         ushort baseAddrPV = 2;
         // 2. 遍历每个泵，为其构造专属的 PumpModbusContext
         foreach (var pm in pumps)
@@ -218,17 +219,17 @@ internal class PumpsDbSet
             ctx.IsRemote = new DataItemToBitMap(globalModeReg, null, 4);
             ctx.ModeFlow = new DataItemToBitMap(globalModeReg, 1);
             ctx.ModeManual = new DataItemToBitMap(globalModeReg, 2);
-            ctx.MaxFlowSV = GetOrCreateRegister($"{dbPrefix}W{baseAddrPV += 2}", $"泵{pNum}-标定流量", 2, true);
-            ctx.FreqPV = GetOrCreateRegister($"{dbPrefix}W{baseAddrPV += 2}", $"泵{pNum}-频率反馈", 0);
-            ctx.StrokePV = GetOrCreateRegister($"{dbPrefix}W{baseAddrPV += 2}", $"泵{pNum}-冲程反馈", 0);
-            ctx.FlowPV = GetOrCreateRegister($"{dbPrefix}W{baseAddrPV += 2}", $"泵{pNum}-流量反馈", 0);
-            ctx.FreqSV = GetOrCreateRegister($"{dbPrefix}W{baseAddrPV += 2}", $"泵{pNum}-目标频率", 0, true);
-            ctx.StrokeSV = GetOrCreateRegister($"{dbPrefix}W{baseAddrPV += 2}", $"泵{pNum}-目标冲程", 0, true);
-            ctx.FlowSV = GetOrCreateRegister($"{dbPrefix}W{baseAddrPV += 2}", $"泵{pNum}-目标流量", 0, true);
-            ctx.MaxStroke = GetOrCreateRegister($"{dbPrefix}W{baseAddrPV += 2}", $"泵{pNum}-冲程最大限值", 25000, true);
-            ctx.MinStroke = GetOrCreateRegister($"{dbPrefix}W{baseAddrPV += 2}", $"泵{pNum}-冲程最小限值", 2200, true);
-            GetOrCreateRegister($"{dbPrefix}W{baseAddrPV += 2}", $"泵{pNum}-电流反馈", 0);
-            GetOrCreateRegister($"{dbPrefix}W{baseAddrPV += 2}", $"泵{pNum}-电压反馈", 0);
+            ctx.MaxFlowSV = GetOrCreateRegister<short>($"{dbPrefix}W{baseAddrPV += 2}", $"泵{pNum}-标定流量", 2, true);
+            ctx.FreqPV = GetOrCreateRegister<short>($"{dbPrefix}W{baseAddrPV += 2}", $"泵{pNum}-频率反馈", 0);
+            ctx.StrokePV = GetOrCreateRegister<short>($"{dbPrefix}W{baseAddrPV += 2}", $"泵{pNum}-冲程反馈", 0);
+            ctx.FlowPV = GetOrCreateRegister<short>($"{dbPrefix}W{baseAddrPV += 2}", $"泵{pNum}-流量反馈", 0);
+            ctx.FreqSV = GetOrCreateRegister<short>($"{dbPrefix}W{baseAddrPV += 2}", $"泵{pNum}-目标频率", 0, true);
+            ctx.StrokeSV = GetOrCreateRegister<short>($"{dbPrefix}W{baseAddrPV += 2}", $"泵{pNum}-目标冲程", 0, true);
+            ctx.FlowSV = GetOrCreateRegister<short>($"{dbPrefix}W{baseAddrPV += 2}", $"泵{pNum}-目标流量", 0, true);
+            ctx.MaxStroke = GetOrCreateRegister<short>($"{dbPrefix}W{baseAddrPV += 2}", $"泵{pNum}-冲程最大限值", 25000, true);
+            ctx.MinStroke = GetOrCreateRegister<short>($"{dbPrefix}W{baseAddrPV += 2}", $"泵{pNum}-冲程最小限值", 2200, true);
+            GetOrCreateRegister<short>($"{dbPrefix}W{baseAddrPV += 2}", $"泵{pNum}-电流反馈", 0);
+            GetOrCreateRegister<short>($"{dbPrefix}W{baseAddrPV += 2}", $"泵{pNum}-电压反馈", 0);
             baseAddrPV += 2;
             ctx.IsRunning = GetOrCreateRegister($"{dbPrefix}X{baseAddrPV}.0", $"泵{pNum}-运行反馈", false);
             ctx.IsFault = GetOrCreateRegister($"{dbPrefix}X{baseAddrPV}.1", $"泵{pNum}-故障反馈", false);
@@ -242,7 +243,7 @@ internal class PumpsDbSet
         }
 
 
-        var pArr = registerMap.Values.OrderBy(p => p.Address).ToArray();
+        var pArr = registerMap.Values.ToArray();
        var tree = Tuple.Create(pArr, pumps.ToArray());
         return tree;
     }

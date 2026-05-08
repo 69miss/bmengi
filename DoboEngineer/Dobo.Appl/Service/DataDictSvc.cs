@@ -32,7 +32,7 @@ namespace Dobo.Appl.Service
         }
         public DataDict GetTreeByName(string name)
         {
-            return DbUtility.LiteDb.Select<DataDict>().Where(p => p.Name == name).AsTreeCte().ToTreeList().First();
+            return DbUtility.LiteDb.Select<DataDict>().Where(p => p.Name == name).AsTreeCte().ToTreeList().FirstOrDefault();
         }
         public void SetJson<T>(string name, T value)
         {
