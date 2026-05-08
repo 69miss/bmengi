@@ -1,9 +1,11 @@
-﻿using FreeSql.DataAnnotations;
+﻿using Dobo.Appl.Utility;
+using FreeSql.DataAnnotations;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Dobo.Appl.Entity
@@ -14,6 +16,10 @@ namespace Dobo.Appl.Entity
     public class DataDict: EntityBase
     {
         public long? ParentId { get; set; }
+        
+        public DataDict Parent {  get; set; }
+        [Navigate(nameof(ParentId))]
+        public ICollection<DataDict> Childs { get; set; }
         public string Name { get; set; }
         public string TargetType { get; set; }
         public int Status { get; set; }
@@ -25,6 +31,12 @@ namespace Dobo.Appl.Entity
 
         public DateTime CreateTime { get;set; }= DateTime.Now;
         public DateTime? UpdateTime { get; set; }
+
+        public T ByValJson<T>()
+        {
+            return  FastSerialize.Instance.Deserialize<T> (Value);
+        }
+
 
     }
 }

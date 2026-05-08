@@ -24,20 +24,24 @@ public partial class Window1VM : ViewModelBase, IDisposable
     internal PumpCmd cmd;
     [ObservableProperty] private bool _isAutoMode;
     [ObservableProperty] private bool _isAutoModeSet; [ObservableProperty] private string _systemTime = string.Empty;
-    DataDictSvc dataDictSvc;
+    //DataDictSvc dataDictSvc;
     internal Func<string, Task<int>> MsgBoxShowFun;
     PumpModel[] pumpCfgs;
     bool isInited = false;
 
     // 此地址为全局自动模式下发地址，单独保留引用以供命令使用
-    private IDataItemBase globalModeReg;
-
+    private IDataItemProp globalModeReg;
+    Tuple<IDataItemProp[], PumpModel[]>  mainCfg;
     public Window1VM()
     {
         if (PumpModule.IsMock) Mock();
 
-        dataDictSvc = new DataDictSvc();
-        pumpCfgs = dataDictSvc.GetByJson<PumpModel[]>("PumpListCfg");
+        //dataDictSvc = new DataDictSvc();
+        mainCfg = PumpsDbSet.GetCfg("Pumps6Cfg");
+        if(mainCfg==null)
+            return;
+        globalModeReg = (mainCfg.Item2[0].AddressInfo.ModeFlow as IDataItemPropWrap).Register;
+        pumpCfgs = mainCfg.Item2; //dataDictSvc.GetByJson<PumpModel[]>("PumpListCfg");
         if (pumpCfgs == null) return;
 
         pumpCfgs = pumpCfgs.OrderBy(p => p.Id).ToArray();
@@ -53,9 +57,9 @@ public partial class Window1VM : ViewModelBase, IDisposable
         }
     }
 
-    async Task ValEdit(IDataItemBase dataItem, ushort val)
+    async Task ValEdit(IDataItemProp dataItem, IConvertible val)
     {
-        await cmd.WriteValue(dataItem.Address, (short)val);
+        await cmd.WriteValue(dataItem.Address, val);
     }
 
     // 【核心重构】：动态分配点位与寄存器复用
@@ -64,72 +68,7 @@ public partial class Window1VM : ViewModelBase, IDisposable
         try
         {
             cmd?.Dispose();
-
-            // 寄存器复用字典，避免同一个 Modbus 地址被创建两次（特别针对状态位多泵共享时）
-            var registerMap = new Dictionary<ushort, IDataItemBase>();
-            IDataItemBase GetOrCreateRegister(ushort addr, string name, bool canWrite)
-            {
-                if (!registerMap.TryGetValue(addr, out var reg))
-                {
-                    reg = CreateItem(addr, name, canWrite);
-                    registerMap[addr] = reg;
-                }
-                return reg;
-            }
-
-            // 1. 全局独立点位
-            GetOrCreateRegister(40001, "心跳", false);
-
-            ushort baseAddrPV = 40005;
-            ushort baseAddrStrokeLimit = 40033;
-
-            // 2. 遍历每个泵，为其构造专属的 PumpModbusContext
-            foreach (var pumpVM in Pumps)
-            {
-                var pNum = pumpVM.Id;
-                var pumpIndex = pNum - 1;
-
-                // 备注：如果以后需要在 PumpModel 中配置任意点位，可替换如下计算方式
-                // 例如：ushort statusAddr = pumpVM.Cfg.StatusAddress ?? (ushort)(40002 + pumpIndex / 4);
-
-                // --- 状态位 (兼容旧版：每4个泵占1个寄存器) ---
-                ushort statusAddr = (ushort)(40002 + pumpIndex / 4);
-                var statusReg = GetOrCreateRegister(statusAddr, $"状态反馈_{statusAddr}", false);
-
-                // --- 控制位 (兼容旧版：每16个泵占1个寄存器) ---
-                ushort ctlAddr = (ushort)(40003 + pumpIndex / 16);
-                var ctlReg = GetOrCreateRegister(ctlAddr, $"控制字_{ctlAddr}", true);
-
-                // --- 模式位 (兼容旧版：共用40004) ---
-                ushort modeAddr = 40004;
-                globalModeReg = GetOrCreateRegister(modeAddr, "控制模式", true);
-
-                var ctx = new PumpItem
-                {
-                    IsRemote = new DataItemBitMap(statusReg, (pumpIndex % 4),$"{pNum}-远程模式"),
-                    IsFault = new DataItemBitMap(statusReg, (pumpIndex % 4) + 4, $"{pNum}-错误状态"),
-                    IsRunning = new DataItemBitMap(statusReg, (pumpIndex % 4) + 8, $"{pNum}-运行状态"),
-                    CtlRunning = new DataItemBitMap(ctlReg, pumpIndex % 16, $"{pNum}-运行状态设置"),
-                    ModeFlow = new DataItemBitMap(globalModeReg, 0, $"{pNum}-流量模式"),
-                    ModeManual = new DataItemBitMap(globalModeReg, 1, $"{pNum}-手动模式"),
-
-                    FreqPV = GetOrCreateRegister(baseAddrPV++, $"泵{pNum}-频率", false),
-                    StrokePV = GetOrCreateRegister(baseAddrPV++, $"泵{pNum}-冲程", false),
-                    FlowPV = GetOrCreateRegister(baseAddrPV++, $"泵{pNum}-流量", false),
-                    MaxFlowSV = GetOrCreateRegister(baseAddrPV++, $"泵{pNum}-最大流量", true),
-                    FreqSV = GetOrCreateRegister(baseAddrPV++, $"泵{pNum}-频率设定", true),
-                    StrokeSV = GetOrCreateRegister(baseAddrPV++, $"泵{pNum}-冲程设定", true),
-                    FlowSV = GetOrCreateRegister(baseAddrPV++, $"泵{pNum}-流量设定", true),
-
-                    MaxStroke = GetOrCreateRegister(baseAddrStrokeLimit++, $"泵{pNum}-最大冲程", true),
-                    MinStroke = GetOrCreateRegister(baseAddrStrokeLimit++, $"泵{pNum}-最小冲程", true)
-                };
-
-                pumpVM.InjectModbusContext(ctx);
-            }
-
-            // 3. 构建统一的点位集合交给 Cmd 管理
-            var pArr = registerMap.Values.OrderBy(p => p.Address).ToArray();
+            IDataItemProp[] pArr = mainCfg.Item1;
             cmd = new PumpCmd(pArr);
 
             if (!PumpModule.IsMock)
@@ -154,6 +93,8 @@ public partial class Window1VM : ViewModelBase, IDisposable
             throw;
         }
     }
+
+
 
     [ObservableProperty] string btnConnectionText = "连接";
     [ObservableProperty] bool isConnection = false; 
@@ -198,28 +139,19 @@ public partial class Window1VM : ViewModelBase, IDisposable
         }
     }
 
-    short ToShort(IDataItemBase dataItem) => dataItem.Value.ToInt16(null);
+    short ToShort(IDataItemProp dataItem) => dataItem.Value.ToInt16(null);
 
     partial void OnIsConnectionChanged(bool value)
     {
         BtnConnectionText = value ? "断开" : "连接";
     }
 
-    private IDataItemBase CreateItem(ushort addr, string name, bool canWrite, string remark = "", byte? fmtRadix = null)
-    {
-        return new DataItemBase()
-        {
-            Address = addr,
-            Name = name,
-            CanWrite = canWrite,
-        };
-    }
 
     private void Items_ItemPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
-        if (sender is not IDataItemBase item) return;
+        if (sender is not IDataItemProp item) return;
 
-        if (item.Address == 40004)
+        if (item.Address == "40004")
         {
             int val = item.Value.ToInt32(null);
             IsAutoMode = (val & (1 << 0)) != 0; // 第0位为自动模式Flow位
@@ -242,6 +174,7 @@ public partial class Window1VM : ViewModelBase, IDisposable
             modeVal |= (1 << 1); // Manual mode
 
         cmd.WriteValue(globalModeReg.Address, (short)modeVal);
+        globalModeReg.Value = modeVal;
     }
 
     [RelayCommand]

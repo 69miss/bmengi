@@ -5,7 +5,7 @@ using PumpsSystem.Controls;
 using System.ComponentModel;
 using System.Threading.Tasks;
 
-namespace PumpsSystem.Pump;
+namespace PumpsSystem.Pump2;
 
 public partial class PumpCfgWnd : WindowVm<ISupportInitialize>
 {

@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Dobo.Appl.Module;
+using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -10,7 +12,8 @@ namespace Dobo.Appl.Utility
 {
     public class FastSerialize
     {
-       static Lazy<FastSerialize> instance =new Lazy<FastSerialize>(() => new FastSerialize());
+        JsonSerializerOptions options= ApplModule.Default.GetService<JsonSerializerOptions>();
+       static Lazy<FastSerialize> instance =new(() => new FastSerialize());
         public static FastSerialize Instance {
             get { return instance.Value; }
         }
@@ -32,15 +35,11 @@ namespace Dobo.Appl.Utility
             return strArr.Select(p => (T)Convert.ChangeType(p, ty)).ToArray();
         }
         public T Deserialize<T>(string str){
-            return JsonSerializer.Deserialize<T>(str);
+            return JsonSerializer.Deserialize<T>(str, options);
         }
         public string Serialize<T>(T obj )
         {
-            return JsonSerializer.Serialize<T>(obj);
-        }
-        public string Serialize(object obj)
-        {
-            return JsonSerializer.Serialize(obj);
+            return JsonSerializer.Serialize<T>(obj, options);
         }
     }
 }

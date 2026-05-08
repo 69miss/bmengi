@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using Dobo.Appl.Utility;
+using FluentModbus;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -14,9 +15,11 @@ public interface IDataItemBase: INotifyPropertyChanged
 {
    public ushort Address{get;set;}
    public string Name { get; set;}
-   public abstract IConvertible Value { get;set;}
+   public  IConvertible Value { get;set;}
    public bool CanWrite { get; set; }
+
 }
+
 public  class DataItemBase: IDataItemBase, INotifyPropertyChangedExt2
 {
     private IConvertible _value;

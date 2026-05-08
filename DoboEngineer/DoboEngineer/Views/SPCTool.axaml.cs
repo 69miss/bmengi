@@ -30,7 +30,7 @@ public partial class SPCTool : Window
         command?.Dispose();
     }
 
-    SPCTcpCommand command;
+    SPCCommand command;
     private CancellationTokenSource ctsSpc;
 
     public bool IsRun { get => isRun; set => isRun = value; }

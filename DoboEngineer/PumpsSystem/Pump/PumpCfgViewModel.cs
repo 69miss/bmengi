@@ -1,9 +1,12 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Dobo.Appl.Service;
+using Dobo.Appl.Utility;
+using PumpsSystem.Pump2;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 namespace PumpsSystem.Pump;
@@ -12,7 +15,7 @@ public partial class PumpModel : ObservableObject
     // 编号
     [ObservableProperty]
     public partial string Id { get; set; } = string.Empty;
-       
+
     // 名称 
     [ObservableProperty]
     public partial string Name { get; set; } = string.Empty;
@@ -33,19 +36,20 @@ public partial class PumpModel : ObservableObject
 
     [ObservableProperty]
     public partial double? ProtectionThreshold { get; set; }
-    
+
 
 
     // 深拷贝
     public PumpModel Clone()
-    { 
+    {
         return (PumpModel)this.MemberwiseClone();
     }
 
     // 数据回写
     public PumpModel CopyFrom(PumpModel source)
     {
-        Id = source.Id; 
+        this.Assign(source);
+        Id = source.Id;
         Name = source.Name;
         DisplayColor = source.DisplayColor;
         MaxFlow = source.MaxFlow;
@@ -57,7 +61,7 @@ public partial class PumpModel : ObservableObject
 }
 
 
-public partial class PumpCfgViewModel : ObservableObject
+public partial class PumpCfgViewModel : ObservableObject, ISupportInitialize
 {
     public ObservableCollection<PumpModel> PumpList { get; } = new();
     DataDictSvc dataDictSvc=new DataDictSvc();
@@ -178,5 +182,15 @@ public partial class PumpCfgViewModel : ObservableObject
                 EditingPump = _originalSelectedItem.Clone();
             }
         }
+    }
+
+    public void BeginInit()
+    {
+        Init();
+    }
+
+    public void EndInit()
+    {
+        throw new NotImplementedException();
     }
 }

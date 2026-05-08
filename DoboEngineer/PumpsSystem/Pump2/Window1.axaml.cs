@@ -5,7 +5,6 @@ using Avalonia.Markup.Xaml;
 using Microsoft.Extensions.DependencyInjection;
 using PumpsSystem.Controls;
 using PumpsSystem.Module;
-using PumpsSystem.Pump;
 using System;
 using System.Globalization;
 using System.Threading.Tasks;
@@ -46,7 +45,7 @@ public partial class Window1 : Window
     {
         if (mainWindowViewModel.cmd == null)
             return;
-        var vWin = new ValList();
+        var vWin = new Pump.ValList();
         foreach (var item in mainWindowViewModel.cmd.Items)
         {
             vWin.VM.DataItems.Add(item);
@@ -57,7 +56,9 @@ public partial class Window1 : Window
 
     private void MenuItem_Click_1(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
-        new PumpCfgWnd().ShowDialog(this);
+        var dlg = new PumpCfgWnd(new PumpCfgViewModel());
+
+        dlg.ShowDialog(this);
     }
 
     private void MenuItem_Click_2(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
@@ -68,6 +69,9 @@ public partial class Window1 : Window
     bool isLogin=false;
     private async void Button_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
+#if DEBUG
+        isLogin = true;
+#endif
         if (isLogin)
             return;
         btnSys.Flyout.Hide();

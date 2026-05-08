@@ -58,7 +58,7 @@ public partial class PumpVM : ViewModelBase, INotifyPropertyChangedExt2
 
     bool isInited = false;
     bool isUpdatingFromPlc = false;
-    Func<IDataItemBase, ushort, Task> EditValFun;
+    Func<IDataItemProp, IConvertible, Task> EditValFun;
 
     // 【核心新增】：注入的结构化 Modbus 上下文
     public PumpItem ModbusCtx { get; private set; }
@@ -69,7 +69,7 @@ public partial class PumpVM : ViewModelBase, INotifyPropertyChangedExt2
     public double StrokeSV { get => _strokeSV; set => SetFieldAndMend(ref _strokeSV, value, p => Math.Clamp(p, 0, 100)); }
     public double FreqSV { get => _freqSV; set => SetFieldAndMend(ref _freqSV, value, p => Math.Clamp(p, 0, 100)); }
 
-    public PumpVM(int id, Func<IDataItemBase, ushort, Task> fun = null) 
+    public PumpVM(int id, Func<IDataItemProp, IConvertible, Task> fun = null) 
     {
         EditValFun = fun;
         Id = id;
@@ -89,10 +89,10 @@ public partial class PumpVM : ViewModelBase, INotifyPropertyChangedExt2
         if (!IsRemote || ModbusCtx == null) return;
 
         // 使用 BitMap 计算反转后的值并下发
-        ushort targetRegisterVal = ModbusCtx.CtlRunning.CalculateNewValue(!IsRunning);
+        //ushort targetRegisterVal = ModbusCtx.CtlRunning.CalculateNewValue(!IsRunning);
         try
         {
-            await EditValFun?.Invoke(ModbusCtx.CtlRunning.Register, targetRegisterVal);
+            await EditValFun?.Invoke(ModbusCtx.CtlRunning, !IsRunning);
             await Task.Delay(1000);
         }
         catch (Exception ex)
@@ -137,7 +137,7 @@ public partial class PumpVM : ViewModelBase, INotifyPropertyChangedExt2
                 if (token.IsCancellationRequested) return;
 
                 if (args[1] is IConvertible val)
-                    await EditValFun?.Invoke((IDataItemBase)args[0], val.ToUInt16(null));
+                    await EditValFun?.Invoke((IDataItemProp)args[0], val.ToUInt16(null));
                 else
                     throw new ArgumentException("无法处理的数据类型");
             }
@@ -183,7 +183,7 @@ public partial class PumpVM : ViewModelBase, INotifyPropertyChangedExt2
         }
     }
 
-    public double GetShowValByRaw(string name, IDataItemBase raw) => GetShowValByRaw(name, ToShort(raw));
+    public double GetShowValByRaw(string name, IDataItemProp raw) => GetShowValByRaw(name, ToShort(raw));
 
     public double GetShowValByRaw(string name, short raw)
     {
@@ -211,7 +211,7 @@ public partial class PumpVM : ViewModelBase, INotifyPropertyChangedExt2
         throw new ArgumentException();
     }
 
-    void GetToInfo(PumpVM pumpVM, bool isSV, IDataItemBase freqRaw, IDataItemBase strokeRaw, IDataItemBase flowRaw)
+    void GetToInfo(PumpVM pumpVM, bool isSV, IDataItemProp freqRaw, IDataItemProp strokeRaw, IDataItemProp flowRaw)
     {
         var sRaw = ToShort(strokeRaw);
         var tmpStroke = sRaw - Cfg.MinStroke ?? 0d;
@@ -231,7 +231,7 @@ public partial class PumpVM : ViewModelBase, INotifyPropertyChangedExt2
         pumpVM.FlowPV = GetShowValByRaw(nameof(FlowPV), flowRaw);
     }
 
-    short ToShort(IDataItemBase dataItem) => dataItem.Value.ToInt16(null);
+    short ToShort(IDataItemProp dataItem) => dataItem.Value.ToInt16(null);
 
     protected override async void OnPropertyChanged(PropertyChangedEventArgs e)
     {

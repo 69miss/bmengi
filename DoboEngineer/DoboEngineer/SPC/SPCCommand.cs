@@ -11,7 +11,11 @@ using System.Xml;
 
 namespace DoboEngineer.SPC;
 
-public class SPCCommand :SPCTcpCommand, IDisposable
+/// <summary>
+/// 
+/// </summary>
+/// <see cref="SPCTcpCommand"/>
+public class SPCCommand : IDisposable //SPCTcpCommand
 {
     private readonly string _host;
     private readonly int _port;
@@ -301,6 +305,6 @@ public class SPCCommand :SPCTcpCommand, IDisposable
         Disconnect();
         _stream?.Dispose();
         _tcpClient?.Dispose();
-        base.Dispose();
+
     }
 }
