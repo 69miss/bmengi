@@ -49,6 +49,7 @@ public partial class Window1 : Window
         foreach (var item in mainWindowViewModel.cmd.Items)
         {
             vWin.VM.DataItems.Add(item);
+            vWin.VM.PumpCmd = mainWindowViewModel.cmd;
         }
         vWin.Show();
 

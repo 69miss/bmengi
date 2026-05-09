@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.Input;
 using PumpsSystem.Pump;
 using System;
 using System.Collections.ObjectModel;
+using System.Threading.Tasks;
 
 namespace PumpsSystem.Pump2
 {
@@ -13,7 +14,7 @@ namespace PumpsSystem.Pump2
         // 自动生成 public ObservableCollection<DataItemBase> DataItems { get; set; }
         [ObservableProperty]
         private ObservableCollection<IDataItemProp> _dataItems=new ObservableCollection<IDataItemProp>();
-
+        internal PumpCmd PumpCmd { get; set; }
         public ValListVM()
         {
             if (Design.IsDesignMode)
@@ -46,8 +47,12 @@ namespace PumpsSystem.Pump2
             DataItems[3].Value = rand.Next(0, 2);
         }
         [RelayCommand]
-        public void SendCmd() { 
-        
+        async Task Send(object[] paramArr)
+        {
+
+            var param = (dataItem: paramArr[0] as IDataItemProp, txt: paramArr[1] as string);
+            await PumpCmd.WriteValue(param.dataItem.Address, param.txt);
+
         }
     }
 }

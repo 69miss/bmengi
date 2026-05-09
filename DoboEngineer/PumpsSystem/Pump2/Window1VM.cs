@@ -21,9 +21,15 @@ namespace PumpsSystem.Pump2;
 public partial class Window1VM : ViewModelBase, IDisposable
 {
     public ObservableCollection<PumpVM> Pumps { get; } = new();
+    public IDataItemProp GlobalModeReg { get => globalModeReg; set => globalModeReg = value; }
+
     internal PumpCmd cmd;
     [ObservableProperty] private bool _isAutoMode;
-    [ObservableProperty] private bool _isAutoModeSet; [ObservableProperty] private string _systemTime = string.Empty;
+    [ObservableProperty] private bool _isAutoModeSet; 
+    [ObservableProperty] private string _systemTime = string.Empty;
+    public IDataItemProp IsRemoteItem { get;set; }
+    [ObservableProperty]
+    public partial bool IsRemoteEdit { get; set; }  
     //DataDictSvc dataDictSvc;
     internal Func<string, Task<int>> MsgBoxShowFun;
     PumpModel[] pumpCfgs;
@@ -40,8 +46,9 @@ public partial class Window1VM : ViewModelBase, IDisposable
         mainCfg = PumpsDbSet.GetCfg("Pumps6Cfg");
         if(mainCfg==null)
             return;
-        globalModeReg = (mainCfg.Item2[0].AddressInfo.ModeFlow as IDataItemPropWrap).Register;
-        pumpCfgs = mainCfg.Item2; //dataDictSvc.GetByJson<PumpModel[]>("PumpListCfg");
+        GlobalModeReg = (mainCfg.Item2[0].AddressInfo.ModeFlow as IDataItemPropWrap).Register;
+        IsRemoteItem = mainCfg.Item2[0].AddressInfo.IsRemote;
+         pumpCfgs = mainCfg.Item2; //dataDictSvc.GetByJson<PumpModel[]>("PumpListCfg");
         if (pumpCfgs == null) return;
 
         pumpCfgs = pumpCfgs.OrderBy(p => p.Id).ToArray();
@@ -58,7 +65,7 @@ public partial class Window1VM : ViewModelBase, IDisposable
         }
     }
 
-    async Task ValEdit(IDataItemProp dataItem, IConvertible val)
+   public async Task ValEdit(IDataItemProp dataItem, IConvertible val)
     {
         await cmd.WriteValue(dataItem.Address, val);
     }
@@ -108,7 +115,7 @@ public partial class Window1VM : ViewModelBase, IDisposable
             IsConnection = isConn;
         else if (isConn == true)
         {
-            cmd.Dispose();
+            cmd?.Dispose();
             IsConnection = false;
         }
         else
@@ -152,10 +159,10 @@ public partial class Window1VM : ViewModelBase, IDisposable
     {
         if (sender is not IDataItemProp item) return;
 
-        if (item.Address == globalModeReg.Address)
+        if (item.Address == GlobalModeReg.Address)
         {
             int val = item.Value.ToInt32(null);
-            IsAutoMode =1.Equals(globalModeReg.Value);// (val & (1 << 0)) != 0; // 第0位为自动模式Flow位
+            IsAutoMode =1.Equals(GlobalModeReg.Value);// (val & (1 << 0)) != 0; // 第0位为自动模式Flow位
 
             if (!isInited)
             {
@@ -167,7 +174,7 @@ public partial class Window1VM : ViewModelBase, IDisposable
 
     partial void OnIsAutoModeSetChanged(bool val)
     {
-        if (!isInited || cmd == null || globalModeReg == null) return;
+        if (!isInited || cmd == null || GlobalModeReg == null) return;
 
         int modeVal = 0;
         if (val)
@@ -175,8 +182,8 @@ public partial class Window1VM : ViewModelBase, IDisposable
         else
             modeVal |= (1 << 1); // Manual mode
 
-        cmd.WriteValue(globalModeReg.Address, (short)modeVal);
-        globalModeReg.Value = modeVal;
+        cmd.WriteValue(GlobalModeReg.Address, (short)modeVal);
+        GlobalModeReg.Value = modeVal;
     }
 
     [RelayCommand]

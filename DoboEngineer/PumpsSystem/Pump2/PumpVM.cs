@@ -149,8 +149,6 @@ public partial class PumpVM : ViewModelBase, INotifyPropertyChangedExt2
             }
         });
     }
-
-    // 【核心重构】：原先的 get()，重命名为 SyncFromPlc
     public void SyncFromPlc()
     {
         if (ModbusCtx == null) return;
@@ -158,7 +156,6 @@ public partial class PumpVM : ViewModelBase, INotifyPropertyChangedExt2
         isUpdatingFromPlc = true;
         try
         {
-            // 通过位映射读取 bool 状态，告别所有硬编码偏移量
             IsRemote = ModbusCtx.IsRemote.Value;
             IsFault = ModbusCtx.IsFault.Value;
             IsRunning = true;//todo ModbusCtx.IsRunning.Value;
