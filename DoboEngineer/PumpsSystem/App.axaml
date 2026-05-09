@@ -2,7 +2,9 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="PumpsSystem.App"
              xmlns:local="using:PumpsSystem"
-             RequestedThemeVariant="Default">
+             RequestedThemeVariant="Default"
+             xmlns:ui="clr-namespace:PumpsSystem.AvaloniaUI"
+             >
              <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
 
     <Application.DataTemplates>
@@ -12,4 +14,9 @@
     <Application.Styles>
         <FluentTheme />
     </Application.Styles>
+    <Application.Resources>
+        <ResourceDictionary>
+             <ui:CommConverter x:Key="CommConverter" />
+        </ResourceDictionary>
+    </Application.Resources>
 </Application>

@@ -202,8 +202,8 @@
 										  Padding="15,8" CornerRadius="4"/>
 							<RadioButton GroupName="M" Content="{Binding L.FlowAutoMode}" IsChecked="{Binding IsAutoModeSet}"
 										  Padding="15,8" CornerRadius="4"/> 
-						<!--	<RadioButton GroupName="M" Content="{Binding L.FlowAutoMode}" IsChecked="{Binding !IsRemoteItem.Value}"
-										  Padding="15,8" CornerRadius="4" /> -->
+							<RadioButton GroupName="M" Content="Local" IsChecked="{Binding GlobalModeReg.Value,Converter={StaticResource CommConverter},ConverterParameter=4}"
+										  Padding="15,8" CornerRadius="4" /> 
 						</StackPanel>
 					</Border>
 					<TextBlock IsVisible="{Binding IsAutoMode}" Text="{Binding L.AutoModeTip}" FontSize="12" Foreground="#94a3b8" VerticalAlignment="Center" Margin="10,0,0,0"/>
