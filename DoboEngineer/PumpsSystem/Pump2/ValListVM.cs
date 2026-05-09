@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using PumpsSystem.Pump;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 
@@ -46,12 +47,75 @@ namespace PumpsSystem.Pump2
             DataItems[0].Value = Math.Round(25.0 + rand.NextDouble() * 5, 2);
             DataItems[3].Value = rand.Next(0, 2);
         }
+
+        public static IConvertible? Convert(object val, TypeCode typeCode)
+        {
+            if (val is DBNull)
+                val = null;
+            if (val == null)
+            {
+                return typeCode switch
+                {
+                    TypeCode.Empty => null,
+                    TypeCode.Object => null,
+                    TypeCode.DBNull => DBNull.Value,
+                    TypeCode.Boolean => default(bool),
+                    TypeCode.Char => default(char),
+                    TypeCode.SByte => default(sbyte),
+                    TypeCode.Byte => default(byte),
+                    TypeCode.Int16 => default(short),
+                    TypeCode.UInt16 => default(ushort),
+                    TypeCode.Int32 => default(int),
+                    TypeCode.UInt32 => default(uint),
+                    TypeCode.Int64 => default(long),
+                    TypeCode.UInt64 => default(ulong),
+                    TypeCode.Single => default(float),
+                    TypeCode.Double => default(double),
+                    TypeCode.Decimal => default(decimal),
+                    TypeCode.DateTime => default(DateTime),
+                    TypeCode.String => null,
+                    _ => throw new ArgumentException($"不支持的TypeCode: {typeCode}", nameof(typeCode))
+                };
+            }
+            try
+            {
+                return typeCode switch
+                {
+                    TypeCode.Boolean => System.Convert.ToBoolean(val),
+                    TypeCode.Char => System.Convert.ToChar(val),
+                    TypeCode.SByte => System.Convert.ToSByte(val),
+                    TypeCode.Byte => System.Convert.ToByte(val),
+                    TypeCode.Int16 => System.Convert.ToInt16(val),
+                    TypeCode.UInt16 => System.Convert.ToUInt16(val),
+                    TypeCode.Int32 => System.Convert.ToInt32(val),
+                    TypeCode.UInt32 => System.Convert.ToUInt32(val),
+                    TypeCode.Int64 => System.Convert.ToInt64(val),
+                    TypeCode.UInt64 => System.Convert.ToUInt64(val),
+                    TypeCode.Single => System.Convert.ToSingle(val),
+                    TypeCode.Double => System.Convert.ToDouble(val),
+                    TypeCode.Decimal => System.Convert.ToDecimal(val),
+                    TypeCode.DateTime => System.Convert.ToDateTime(val),
+                    TypeCode.String => System.Convert.ToString(val),
+                    TypeCode.DBNull => DBNull.Value,
+                    TypeCode.Empty => null,
+                    TypeCode.Object => val as IConvertible ?? throw new InvalidCastException($"Type {val.GetType().Name} 未实现IConvertible，不支持TypeCode.Object转换"),
+                    _ => throw new ArgumentException($"无效的TypeCode: {typeCode}", nameof(typeCode))
+                };
+            }
+            catch (InvalidCastException ex)
+            {
+                throw;
+            }
+            
+        }
+    
         [RelayCommand]
-        async Task Send(object[] paramArr)
+       public async Task Send(IList<object> paramArr)
         {
 
             var param = (dataItem: paramArr[0] as IDataItemProp, txt: paramArr[1] as string);
-            await PumpCmd.WriteValue(param.dataItem.Address, param.txt);
+          
+            await PumpCmd.WriteValue(param.dataItem.Address, Convert(param.txt,param.dataItem.TypeCode));
 
         }
     }

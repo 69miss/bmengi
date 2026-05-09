@@ -25,11 +25,12 @@ public partial class Window1VM : ViewModelBase, IDisposable
 
     internal PumpCmd cmd;
     [ObservableProperty] private bool _isAutoMode;
-    [ObservableProperty] private bool _isAutoModeSet; 
+    [ObservableProperty] private bool _isAutoModeSet;
+    [ObservableProperty] private bool isLocal;
     [ObservableProperty] private string _systemTime = string.Empty;
     public IDataItemProp IsRemoteItem { get;set; }
-    [ObservableProperty]
-    public partial bool IsRemoteEdit { get; set; }  
+    [ObservableProperty] 
+    public partial short ModeRegEdit { get; set; }    
     //DataDictSvc dataDictSvc;
     internal Func<string, Task<int>> MsgBoxShowFun;
     PumpModel[] pumpCfgs;
@@ -163,7 +164,7 @@ public partial class Window1VM : ViewModelBase, IDisposable
         {
             int val = item.Value.ToInt32(null);
             IsAutoMode =1.Equals(GlobalModeReg.Value);// (val & (1 << 0)) != 0; // 第0位为自动模式Flow位
-
+            isLocal= 4.Equals(GlobalModeReg.Value);
             if (!isInited)
             {
                 IsAutoModeSet = IsAutoMode;
@@ -182,8 +183,8 @@ public partial class Window1VM : ViewModelBase, IDisposable
         else
             modeVal |= (1 << 1); // Manual mode
 
-        cmd.WriteValue(GlobalModeReg.Address, (short)modeVal);
-        GlobalModeReg.Value = modeVal;
+       // cmd.WriteValue(GlobalModeReg.Address, (short)modeVal);
+        //GlobalModeReg.Value = modeVal;
     }
 
     [RelayCommand]

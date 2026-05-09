@@ -173,7 +173,7 @@
 			</StackPanel>
 
 			<!-- 菜单按钮 (右对齐) -->
-			<Button x:Name="btnSys" IsDefault="False" Grid.Column="2" Classes="SysMenuBtn" Margin="0,0,140,0" ToolTip.Tip="系统菜单" Click="Button_Click">
+			<Button x:Name="btnSys" IsDefault="False" Grid.Column="2" Classes="SysMenuBtn" Margin="0,0,160,0" ToolTip.Tip="系统菜单" Click="Button_Click">
 				<StackPanel Orientation="Horizontal" Spacing="6">
 					<PathIcon Data="M3 6h18v2H3V6zm0 5h18v2H3v-2zm0 5h18v2H3v-2z" Width="14" Height="14" Foreground="#64748b"/>
 					<!--<TextBlock Text="系统菜单" FontSize="13" Foreground="#475569" VerticalAlignment="Center"/>-->
@@ -197,12 +197,12 @@
 					<TextBlock Text="{Fmt {Binding L.ControlModeLabel}}" FontWeight="Bold" VerticalAlignment="Center" FontSize="15"/>
 					<Border Background="#f1f5f9" CornerRadius="6" Padding="4">
 						<StackPanel Orientation="Horizontal">
-							<!--Theme="{DynamicResource ButtonRadioButton}"-->
+							<!--Theme="{DynamicResource ButtonRadioButton}"{Binding GlobalModeReg.Value,Converter={StaticResource CommConverter},ConverterParameter=4,Mode=OneWay}-->
 							<RadioButton GroupName="M" Content="{Binding L.ManualParamMode}" IsChecked="{Binding !IsAutoModeSet}"
 										  Padding="15,8" CornerRadius="4"/>
 							<RadioButton GroupName="M" Content="{Binding L.FlowAutoMode}" IsChecked="{Binding IsAutoModeSet}"
 										  Padding="15,8" CornerRadius="4"/> 
-							<RadioButton GroupName="M" Content="Local" IsChecked="{Binding GlobalModeReg.Value,Converter={StaticResource CommConverter},ConverterParameter=4}"
+							<RadioButton GroupName="M" Content="Local" IsChecked="{Binding IsLocal}"
 										  Padding="15,8" CornerRadius="4" /> 
 						</StackPanel>
 					</Border>

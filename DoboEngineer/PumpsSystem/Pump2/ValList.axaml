@@ -2,7 +2,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:PumpsSystem.Pump2"
         x:Class="PumpsSystem.Pump2.ValList"
-        x:DataType="vm:ValListVM"
+        x:DataType="vm:ValListVM" x:CompileBindings="False"
         Title="参数监控" Width="800" Height="400">
 
     <Window.DataContext>
@@ -45,7 +45,7 @@
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <!-- 3. 将原先的 Margin="0,8" 改小为 Margin="0,2" -->
-                    <Grid ColumnDefinitions="80, 150,80, 150, *" Margin="0,2">
+                    <Grid ColumnDefinitions="150, 180,100, 150, *" Margin="0,2">
 
                         <!-- 地址 -->
                         <TextBlock Grid.Column="0" Text="{Binding Address}" VerticalAlignment="Center"/>
@@ -77,12 +77,12 @@
                                          VerticalAlignment="Center"
                                          VerticalContentAlignment="Center"/>
 
-                                <Button Content="发送"
+                                <Button Content="发送"  Background="RoyalBlue" 
                                         Command="{Binding $parent[Window].DataContext.SendCommand}"
                                         MinHeight="24"
                                         Height="24"
                                         Padding="10,2"
-                                        Cursor="Hand"
+                                        Cursor="Hand" 
                                         VerticalAlignment="Center"
                                         VerticalContentAlignment="Center">
                                     <Button.CommandParameter>

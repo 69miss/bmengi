@@ -41,7 +41,7 @@ public partial class PumpVM : ViewModelBase, INotifyPropertyChangedExt2
     [ObservableProperty] private bool _canEditParam;
 
     public short FreqMax { get; } = 27648;
-    public short FreqMin { get; } = 5530;
+    public short FreqMin { get; } = 0;
      
     public double LiquidHeight => Math.Clamp((FlowPV / FlowMax) * 100.0, 0, 100);
 
@@ -158,7 +158,7 @@ public partial class PumpVM : ViewModelBase, INotifyPropertyChangedExt2
         {
             IsRemote = ModbusCtx.IsRemote.Value;
             IsFault = ModbusCtx.IsFault.Value;
-            IsRunning = true;//todo ModbusCtx.IsRunning.Value;
+            IsRunning = ModbusCtx.IsRunning.Value;
 
             CanEditFlow = ModbusCtx.ModeFlow.Value && IsRemote;
             CanEditParam = ModbusCtx.ModeManual.Value && IsRemote;

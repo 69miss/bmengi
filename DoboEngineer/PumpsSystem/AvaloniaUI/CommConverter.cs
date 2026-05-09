@@ -32,7 +32,7 @@ public class CommConverter : IValueConverter
                 var falseVal = paramArr.Length > 1 ? paramArr[1] : "0";
                 return !string.IsNullOrEmpty(trueVal) ? trueVal.Equals(valueStr) : !falseVal.Equals(valueStr);
         }
-        return null;
+        return BindingOperations.DoNothing;
     }
 
     /// <summary>
@@ -49,10 +49,10 @@ public class CommConverter : IValueConverter
         if (value is bool boolVal && (targetType == typeof(int)|| targetType == typeof(short)))
         {
             if (boolVal)
-                return paramArr.Length > 0 && int.TryParse(paramArr[0], out int trueVal) ? trueVal : null;
-            return paramArr.Length > 1 && int.TryParse(paramArr[1], out int falseVal) ? falseVal : null;
+                return paramArr.Length > 0 && int.TryParse(paramArr[0], out int trueVal) ? trueVal : BindingOperations.DoNothing; 
+            return paramArr.Length > 1 && int.TryParse(paramArr[1], out int falseVal) ? falseVal : BindingOperations.DoNothing;
         }
-        return null;
+        return BindingOperations.DoNothing;
     }
 }
 

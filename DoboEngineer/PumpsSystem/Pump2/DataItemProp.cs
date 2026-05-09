@@ -135,6 +135,8 @@ public class DataItemToBitMap : DataItemPropMap<bool>
     /// <param name="falseVal"></param>
     public DataItemToBitMap(IDataItemProp register, int? trueVal, int? falseVal=null) : base(register,
         p => {
+            if (p.Value == null)
+                return false;
             if (trueVal != null && falseVal == null)
                 return EqualityComparer<int>.Default.Equals(p.Value.ToInt32(null), trueVal.Value);
             else if (trueVal == null && falseVal != null)
