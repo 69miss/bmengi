@@ -125,7 +125,7 @@ internal class PumpsDbSet
         var pumps = root.Childs.Select(p => PumpModel.From(p)).ToArray();
         pumps.Each(p =>
         {
-            var defP = defCfg.Item2.First(p => p.Id == p.Id);
+            var defP = defCfg.Item2.First(x => x.Id == p.Id);
             p.AddressInfo = defP.AddressInfo;
         });
         return Tuple.Create(dataItems, pumps);
@@ -194,10 +194,11 @@ internal class PumpsDbSet
             {
                 reg = new DataItemProp<T>()
                 {
-                    Value = valDef,
+                   
                     Address = addrStr,
                     Name = name,
                     CanWrite = canWrite,
+                    Value = valDef,
                 };
                 registerMap[addrStr] = reg;
             }

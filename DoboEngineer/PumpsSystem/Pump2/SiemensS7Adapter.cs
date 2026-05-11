@@ -243,6 +243,10 @@ namespace PumpsSystem.Pump2
 
         public Task<bool> WriteAsync(string address, IConvertible value)
         {
+            if (address.EndsWith("DBW2"))
+            { 
+            
+            }
             bool success = value switch
             {
                 bool boolVal => ResultTo(client.Write(address, boolVal)),
