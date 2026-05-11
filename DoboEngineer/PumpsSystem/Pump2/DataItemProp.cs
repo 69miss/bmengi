@@ -26,8 +26,8 @@ public class DataItemProp<T> : DataItemProp where T : IConvertible
     {
         typeCode=Type.GetTypeCode(typeof(T));
     }
-    
-    public virtual T Value { get { return (T)Convert.ChangeType(base.Value, typeof(T));  } set { base.Value = value; } }
+
+    public virtual T Value { get { return (T)Convert.ChangeType(base.Value, typeof(T)); } set { base.Value = value; } }
 }
 public class DataItemPropDto
 {
@@ -45,31 +45,32 @@ public class DataItemProp : IDataItemProp, INotifyPropertyChangedExt2
 {
 
     private IConvertible _value;
-    TypeCode typeCode;
+  
     public DataItemProp() { 
     }
     public DataItemProp(TypeCode type)
     {
-        typeCode = type;
+        TypeCode = type;
     }
     public DataItemProp(IConvertible valDef)
     {
         if (valDef == null)
             throw new ArgumentNullException(nameof(valDef));
-        typeCode = valDef.GetTypeCode();
+        TypeCode = valDef.GetTypeCode();
         Value = valDef;
     }
   
     public virtual string Address { get; set; }
     public virtual string Name { get; set; }
-    public virtual IConvertible Value { get => _value; set => NotifyThis.SetField(ref _value, value); }
+    public virtual IConvertible Value { get => _value; 
+        set   {  NotifyThis.SetField(ref _value, (value==null?null:Convert.ChangeType(value, TypeCode)) as IConvertible); } }
     public virtual bool CanWrite { get; set; }
 
     private string _inputValue;
     protected INotifyPropertyChangedExt2 NotifyThis { get => this; }
     public virtual string InputValue { get => _inputValue; set => NotifyThis.SetField(ref _inputValue, value); }
 
-    public virtual TypeCode TypeCode => typeCode;
+    public virtual TypeCode TypeCode { get; set; }
 
     ushort IDataItemBase.Address { get =>(ushort)GetHashCode(); set => Address=value.ToString(); }
 
@@ -101,7 +102,7 @@ public class DataItemPropMap<T> : DataItemProp<T>, IDataItemPropWrap where T : I
             return;
 
         var val = Value;
-        Console.WriteLine(val);
+        Console.WriteLine($"Register_PropertyChanged:{Register.Name}--->"+val);
     }
 
     public IDataItemProp Register { get; }

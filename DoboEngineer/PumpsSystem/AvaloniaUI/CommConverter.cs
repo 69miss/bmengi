@@ -46,7 +46,7 @@ public class CommConverter : IValueConverter
         var valueStr = value + "";
 
 
-        if (value is bool boolVal && (targetType == typeof(int)|| targetType == typeof(short)))
+        if (value is bool boolVal && (targetType == typeof(int)|| targetType == typeof(short)|| targetType==typeof(IConvertible)))
         {
             if (boolVal)
                 return paramArr.Length > 0 && int.TryParse(paramArr[0], out int trueVal) ? trueVal : BindingOperations.DoNothing; 

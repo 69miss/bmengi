@@ -40,7 +40,7 @@ public partial class PumpVM : ViewModelBase, INotifyPropertyChangedExt2
     [ObservableProperty] private bool _canEditFlow;
     [ObservableProperty] private bool _canEditParam;
 
-    public short FreqMax { get; } = 27648;
+    public short FreqMax { get; } = 50;
     public short FreqMin { get; } = 0;
      
     public double LiquidHeight => Math.Clamp((FlowPV / FlowMax) * 100.0, 0, 100);
@@ -189,6 +189,7 @@ public partial class PumpVM : ViewModelBase, INotifyPropertyChangedExt2
             return Math.Clamp(Math.Round((float)(raw - FreqMin) / (FreqMax - FreqMin) * 100d), 0, 100);
         else if (name.StartsWith("stroke", StringComparison.OrdinalIgnoreCase))
         {
+            return raw;
             var tmpStroke = raw - Cfg.MinStroke ?? 0d;
             var tmpMaxStroke = Cfg.MaxStroke - Cfg.MinStroke ?? 1d;
             return Math.Clamp(Math.Round(tmpStroke / tmpMaxStroke * 100d), 0, 100);
@@ -203,7 +204,10 @@ public partial class PumpVM : ViewModelBase, INotifyPropertyChangedExt2
         if (name.StartsWith("freq", StringComparison.OrdinalIgnoreCase))
             return (short)(showVal / 100d * (FreqMax - FreqMin) + FreqMin);
         else if (name.StartsWith("stroke", StringComparison.OrdinalIgnoreCase))
+        {
+            return (short)showVal;
             return (short)(showVal / 100d * (Cfg.MaxStroke.Value - Cfg.MinStroke.Value) + Cfg.MinStroke.Value);
+        }
         else if (name.StartsWith("flow", StringComparison.OrdinalIgnoreCase))
             return (short)(showVal * 100);
         throw new ArgumentException();
@@ -219,13 +223,13 @@ public partial class PumpVM : ViewModelBase, INotifyPropertyChangedExt2
         {
             pumpVM.FreqSV = GetShowValByRaw("freq", freqRaw);
             pumpVM.FreqPV = Math.Max(0, pumpVM.FreqPV);
-            pumpVM.StrokeSV = Math.Clamp(Math.Round(tmpStroke / tmpMaxStroke * 100d), 0, 100);
+            pumpVM.StrokeSV = GetShowValByRaw(nameof(StrokeSV), sRaw);//  Math.Clamp(Math.Round(tmpStroke / tmpMaxStroke * 100d), 0, 100);
             pumpVM.FlowSV = GetShowValByRaw(nameof(FlowSV), flowRaw);
             return;
         }
 
         pumpVM.FreqPV = Math.Max(0, GetShowValByRaw("freq", freqRaw));
-        pumpVM.StrokePV = Math.Clamp(Math.Round(tmpStroke / tmpMaxStroke * 100d), 0, 100);
+        pumpVM.StrokePV = GetShowValByRaw("stroke",sRaw);//Math.Clamp(Math.Round(tmpStroke / tmpMaxStroke * 100d), 0, 100);
         pumpVM.FlowPV = GetShowValByRaw(nameof(FlowPV), flowRaw);
     }
 

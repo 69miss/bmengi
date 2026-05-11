@@ -42,7 +42,11 @@ internal class PumpCmd:IDisposable
 
     private async Task ReConnect()
     {
-        if (client != null) { client.Dispose(); }
+        if (client != null)
+        {
+            await Disconnect();
+            client.Dispose();
+        }
         client = new SiemensS7Adapter(SiemensVersion.S7_1200,"192.168.0.8", 102,timeout:3000) { };
         var re = await client.ConnectAsync();
         if (!re)
@@ -55,14 +59,19 @@ internal class PumpCmd:IDisposable
        await client.DisconnectAsync();
        // StatusMsg = "已断开";
     }
-
+    DateTime DBW2LastTime;
     public async Task WriteValue(string address, IConvertible val)
     {
         if (client.IsConnected)
         {
             Console.WriteLine($"{DateTime.Now}-->>{address}_{val}");
-            await client.WriteAsync(address + "", val);
-            Console.WriteLine($"{DateTime.Now}--<<{address}_{val}");
+            if (address.EndsWith("DBW2"))
+            {
+                //Console.WriteLine(Environment.StackTrace);
+                DBW2LastTime = DateTime.Now;
+            }
+           var re= await client.WriteAsync(address + "", val);
+            Console.WriteLine($"{DateTime.Now}--<<re:{re},{address}_{val}");
         }
     }
     public async Task ReconnectionAsync(CancellationToken token, int msDelay, Func<Exception?, int, IDictionary<string, object>, Task<bool>> reconnectFunc)
@@ -112,17 +121,18 @@ internal class PumpCmd:IDisposable
     /// <param name="token"></param>
     /// <param name="isRetry"></param>
     /// <returns></returns>
-    private async Task StatueInfoGet(CancellationToken token,bool isRetry=true)
+    private async Task StatueInfoGet(CancellationToken token, bool isRetry = true)
     {
-        
+
         IDictionary<string, object> reDic = null;
         try
         {
             reDic = await client.ReadBatchAsync(readBatchAddrs);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            if(!isRetry)
+            Console.WriteLine(ex);
+            if (!isRetry)
                 throw;
             await ReconnectionAsync(token, 1000, async (p1, p2, p3) =>
             {
@@ -134,7 +144,7 @@ internal class PumpCmd:IDisposable
                 return true;
             });
         }
-        var newDict= reDic.ToDictionary(p=>p.Key,p=>(IConvertible)p.Value);
+        var newDict = reDic.ToDictionary(p => p.Key, p => (IConvertible)p.Value);
         var rawBytes = reDic.Values.ToArray();
         var beginTIme = DateTime.Now;
         var isChange = false;
@@ -145,15 +155,24 @@ internal class PumpCmd:IDisposable
                 continue;
             if (!val.Equals(item.Value))
             {
-                strMsg += $"{item.Name}:{item.Value}-->{val}";
+                if (!item.Name.Contains("心跳"))
+                    strMsg += $"{item.Name}:{item.Value}-->{val} ; ";
+                
+                //
+                if (item.Address.EndsWith("DBW2")&&DateTime.Now-DBW2LastTime<TimeSpan.FromSeconds(2))
+                {
+                    strMsg += "DW2变更忽略";
+                    continue;
+                }
                 item.Value = val;
                 isChange = true;
             }
-            item.Value = val;
+            //item.Value = val;
         }
         if (isChange == true)
         {
-            //WriteLog(strMsg);
+            if (!string.IsNullOrWhiteSpace(strMsg))
+                WriteLog(strMsg);
             Items.OnItemsPropertyChangedEnd(beginTIme);
         }
     }

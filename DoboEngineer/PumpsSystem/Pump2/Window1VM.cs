@@ -21,7 +21,7 @@ namespace PumpsSystem.Pump2;
 public partial class Window1VM : ViewModelBase, IDisposable
 {
     public ObservableCollection<PumpVM> Pumps { get; } = new();
-    public IDataItemProp GlobalModeReg { get => globalModeReg; set => globalModeReg = value; }
+    public IDataItemProp GlobalModeReg { get { return globalModeReg; } set { globalModeReg = value; } }
 
     internal PumpCmd cmd;
     [ObservableProperty] private bool _isAutoMode;
@@ -47,8 +47,8 @@ public partial class Window1VM : ViewModelBase, IDisposable
         mainCfg = PumpsDbSet.GetCfg("Pumps6Cfg");
         if(mainCfg==null)
             return;
-        GlobalModeReg = (mainCfg.Item2[0].AddressInfo.ModeFlow as IDataItemPropWrap).Register;
-        GlobalModeReg.PropertyChanged += GlobalModeReg_PropertyChanged;
+        globalModeReg = (mainCfg.Item2[0].AddressInfo.ModeFlow as IDataItemPropWrap).Register;
+        globalModeReg.PropertyChanged += GlobalModeReg_PropertyChanged;
         IsRemoteItem = mainCfg.Item2[0].AddressInfo.IsRemote;
          pumpCfgs = mainCfg.Item2; //dataDictSvc.GetByJson<PumpModel[]>("PumpListCfg");
         if (pumpCfgs == null) return;
@@ -57,7 +57,7 @@ public partial class Window1VM : ViewModelBase, IDisposable
         for (int i = 0; i < pumpCfgs.Length; i++)
         {
             var cfg = pumpCfgs[i];
-            Pumps.Add(new PumpVM(i + 1, ValEdit)
+            Pumps.Add(new PumpVM(int.Parse(cfg.Id), ValEdit)
             {
                 Name = cfg.Name,
                 Cfg = cfg,
@@ -67,9 +67,18 @@ public partial class Window1VM : ViewModelBase, IDisposable
         }
     }
 
-    private void GlobalModeReg_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    private async void GlobalModeReg_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
-         cmd.WriteValue(GlobalModeReg.Address, GlobalModeReg.Value); //todo 转变直接写是否可以？
+        try
+        {
+            Console.WriteLine($"写入-->{sender.GetHashCode()}:{globalModeReg.Value}");
+            await    cmd.WriteValue(globalModeReg.Address, globalModeReg.Value.ToInt16(null)); //todo 转变直接写是否可以？
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+        }
+       
     }
 
     public async Task ValEdit(IDataItemProp dataItem, IConvertible val)
@@ -166,11 +175,11 @@ public partial class Window1VM : ViewModelBase, IDisposable
     {
         if (sender is not IDataItemProp item) return;
 
-        if (item.Address == GlobalModeReg.Address)
+        if (item.Address == globalModeReg.Address)
         {
             int val = item.Value.ToInt32(null);
-            IsAutoMode =1.Equals(GlobalModeReg.Value);// (val & (1 << 0)) != 0; // 第0位为自动模式Flow位
-            isLocal= 4.Equals(GlobalModeReg.Value);
+            IsAutoMode =1.Equals(globalModeReg.Value);// (val & (1 << 0)) != 0; // 第0位为自动模式Flow位
+            isLocal= 4.Equals(globalModeReg.Value);
             if (!isInited)
             {
                 IsAutoModeSet = IsAutoMode;
