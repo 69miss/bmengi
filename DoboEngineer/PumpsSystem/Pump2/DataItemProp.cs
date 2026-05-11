@@ -27,7 +27,7 @@ public class DataItemProp<T> : DataItemProp where T : IConvertible
         typeCode=Type.GetTypeCode(typeof(T));
     }
     
-    public virtual T Value { get { return (T)base.Value; } set { base.Value = value; } }
+    public virtual T Value { get { return (T)Convert.ChangeType(base.Value, typeof(T));  } set { base.Value = value; } }
 }
 public class DataItemPropDto
 {

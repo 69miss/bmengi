@@ -48,8 +48,9 @@ namespace PumpsSystem.Pump2
             DataItems[3].Value = rand.Next(0, 2);
         }
 
-        public static IConvertible? Convert(object val, TypeCode typeCode)
+        public static IConvertible? Convert2(object val, TypeCode typeCode)
         {
+            return Convert.ChangeType(val, typeCode) as IConvertible;
             if (val is DBNull)
                 val = null;
             if (val == null)
@@ -79,6 +80,7 @@ namespace PumpsSystem.Pump2
             }
             try
             {
+
                 return typeCode switch
                 {
                     TypeCode.Boolean => System.Convert.ToBoolean(val),
@@ -106,16 +108,17 @@ namespace PumpsSystem.Pump2
             {
                 throw;
             }
-            
+
         }
-    
+       
         [RelayCommand]
        public async Task Send(IList<object> paramArr)
         {
 
+   
             var param = (dataItem: paramArr[0] as IDataItemProp, txt: paramArr[1] as string);
-          
-            await PumpCmd.WriteValue(param.dataItem.Address, Convert(param.txt,param.dataItem.TypeCode));
+            
+            await PumpCmd.WriteValue(param.dataItem.Address, Convert2(param.txt,param.dataItem.TypeCode));
 
         }
     }
