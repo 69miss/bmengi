@@ -198,11 +198,11 @@
 					<Border Background="#f1f5f9" CornerRadius="6" Padding="4">
 						<StackPanel Orientation="Horizontal">
 							<!--Theme="{DynamicResource ButtonRadioButton}"{Binding GlobalModeReg.Value,Converter={StaticResource CommConverter},ConverterParameter=4,Mode=OneWay}-->
-							<RadioButton GroupName="M" Content="{Binding L.ManualParamMode}" IsChecked="{Binding !IsAutoModeSet}"
+							<RadioButton  Content="{Binding L.ManualParamMode}" IsChecked="{Binding GlobalModeReg.Value,Converter={StaticResource CommConverter},ConverterParameter=1}"
 										  Padding="15,8" CornerRadius="4"/>
-							<RadioButton GroupName="M" Content="{Binding L.FlowAutoMode}" IsChecked="{Binding IsAutoModeSet}"
+							<RadioButton  Content="{Binding L.FlowAutoMode}" IsChecked="{Binding GlobalModeReg.Value,Converter={StaticResource CommConverter},ConverterParameter=2}"
 										  Padding="15,8" CornerRadius="4"/> 
-							<RadioButton GroupName="M" Content="Local" IsChecked="{Binding IsLocal}"
+							<RadioButton  Content="Local" IsChecked="{Binding GlobalModeReg.Value,Converter={StaticResource CommConverter},ConverterParameter=4}"
 										  Padding="15,8" CornerRadius="4" /> 
 						</StackPanel>
 					</Border>
