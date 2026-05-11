@@ -48,6 +48,7 @@ public partial class Window1VM : ViewModelBase, IDisposable
         if(mainCfg==null)
             return;
         GlobalModeReg = (mainCfg.Item2[0].AddressInfo.ModeFlow as IDataItemPropWrap).Register;
+        GlobalModeReg.PropertyChanged += GlobalModeReg_PropertyChanged;
         IsRemoteItem = mainCfg.Item2[0].AddressInfo.IsRemote;
          pumpCfgs = mainCfg.Item2; //dataDictSvc.GetByJson<PumpModel[]>("PumpListCfg");
         if (pumpCfgs == null) return;
@@ -66,7 +67,12 @@ public partial class Window1VM : ViewModelBase, IDisposable
         }
     }
 
-   public async Task ValEdit(IDataItemProp dataItem, IConvertible val)
+    private void GlobalModeReg_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+         cmd.WriteValue(GlobalModeReg.Address, GlobalModeReg.Value); //todo 转变直接写是否可以？
+    }
+
+    public async Task ValEdit(IDataItemProp dataItem, IConvertible val)
     {
         await cmd.WriteValue(dataItem.Address, val);
     }
