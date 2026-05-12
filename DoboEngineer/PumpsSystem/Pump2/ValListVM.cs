@@ -26,10 +26,10 @@ namespace PumpsSystem.Pump2
         {
             DataItems = new ObservableCollection<IDataItemProp>
             {
-                new DataItemProp { Address = "1", Name = "温度传感器(只读)", Value = 25.5, CanWrite = false },
-                new DataItemProp { Address = "2", Name = "报警阈值(可写)", Value = 63340, CanWrite = true },
-                new DataItemProp { Address = "3", Name = "目标转速(可写)", Value = 1500, CanWrite = true },
-                new DataItemProp { Address = "4", Name = "运行状态(只读)", Value = 1, CanWrite = false }
+                new DataItemProp(25.5) { Address = "1", Name = "温度传感器(只读)", Value = 25.5, CanWrite = false },
+                new DataItemProp(63340) { Address = "2", Name = "报警阈值(可写)", Value = 63340, CanWrite = true },
+                new DataItemProp(1500) { Address = "3", Name = "目标转速(可写)", Value = 1500, CanWrite = true },
+                new DataItemProp(true) { Address = "4", Name = "运行状态(只读)", Value = true, CanWrite = false }
             };
 
             // 模拟设备数据主动上报

@@ -20,11 +20,9 @@ public interface IDataItemProp : IDataItemBase, INotifyPropertyChanged
 }
 public class DataItemProp<T> : DataItemProp where T : IConvertible
 {
-    TypeCode typeCode;
-    public override TypeCode TypeCode => typeCode;
-    public DataItemProp()
+
+    public DataItemProp():base(Type.GetTypeCode(typeof(T)))
     {
-        typeCode=Type.GetTypeCode(typeof(T));
     }
 
     public virtual T Value { get { return (T)Convert.ChangeType(base.Value, typeof(T)); } set { base.Value = value; } }
@@ -46,8 +44,6 @@ public class DataItemProp : IDataItemProp, INotifyPropertyChangedExt2
 
     private IConvertible _value;
   
-    public DataItemProp() { 
-    }
     public DataItemProp(TypeCode type)
     {
         TypeCode = type;
@@ -62,8 +58,11 @@ public class DataItemProp : IDataItemProp, INotifyPropertyChangedExt2
   
     public virtual string Address { get; set; }
     public virtual string Name { get; set; }
-    public virtual IConvertible Value { get => _value; 
-        set   {  NotifyThis.SetField(ref _value, (value==null?null:Convert.ChangeType(value, TypeCode)) as IConvertible); } }
+    public virtual IConvertible Value
+    {
+        get => _value;
+        set { NotifyThis.SetField(ref _value, (IConvertible)Convert.ChangeType(value, TypeCode)); }
+    }
     public virtual bool CanWrite { get; set; }
 
     private string _inputValue;
