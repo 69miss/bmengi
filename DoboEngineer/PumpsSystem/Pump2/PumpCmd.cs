@@ -160,11 +160,11 @@ internal class PumpCmd:IDisposable
                 continue;
             if (!val.Equals(item.Value))
             {
-                if (!item.Name.Contains("心跳"))
-                    strMsg += $"{item.Name}:{item.Value}-->{val} ; ";
+                //if (!item.Name.Contains("心跳"))
+                //    strMsg += $"{item.Name}:{item.Value}-->{val} ; ";
                 
-                //
-                if (item.Address.EndsWith("DBW2")&&DateTime.Now-DBW2LastTime<TimeSpan.FromSeconds(2))
+                //可不用这样处理
+                if (item.Address.EndsWith("DBW2")&&DateTime.Now-DBW2LastTime<TimeSpan.FromSeconds(1))
                 {
                     strMsg += "DW2变更忽略";
                     continue;

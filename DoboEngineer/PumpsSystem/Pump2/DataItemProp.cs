@@ -101,7 +101,6 @@ public class DataItemPropMap<T> : DataItemProp<T>, IDataItemPropWrap where T : I
             return;
 
         var val = Value;
-        Console.WriteLine($"Register_PropertyChanged:{Register.Name}--->"+val);
     }
 
     public IDataItemProp Register { get; }
