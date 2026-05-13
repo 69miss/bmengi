@@ -1,9 +1,11 @@
 ﻿using Avalonia.Threading;
+using CommunityToolkit.Mvvm.Messaging;
 using Dobo.Appl.Device;
 using Dobo.Appl.HunterCmd;
 using Dobo.Appl.Utility;
 using FluentModbus;
 using IoTClient.Common.Enums;
+using PumpsSystem.Module;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -47,10 +49,13 @@ internal class PumpCmd:IDisposable
             await Disconnect();
             client.Dispose();
         }
-        client = new SiemensS7Adapter(SiemensVersion.S7_1200,"192.168.0.8", 102,timeout:3000) { };
+        client = new SiemensS7Adapter(SiemensVersion.S7_1200, "192.168.0.8", 102, timeout: 3000) { };
         var re = await client.ConnectAsync();
         if (!re)
+        {
+            WeakReferenceMessenger.Default.Send("连接失败", BusEventName.Main_ShowNotification);
             throw new System.Net.Sockets.SocketException(-1, "连接失败");
+        }
     }
 
     public async Task Disconnect()

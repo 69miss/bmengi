@@ -1,8 +1,11 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Notifications;
 using Avalonia.Input;
 using Avalonia.Markup.Xaml;
+using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
+using PumpsSystem.AvaloniaUI;
 using PumpsSystem.Controls;
 using PumpsSystem.Module;
 using System;
@@ -11,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace PumpsSystem.Pump2;
 
-public partial class Window1 : Window
+public partial class Window1 : WindowCommBase<Window1VM>
 {
     Window1VM mainWindowViewModel;
     public Window1()
@@ -20,9 +23,13 @@ public partial class Window1 : Window
         this.DataContext = mainWindowViewModel;
         InitializeComponent();  
         Closed += Window1_Closed;
+        WeakReferenceMessenger.Default.Register<string,string>(this, BusEventName.Main_ShowNotification, (p, p1) => {
+            ShowNotification(p1, true);
+        });
+
 
     }
-
+  
     private void Window1_Closed(object? sender, System.EventArgs e)
     {
         (this.DataContext as IDisposable)?.Dispose();
@@ -43,6 +50,7 @@ public partial class Window1 : Window
 
     private void MenuItem_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
+    
         if (mainWindowViewModel.cmd == null)
             return;
         var vWin = new ValList();
@@ -54,7 +62,7 @@ public partial class Window1 : Window
         vWin.Show();
 
     }
-
+    
     private void MenuItem_Click_1(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
         var dlg = new PumpCfgWnd(new PumpCfgViewModel());

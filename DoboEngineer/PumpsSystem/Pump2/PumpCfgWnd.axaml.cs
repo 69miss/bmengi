@@ -1,13 +1,14 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
+using PumpsSystem.AvaloniaUI;
 using PumpsSystem.Controls;
 using System.ComponentModel;
 using System.Threading.Tasks;
 
 namespace PumpsSystem.Pump2;
 
-public partial class PumpCfgWnd : WindowVm<ISupportInitialize>
+public partial class PumpCfgWnd : WindowCommBase<ISupportInitialize>
 {
     
     public PumpCfgWnd(ISupportInitialize vm=null)
@@ -27,8 +28,4 @@ public partial class PumpCfgWnd : WindowVm<ISupportInitialize>
         var box = new MsgBox();
         return await MsgBox.Show(this, "提示消息", msg, false);
     }
-}
-public abstract class WindowVm<T>: Window   where T:class
-{
-    public virtual T DataContextVal { get { return DataContext as T; } set { DataContext = value; } }
 }
