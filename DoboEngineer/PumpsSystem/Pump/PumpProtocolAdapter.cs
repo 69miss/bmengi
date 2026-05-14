@@ -40,7 +40,7 @@ namespace PumpsSystem.Pump
             catch (Exception ex)
             {
                 AddLog($"连接失败: {ex.Message}");
-                //throw;
+                throw;
             }
             return Task.FromResult(false);
         }
