@@ -94,7 +94,7 @@ public partial class Window1VM : ViewModelBase, IDisposable
             cmd?.Dispose();
             IDataItemProp[] pArr = mainCfg.Item1;
             cmd = new PumpCmd(pArr);
-
+            cmd.ConnectionStateChanged += (p, p1) => { IsConnection = cmd.IsConnection; };
             if (!PumpModule.IsMock)
                 await cmd.Connect();
 

@@ -24,7 +24,7 @@ internal class PumpCmd:IDisposable
     private CancellationTokenSource cts;
     public  ObservableItemCollection<IDataItemProp> Items { get; } = new();
     Dictionary<string,TypeCode> readBatchAddrs;
-
+    public event EventHandler<bool> ConnectionStateChanged;
     public PumpCmd(IDataItemProp[] items )
     {
         foreach (IDataItemProp item in items)
@@ -50,6 +50,7 @@ internal class PumpCmd:IDisposable
             client.Dispose();
         }
         client = new SiemensS7Adapter(SiemensVersion.S7_1200, "192.168.0.8", 102, timeout: 3000) { };
+        client.ConnectionStateChanged += (p, p1) => ConnectionStateChanged?.Invoke(this, p1);
         var re = await client.ConnectAsync();
         if (!re)
         {
@@ -132,7 +133,10 @@ internal class PumpCmd:IDisposable
         IDictionary<string, object> reDic = null;
         try
         {
-            reDic = await client.ReadBatchAsync(readBatchAddrs);
+            if (IsConnection)
+                reDic = await client.ReadBatchAsync(readBatchAddrs);
+            else
+                return;
         }
         catch (Exception ex)
         {

@@ -20,14 +20,8 @@ namespace PumpsSystem.Pump2
     /// </summary>
     public class HeartbeatConfig
     {
-        public bool Enabled { get; set; } = false;      // 是否启用心跳
-        public int IntervalMs { get; set; } = 1000;     // 心跳间隔 (毫秒)
-
-        /// <summary>
-        /// 用户自定义的心跳实际写入逻辑。
-        /// 外部可在此委托中自由实现对指定地址、类型、变化方式的写入。
-        /// 返回 true 表示维持成功，返回 false 或抛出异常表示连接断开。
-        /// </summary>
+        public bool Enabled { get; set; } = false;
+        public int IntervalMs { get; set; } = 1000;
         public Func<Task<bool>> WriteFunc { get; set; }
     }
 
@@ -37,16 +31,16 @@ namespace PumpsSystem.Pump2
         private bool _isConnected;
         private CancellationTokenSource _heartbeatCts;
 
-        // 引入异步锁，防止心跳后台线程与业务主线程并发读写底层Socket导致数据错乱或崩溃
+        // 异步锁，保护底层 Socket 并发安全
         private readonly SemaphoreSlim _plcLock = new SemaphoreSlim(1, 1);
 
-        // 对外提供的心跳配置对象
         public HeartbeatConfig Heartbeat { get; } = new HeartbeatConfig();
 
         public string ConnectionString => throw new NotImplementedException();
 
-        // 综合当前内部状态或底层状态返回连接情况
-        public bool IsConnected => Heartbeat.Enabled ? _isConnected : client.Connected;
+        // 优化：不再依赖 client.Connected。因为无论是否开启心跳，我们自己维护的 _isConnected 
+        // 已经被所有的读写操作实时刷新了，它是最准确的。
+        public bool IsConnected => _isConnected;
 
         public string ProtocolName => "SiemensS7";
 
@@ -58,9 +52,6 @@ namespace PumpsSystem.Pump2
             client = new SiemensClient(type, ip, port, slot, rack);
         }
 
-        /// <summary>
-        /// 统一处理连接状态的变更，并触发事件
-        /// </summary>
         private void SetConnectionState(bool newState)
         {
             if (_isConnected != newState)
@@ -70,12 +61,49 @@ namespace PumpsSystem.Pump2
             }
         }
 
+        #region 全局核心拦截器 (结合 client.Connected 的终极状态感知)
+
+        /// <summary>
+        /// 统一的执行包装器。
+        /// 负责：线程池切换、并发排队、以及最精准的连接状态感知。
+        /// </summary>
+        private async Task<T> ExecuteWithConnectionCheckAsync<T>(Func<T> action)
+        {
+            await _plcLock.WaitAsync();
+            try
+            {
+                var result = await Task.Run(action);
+                SetConnectionState(true);
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                // 剥离可能由 Task 包装的外层异常
+                var actualEx = ex is AggregateException ae ? ae.GetBaseException() : ex;
+                if (!client.Connected)
+                {
+                    SetConnectionState(false);
+                }
+                else
+                {
+                    Console.WriteLine($"[PLC警告] 网络正常，但读写发生业务异常: {actualEx.Message}");
+                }
+                throw actualEx;
+            }
+            finally
+            {
+                _plcLock.Release();
+            }
+        }
+
+        #endregion
+
         public async Task<bool> ConnectAsync()
         {
             await _plcLock.WaitAsync();
             try
             {
-                // 真正的异步封装，避免底层同步方法阻塞UI或调用线程
                 var re = await Task.Run(() => client.Open());
                 if (re.IsSucceed)
                 {
@@ -83,8 +111,8 @@ namespace PumpsSystem.Pump2
                     StartHeartbeat();
                     return true;
                 }
-                Console.WriteLine(re.Err);
                 SetConnectionState(false);
+                Console.WriteLine(re.Err);
                 return false;
             }
             finally
@@ -119,7 +147,7 @@ namespace PumpsSystem.Pump2
             _plcLock.Dispose();
         }
 
-        #region 纯粹的心跳维持与状态感知机制
+        #region 心跳维持 (仅作为闲置时的保活补充)
 
         private void StartHeartbeat()
         {
@@ -146,17 +174,24 @@ namespace PumpsSystem.Pump2
             {
                 if (Heartbeat.Enabled && Heartbeat.WriteFunc != null)
                 {
-                    bool success = false;
                     try
                     {
-                        // 执行用户传入的自定义心跳写入逻辑
-                        success = await Heartbeat.WriteFunc();
+                        // 执行心跳逻辑
+                        await Heartbeat.WriteFunc();
+
+                        // 如果没抛异常，说明连接正常
+                        SetConnectionState(true);
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        success = false;
+                        // 心跳发生异常，以底层 client.Connected 的真实状态为准！
+                        SetConnectionState(client.Connected);
+
+                        if (client.Connected)
+                        {
+                            Console.WriteLine($"[Heartbeat Warning] 网络未断开，但用户自定义心跳逻辑发生异常: {ex.Message}");
+                        }
                     }
-                    SetConnectionState(success);
                 }
 
                 try
@@ -172,7 +207,7 @@ namespace PumpsSystem.Pump2
 
         #endregion
 
-        #region 核心读写操作 (代码去重复用、支持真异步与并发安全)
+        #region 核心读写操作
 
         public async Task<T> ReadAsync<T>(string address)
         {
@@ -181,36 +216,29 @@ namespace PumpsSystem.Pump2
             return (T)result;
         }
 
-        public async Task<object> ReadAsync(string address, TypeCode typeCode)
+        public Task<object> ReadAsync(string address, TypeCode typeCode)
         {
-            await _plcLock.WaitAsync();
-            try
+            // 通过统一包装器执行，自带上锁、切线程、查断线功能！
+            return ExecuteWithConnectionCheckAsync<object>(() =>
             {
-                return await Task.Run<object>(() =>
+                return typeCode switch
                 {
-                    return typeCode switch
-                    {
-                        TypeCode.Boolean => ResultToVal(client.ReadBoolean(address)),
-                        TypeCode.Byte => ResultToVal(client.ReadByte(address)),
-                        TypeCode.Int16 => ResultToVal(client.ReadInt16(address)),
-                        TypeCode.UInt16 => ResultToVal(client.ReadUInt16(address)),
-                        TypeCode.Int32 => ResultToVal(client.ReadInt32(address)),
-                        TypeCode.UInt32 => ResultToVal(client.ReadUInt32(address)),
-                        TypeCode.Int64 => ResultToVal(client.ReadInt64(address)),
-                        TypeCode.UInt64 => ResultToVal(client.ReadUInt64(address)),
-                        TypeCode.Single => ResultToVal(client.ReadFloat(address)),
-                        TypeCode.Double => ResultToVal(client.ReadDouble(address)),
-                        TypeCode.Decimal => ResultToVal(client.ReadDouble(address)),
-                        TypeCode.Char => ResultToVal(client.ReadString(address)),
-                        TypeCode.String => ResultToVal(client.ReadString(address)),
-                        _ => throw new NotSupportedException($"不支持的 TypeCode 类型：{typeCode}")
-                    };
-                });
-            }
-            finally
-            {
-                _plcLock.Release();
-            }
+                    TypeCode.Boolean => ResultToVal(client.ReadBoolean(address)),
+                    TypeCode.Byte => ResultToVal(client.ReadByte(address)),
+                    TypeCode.Int16 => ResultToVal(client.ReadInt16(address)),
+                    TypeCode.UInt16 => ResultToVal(client.ReadUInt16(address)),
+                    TypeCode.Int32 => ResultToVal(client.ReadInt32(address)),
+                    TypeCode.UInt32 => ResultToVal(client.ReadUInt32(address)),
+                    TypeCode.Int64 => ResultToVal(client.ReadInt64(address)),
+                    TypeCode.UInt64 => ResultToVal(client.ReadUInt64(address)),
+                    TypeCode.Single => ResultToVal(client.ReadFloat(address)),
+                    TypeCode.Double => ResultToVal(client.ReadDouble(address)),
+                    TypeCode.Decimal => ResultToVal(client.ReadDouble(address)),
+                    TypeCode.Char => ResultToVal(client.ReadString(address)),
+                    TypeCode.String => ResultToVal(client.ReadString(address)),
+                    _ => throw new NotSupportedException($"不支持的 TypeCode 类型：{typeCode}")
+                };
+            });
         }
 
         public Task<bool> WriteAsync<T>(string address, T value)
@@ -222,85 +250,60 @@ namespace PumpsSystem.Pump2
             throw new NotSupportedException($"不支持的写入类型：{typeof(T).FullName}");
         }
 
-        public async Task<bool> WriteAsync(string address, IConvertible value)
+        public Task<bool> WriteAsync(string address, IConvertible value)
         {
-            await _plcLock.WaitAsync();
-            try
+            return ExecuteWithConnectionCheckAsync(() =>
             {
-                return await Task.Run(() =>
+                return value switch
                 {
-                    return value switch
-                    {
-                        bool boolVal => ResultTo(client.Write(address, boolVal)),
-                        byte byteVal => ResultTo(client.Write(address, byteVal)),
-                        sbyte sbyteVal => ResultTo(client.Write(address, sbyteVal)),
-                        short shortVal => ResultTo(client.Write(address, shortVal)),
-                        ushort ushortVal => ResultTo(client.Write(address, ushortVal)),
-                        int intVal => ResultTo(client.Write(address, intVal)),
-                        uint uintVal => ResultTo(client.Write(address, uintVal)),
-                        long longVal => ResultTo(client.Write(address, longVal)),
-                        ulong ulongVal => ResultTo(client.Write(address, ulongVal)),
-                        float floatVal => ResultTo(client.Write(address, floatVal)),
-                        double doubleVal => ResultTo(client.Write(address, doubleVal)),
-                        decimal decimalVal => ResultTo(client.Write(address, (double)decimalVal)),
-                        char charVal => ResultTo(client.Write(address, charVal.ToString())),
-                        string strVal => ResultTo(client.Write(address, strVal)),
-                        _ => throw new NotSupportedException($"不支持的写入类型：{value.GetType().FullName}")
-                    };
-                });
-            }
-            finally
-            {
-                _plcLock.Release();
-            }
+                    bool boolVal => ResultTo(client.Write(address, boolVal)),
+                    byte byteVal => ResultTo(client.Write(address, byteVal)),
+                    sbyte sbyteVal => ResultTo(client.Write(address, sbyteVal)),
+                    short shortVal => ResultTo(client.Write(address, shortVal)),
+                    ushort ushortVal => ResultTo(client.Write(address, ushortVal)),
+                    int intVal => ResultTo(client.Write(address, intVal)),
+                    uint uintVal => ResultTo(client.Write(address, uintVal)),
+                    long longVal => ResultTo(client.Write(address, longVal)),
+                    ulong ulongVal => ResultTo(client.Write(address, ulongVal)),
+                    float floatVal => ResultTo(client.Write(address, floatVal)),
+                    double doubleVal => ResultTo(client.Write(address, doubleVal)),
+                    decimal decimalVal => ResultTo(client.Write(address, (double)decimalVal)),
+                    char charVal => ResultTo(client.Write(address, charVal.ToString())),
+                    string strVal => ResultTo(client.Write(address, strVal)),
+                    _ => throw new NotSupportedException($"不支持的写入类型：{value.GetType().FullName}")
+                };
+            });
         }
 
-        public async Task<IDictionary<string, object>> ReadBatchAsync(IDictionary<string, TypeCode> dict)
+        public Task<IDictionary<string, object>> ReadBatchAsync(IDictionary<string, TypeCode> dict)
         {
-            await _plcLock.WaitAsync();
-            try
+            return ExecuteWithConnectionCheckAsync(() =>
             {
-                return await Task.Run(() =>
-                {
-                    // 简化冗余的LINQ转换
-                    var mappedDict = dict.ToDictionary(k => k.Key, v => ToDataTypeEnum(v.Value));
-                    var re = client.BatchRead(mappedDict);
+                var mappedDict = dict.ToDictionary(k => k.Key, v => ToDataTypeEnum(v.Value));
+                var re = client.BatchRead(mappedDict);
 
-                    if (re.IsSucceed)
+                if (re.IsSucceed)
+                {
+                    foreach (var kv in dict)
                     {
-                        foreach (var kv in dict)
-                        {
-                            if (kv.Value != TypeCode.Boolean) continue;
-                            var bitRe = re.Value[kv.Key];
-                            if (bitRe is bool) continue;
-                            re.Value[kv.Key] = "1".Equals(bitRe?.ToString());
-                        }
-                        return (IDictionary<string, object>)re.Value;
+                        if (kv.Value != TypeCode.Boolean) continue;
+                        var bitRe = re.Value[kv.Key];
+                        if (bitRe is bool) continue;
+                        re.Value[kv.Key] = "1".Equals(bitRe?.ToString());
                     }
-                    throw re.Exception ?? new SystemException(re.Err);
-                });
-            }
-            finally
-            {
-                _plcLock.Release();
-            }
+                    return (IDictionary<string, object>)re.Value;
+                }
+                throw re.Exception ?? new SystemException(re.Err);
+            });
         }
 
-        public async Task<bool> WriteBatchAsync(IDictionary<string, object> dict, int batchNumber = 10)
+        public Task<bool> WriteBatchAsync(IDictionary<string, object> dict, int batchNumber = 10)
         {
-            await _plcLock.WaitAsync();
-            try
+            return ExecuteWithConnectionCheckAsync(() =>
             {
-                return await Task.Run(() =>
-                {
-                    var re = client.BatchWrite(dict.ToDictionary(k => k.Key, v => v.Value), batchNumber);
-                    return ResultTo(re);
-                });
-            }
-            finally
-            {
-                _plcLock.Release();
-            }
+                var re = client.BatchWrite(dict.ToDictionary(k => k.Key, v => v.Value), batchNumber);
+                return ResultTo(re);
+            });
         }
 
         public Task<T[]> ReadBatchAsync<T>(string addresse, int len)
@@ -314,42 +317,17 @@ namespace PumpsSystem.Pump2
 
         private T ResultToVal<T>(IoTClient.Result<T> result)
         {
-            if (result.IsSucceed)
-                return result.Value;
+            if (result.IsSucceed) return result.Value;
             throw result.Exception ?? new SystemException(result.Err);
         }
 
         private bool ResultTo(IoTClient.Result result)
         {
-            if (result.IsSucceed)
-                return true;
+            if (result.IsSucceed) return true;
             throw result.Exception ?? new SystemException(result.Err);
         }
 
-        public static TypeCode ToTypeCode(DataTypeEnum dataType)
-        {
-            return dataType switch
-            {
-                DataTypeEnum.None => TypeCode.Empty,
-                DataTypeEnum.Bool => TypeCode.Boolean,
-                DataTypeEnum.Byte => TypeCode.Byte,
-                DataTypeEnum.Int16 => TypeCode.Int16,
-                DataTypeEnum.UInt16 => TypeCode.UInt16,
-                DataTypeEnum.Int32 => TypeCode.Int32,
-                DataTypeEnum.UInt32 => TypeCode.UInt32,
-                DataTypeEnum.Int64 => TypeCode.Int64,
-                DataTypeEnum.UInt64 => TypeCode.UInt64,
-                DataTypeEnum.Float => TypeCode.Single,
-                DataTypeEnum.Double => TypeCode.Double,
-                DataTypeEnum.String => TypeCode.String,
-                _ => TypeCode.Empty
-            };
-        }
-
-        public static DataTypeEnum ToDataTypeEnum<T>()
-        {
-            return ToDataTypeEnum(Type.GetTypeCode(typeof(T)));
-        }
+        public static DataTypeEnum ToDataTypeEnum<T>() => ToDataTypeEnum(Type.GetTypeCode(typeof(T)));
 
         public static DataTypeEnum ToDataTypeEnum(TypeCode typeCode)
         {
