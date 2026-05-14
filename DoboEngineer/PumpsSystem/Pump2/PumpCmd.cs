@@ -53,7 +53,7 @@ internal class PumpCmd:IDisposable
         var re = await client.ConnectAsync();
         if (!re)
         {
-            WeakReferenceMessenger.Default.Send("连接失败", BusEventName.Main_ShowNotification);
+            WeakReferenceMessenger.Default.Send("网络异常，重连失败", BusEventName.Main_ShowNotification);
             throw new System.Net.Sockets.SocketException(-1, "连接失败");
         }
     }
