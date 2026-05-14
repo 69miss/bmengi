@@ -22,7 +22,8 @@ public partial class PumpVM : ViewModelBase, INotifyPropertyChangedExt2
 
     private double _flowSV;
     private double _strokeSV;
-    private double _freqSV; [ObservableProperty][NotifyPropertyChangedFor(nameof(LiquidHeight))] private double _flowMax;
+    private double _freqSV; 
+    [ObservableProperty][NotifyPropertyChangedFor(nameof(LiquidHeight))] private double _flowMax;
     [ObservableProperty] private double _strokeMax;
     [ObservableProperty] private double _strokeMin;
 
@@ -65,7 +66,7 @@ public partial class PumpVM : ViewModelBase, INotifyPropertyChangedExt2
 
     public PumpModel Cfg { get; set; }
     public INotifyPropertyChangedExt2 NotifyThis { get => this; }
-    public double FlowSV { get => _flowSV; set => NotifyThis.SetField(ref _flowSV, value); }
+    public double FlowSV { get => _flowSV; set => SetFieldAndMend(ref _flowSV, value,p=>Math.Clamp(p, Math.Round(FlowMax * 0.01, 1, MidpointRounding.ToPositiveInfinity),FlowMax)); }
     public double StrokeSV { get => _strokeSV; set => SetFieldAndMend(ref _strokeSV, value, p => Math.Clamp(p, 0, 100)); }
     public double FreqSV { get => _freqSV; set => SetFieldAndMend(ref _freqSV, value, p => Math.Clamp(p, 0, 100)); }
 
