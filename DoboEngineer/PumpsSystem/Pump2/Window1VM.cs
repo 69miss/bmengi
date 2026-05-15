@@ -94,7 +94,18 @@ public partial class Window1VM : ViewModelBase, IDisposable
             cmd?.Dispose();
             IDataItemProp[] pArr = mainCfg.Item1;
             cmd = new PumpCmd(pArr);
-            cmd.ConnectionStateChanged += (p, p1) => { IsConnection = cmd.IsConnection; };
+            cmd.ConnectionStateChanged += (p, p1) =>
+            {
+                if (IsConnection == cmd.IsConnection) 
+                    return;
+                IsConnection = cmd.IsConnection;
+                if (!cmd.IsConnection)
+                {
+                    cmd?.Dispose();
+                    cmd = null;
+                    WeakReferenceMessenger.Default.Send("网络异常，连接失败！", BusEventName.Main_ShowNotification);
+                }
+            };
             if (!PumpModule.IsMock)
                 await cmd.Connect();
 
@@ -132,6 +143,7 @@ public partial class Window1VM : ViewModelBase, IDisposable
         else if (isConn == true)
         {
             cmd?.Dispose();
+            cmd = null;
             IsConnection = false;
         }
         else

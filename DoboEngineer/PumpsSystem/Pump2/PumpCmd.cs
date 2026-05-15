@@ -54,7 +54,7 @@ internal class PumpCmd:IDisposable
         var re = await client.ConnectAsync();
         if (!re)
         {
-            WeakReferenceMessenger.Default.Send("网络异常，重连失败", BusEventName.Main_ShowNotification);
+            WeakReferenceMessenger.Default.Send("网络异常，连接失败", BusEventName.Main_ShowNotification);
             throw new System.Net.Sockets.SocketException(-1, "连接失败");
         }
     }
@@ -109,7 +109,7 @@ internal class PumpCmd:IDisposable
             if (!client.IsConnected || Items.Count == 0) continue;
             try
             {
-                await StatueInfoGet(token);
+                await StatueInfoGet(token,false);
                 
                 await client.WriteAsync("DB12.DBX0.0", num=!num);
             }
