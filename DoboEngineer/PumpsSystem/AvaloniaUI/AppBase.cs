@@ -4,6 +4,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
+using Dobo.Appl.Service;
 using PumpsSystem.Module;
 using System;
 using System.Collections.Generic;
@@ -24,8 +25,9 @@ public abstract class AppBase : Application
 
     public override void OnFrameworkInitializationCompleted()
     {
-
-        PumpLang.Instance.ChangeLanguage("en");
+        var dataDictSvc = new DataDictSvc();
+        var langName = dataDictSvc.GetByName("LangName")?.Value??"zh-cn";
+        PumpLang.Instance.ChangeLanguage(langName);
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             // Avoid duplicate validations from both Avalonia and the CommunityToolkit. 

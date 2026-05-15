@@ -4,6 +4,7 @@ using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using Dobo.Appl.Entity;
 using Dobo.Appl.Service;
 using Microsoft.Extensions.DependencyInjection;
 using PumpsSystem.Module;
@@ -219,16 +220,24 @@ public partial class Window1VM : ViewModelBase, IDisposable
     {
         var lang = L;
         if (lang == null) return;
-
+       var dataDictSvc = new DataDictSvc();
         if (CultureInfo.CurrentCulture.Name == "en")
         {
             WeakReferenceMessenger.Default.Send(PumpLang.Instance);
             CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo("zh-Cn");
+            var dict = dataDictSvc.GetByName("LangName");
+            dict = dict ?? new DataDict() { Name = "LangName" };
+            dict.Value = "zh-Cn";
+            dataDictSvc.Save(dict);
         }
         else
         {
             WeakReferenceMessenger.Default.Send<PumpLang>(PumpEnLang.Instance);
             CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo("en");
+            var dict = dataDictSvc.GetByName("LangName");
+            dict = dict ?? new DataDict() { Name = "LangName" };
+            dict.Value = "en";
+            dataDictSvc.Save(dict);
         }
     }
 

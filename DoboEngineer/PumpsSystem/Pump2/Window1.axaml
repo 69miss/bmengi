@@ -202,7 +202,7 @@
 										  Padding="15,8" CornerRadius="4"/>
 							<RadioButton  Content="{Binding L.FlowAutoMode}" IsChecked="{Binding GlobalModeReg.Value,Converter={StaticResource CommConverter},ConverterParameter=1}"
 										  Padding="15,8" CornerRadius="4"/> 
-							<RadioButton  Content="Local" IsChecked="{Binding GlobalModeReg.Value,Converter={StaticResource CommConverter},ConverterParameter=4}"
+							<RadioButton  Content="{Binding L.LocalModel}" IsChecked="{Binding GlobalModeReg.Value,Converter={StaticResource CommConverter},ConverterParameter=4}"
 										  Padding="15,8" CornerRadius="4" /> 
 						</StackPanel>
 					</Border>

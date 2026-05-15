@@ -41,6 +41,8 @@ public class PumpLang : LangBase
     /// </summary>
     public virtual string FlowAutoMode => GetString("流量模式");
 
+    public virtual string LocalModel => GetString("本地模式");
+
     /// <summary>
     /// 自动模式提示文本
     /// </summary>
@@ -142,6 +144,7 @@ public class PumpEnLang : PumpLang
     public override string ManualParamMode => GetString("Parameter Mode");
 
     public override string FlowAutoMode => GetString("Flow Control");
+    public override string LocalModel => GetString("Local");
 
     public override string AutoModeTip => GetString("*In auto mode, only set the flow rate");//other parameters are allocated by the system
 
