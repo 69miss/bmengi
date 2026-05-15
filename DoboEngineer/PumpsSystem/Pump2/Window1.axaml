@@ -303,7 +303,7 @@
 															   Margin="0,-2,0,0"/>   <!--微调 Margin 让减号视觉居中--> 
 												</Button>
 												<!--<TextBox Grid.Column="1" Classes="CapsuleInput" Width="40" MinWidth="10" Text="{Binding FlowSV, StringFormat='{}{0:F0}'}"/>-->
-												<NumericUpDown  Classes="CapsuleInput" Grid.Column="1" Value="{Binding FlowSV}" Minimum="0" Maximum="{Binding FlowMax}" MinWidth="0" Width="35" MinHeight="10"  ShowButtonSpinner="False"  FormatString="0.0"  Increment="0.1" />
+												<NumericUpDown  Classes="CapsuleInput" Grid.Column="1" Value="{Binding FlowSV}" Minimum="0.1" Maximum="{Binding FlowMax}" MinWidth="0" Width="35" MinHeight="10"  ShowButtonSpinner="False"  FormatString="0.0"  Increment="0.1" />
 												<Button Grid.Column="2" Classes="CapsuleBtn"
 														Command="{Binding AdjustValueCommand}" CommandParameter="Flow|1"
 														>
