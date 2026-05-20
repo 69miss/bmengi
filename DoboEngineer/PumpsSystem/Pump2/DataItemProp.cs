@@ -6,6 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -17,15 +18,22 @@ public interface IDataItemProp : IDataItemBase, INotifyPropertyChanged
     public IConvertible Value { get; set; }
     public bool CanWrite { get;  }
     public TypeCode TypeCode { get;}
+    public DateTimeOffset Timestamp { get; set; }
+    /// <summary>
+    /// 数据有效,// 通信故障/地址错误 // 不确定（如初始化中、处于过渡态） // 正在初始化
+    /// </summary>
+    WebExceptionStatus Quality { get; set; }
 }
 public class DataItemProp<T> : DataItemProp where T : IConvertible
 {
 
     public DataItemProp():base(Type.GetTypeCode(typeof(T)))
     {
+        
     }
 
-    public virtual T Value { get { return (T)Convert.ChangeType(base.Value, typeof(T)); } set { base.Value = value; } }
+    public new virtual T Value { get { return (T)Convert.ChangeType(base.Value, typeof(T)); } set { base.Value = value; } }
+    public override IConvertible Value { get => base.Value; set => base.Value = value; }
 }
 public class DataItemPropDto
 {
@@ -58,6 +66,8 @@ public class DataItemProp : IDataItemProp, INotifyPropertyChangedExt2
   
     public virtual string Address { get; set; }
     public virtual string Name { get; set; }
+    public DateTimeOffset Timestamp { get; set; }
+    public WebExceptionStatus Quality { get; set; }
     public virtual IConvertible Value
     {
         get => _value;

@@ -162,6 +162,8 @@ internal class PumpCmd:IDisposable
         {
             if (!newDict.TryGetValue(item.Address, out var val))
                 continue;
+            item.Timestamp=DateTimeOffset.Now;
+            item.Quality=WebExceptionStatus.Success;
             if (!val.Equals(item.Value))
             {
                 //if (!item.Name.Contains("心跳"))
