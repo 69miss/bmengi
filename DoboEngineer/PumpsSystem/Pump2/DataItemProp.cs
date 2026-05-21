@@ -33,7 +33,7 @@ public class DataItemProp<T> : DataItemProp where T : IConvertible
     }
 
     public new virtual T Value { get { return (T)Convert.ChangeType(base.Value, typeof(T)); } set { base.Value = value; } }
-    public override IConvertible Value { get => base.Value; set => base.Value = value; }
+    //public override IConvertible Value { get => base.Value; set => base.Value = value; }
 }
 public class DataItemPropDto
 {
